@@ -1,15 +1,18 @@
-import { useState } from 'react';
-import { 
-  Coins, 
-  FileText, 
+import { useState, useEffect } from 'react';
+import {
+  Coins,
+  FileText,
   ArrowRight,
   CheckCircle,
   Info,
   Wallet,
   Clock,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
-import { mockInvoices } from '@/data/mockData';
+import { useWallet } from '@/context/WalletContext';
+import { Invoice } from '@/types';
+import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 
 const formatCurrency = (amount: number) => {
@@ -21,13 +24,52 @@ const formatCurrency = (amount: number) => {
 };
 
 export function LiquidityRequest() {
-  const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
+  const { account, contracts } = useWallet();
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [requestAmount, setRequestAmount] = useState('');
   const [step, setStep] = useState(1);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const mintedInvoices = mockInvoices.filter(inv => inv.status === 'minted');
+  // Fetch Minted Invoices
+  useEffect(() => {
+    const loadData = async () => {
+      if (!account || !contracts.invoiceNFT) return;
+      setIsLoading(true);
+      try {
+        const balance = await contracts.invoiceNFT.balanceOf(account);
+        const fetched: Invoice[] = [];
+        for (let i = 0; i < Number(balance); i++) {
+          const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
+          const iv = await contracts.invoiceNFT.invoices(tokenId);
 
-  const selected = mintedInvoices.find(inv => inv.id === selectedInvoice);
+          if (!iv.isFunded) { // Only show MINTED (not funded) invoices
+            fetched.push({
+              id: iv.id.toString(),
+              invoiceNumber: `INV-${iv.id}`,
+              clientName: "My Company",
+              amount: Number(ethers.formatUnits(iv.amount, 18)),
+              status: 'minted',
+              dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
+              yieldRate: Number(iv.yieldRate) / 100,
+              description: `Invoice #${iv.id}`,
+              tokenId: iv.id.toString(),
+              riskLevel: 'low',
+              createdAt: new Date().toISOString().split('T')[0]
+            });
+          }
+        }
+        setInvoices(fetched.reverse());
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [account, contracts]);
+
+  const selected = invoices.find(inv => inv.id === selectedInvoiceId);
   const maxLTV = selected ? selected.amount * 0.85 : 0;
 
   const handleSubmit = () => {
@@ -35,6 +77,8 @@ export function LiquidityRequest() {
       setStep(step + 1);
     }
   };
+
+  if (!account) return <div className="p-8 text-center text-[hsl(var(--muted-foreground))]">Connect Wallet to request liquidity.</div>;
 
   return (
     <div className="space-y-6">
@@ -53,7 +97,7 @@ export function LiquidityRequest() {
           <div>
             <h4 className="font-semibold text-[hsl(var(--foreground))] mb-1">How Invoice Factoring Works</h4>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              After your invoice is minted as an RWA token, investors can fund up to 85% of its value. 
+              After your invoice is minted as an RWA token, investors can fund up to 85% of its value.
               When your client pays, the smart contract automatically repays investors with interest.
             </p>
           </div>
@@ -92,23 +136,25 @@ export function LiquidityRequest() {
         {step === 1 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Select Invoice for Funding</h3>
-            
-            {mintedInvoices.length === 0 ? (
+
+            {isLoading ? (
+              <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-500" /></div>
+            ) : invoices.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 text-[hsl(var(--muted-foreground))] mx-auto mb-3 opacity-50" />
-                <p className="text-[hsl(var(--foreground))] font-medium">No invoices available for funding</p>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">Mint your invoices first to request funding</p>
+                <p className="text-[hsl(var(--foreground))] font-medium">No mint invoices available</p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Mint invoices in "Invoices & RWA" first.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {mintedInvoices.map((invoice) => (
+                {invoices.map((invoice) => (
                   <button
                     key={invoice.id}
-                    onClick={() => setSelectedInvoice(invoice.id)}
+                    onClick={() => setSelectedInvoiceId(invoice.id)}
                     className={cn(
                       "w-full p-4 rounded-xl border-2 text-left transition-all",
-                      selectedInvoice === invoice.id 
-                        ? 'border-emerald-500 bg-emerald-500/5' 
+                      selectedInvoiceId === invoice.id
+                        ? 'border-emerald-500 bg-emerald-500/5'
                         : 'border-[hsl(var(--border))] hover:border-[hsl(var(--muted-foreground))]'
                     )}
                   >
@@ -116,11 +162,11 @@ export function LiquidityRequest() {
                       <div className="flex items-center gap-3">
                         <div className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center",
-                          selectedInvoice === invoice.id ? 'bg-emerald-500/10' : 'bg-[hsl(var(--muted))]'
+                          selectedInvoiceId === invoice.id ? 'bg-emerald-500/10' : 'bg-[hsl(var(--muted))]'
                         )}>
                           <FileText className={cn(
                             "w-5 h-5",
-                            selectedInvoice === invoice.id ? 'text-emerald-500' : 'text-[hsl(var(--muted-foreground))]'
+                            selectedInvoiceId === invoice.id ? 'text-emerald-500' : 'text-[hsl(var(--muted-foreground))]'
                           )} />
                         </div>
                         <div>
@@ -130,29 +176,9 @@ export function LiquidityRequest() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-[hsl(var(--foreground))]">{formatCurrency(invoice.amount)}</p>
-                        <p className="text-xs text-[hsl(var(--muted-foreground))] font-mono">{invoice.tokenId}</p>
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] font-mono">ID: {invoice.tokenId}</p>
                       </div>
                     </div>
-                    {selectedInvoice === invoice.id && (
-                      <div className="mt-4 pt-4 border-t border-emerald-500/20 grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-[hsl(var(--muted-foreground))]">Due Date</p>
-                          <p className="font-medium text-[hsl(var(--foreground))]">{invoice.dueDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-[hsl(var(--muted-foreground))]">Risk Level</p>
-                          <p className={cn(
-                            "font-medium",
-                            invoice.riskLevel === 'low' ? 'text-emerald-500' :
-                            invoice.riskLevel === 'medium' ? 'text-amber-500' : 'text-red-500'
-                          )}>{invoice.riskLevel.toUpperCase()}</p>
-                        </div>
-                        <div>
-                          <p className="text-[hsl(var(--muted-foreground))]">Max LTV (85%)</p>
-                          <p className="font-medium text-emerald-500">{formatCurrency(invoice.amount * 0.85)}</p>
-                        </div>
-                      </div>
-                    )}
                   </button>
                 ))}
               </div>
@@ -163,7 +189,7 @@ export function LiquidityRequest() {
         {step === 2 && selected && (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Set Funding Amount</h3>
-            
+
             <div className="bg-[hsl(var(--muted))] rounded-xl p-4">
               <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Selected Invoice</p>
               <p className="font-semibold text-[hsl(var(--foreground))]">{selected.invoiceNumber} - {selected.clientName}</p>
@@ -188,7 +214,7 @@ export function LiquidityRequest() {
 
             {/* Quick Select */}
             <div className="flex gap-2">
-              {[0.25, 0.5, 0.75, 0.85].map((pct) => (
+              {[0.5, 0.75, 0.85].map((pct) => (
                 <button
                   key={pct}
                   onClick={() => setRequestAmount(Math.floor(selected.amount * pct).toString())}
@@ -229,27 +255,8 @@ export function LiquidityRequest() {
             </div>
             <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-2">Request Submitted!</h3>
             <p className="text-[hsl(var(--muted-foreground))] mb-6">
-              Your funding request has been sent to the investor marketplace
+              Your funding request regarding <strong>{selected.invoiceNumber}</strong> has been broadcast to investors.
             </p>
-
-            <div className="bg-[hsl(var(--muted))] rounded-xl p-5 text-left max-w-sm mx-auto space-y-3">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                <span className="text-sm text-[hsl(var(--foreground))]">{selected.invoiceNumber}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Coins className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                <span className="text-sm text-[hsl(var(--foreground))]">{formatCurrency(Number(requestAmount))}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                <span className="text-sm text-[hsl(var(--foreground))]">Awaiting investor funding</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Wallet className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                <span className="text-sm font-mono text-[hsl(var(--foreground))]">0x742d...F423</span>
-              </div>
-            </div>
 
             <div className="mt-6 p-4 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl border border-emerald-500/20">
               <div className="flex items-center gap-2 justify-center text-emerald-500">
@@ -263,7 +270,7 @@ export function LiquidityRequest() {
         {/* Navigation */}
         <div className="flex gap-3 mt-6 pt-6 border-t border-[hsl(var(--border))]">
           {step > 1 && step < 3 && (
-            <button 
+            <button
               onClick={() => setStep(step - 1)}
               className="px-6 py-2.5 border border-[hsl(var(--border))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors font-medium"
             >
@@ -271,12 +278,12 @@ export function LiquidityRequest() {
             </button>
           )}
           {step < 3 && (
-            <button 
+            <button
               onClick={handleSubmit}
-              disabled={step === 1 ? !selectedInvoice : !requestAmount}
+              disabled={step === 1 ? !selectedInvoiceId : !requestAmount}
               className={cn(
                 "flex-1 px-6 py-2.5 rounded-xl font-medium transition-all",
-                (step === 1 ? selectedInvoice : requestAmount)
+                (step === 1 ? selectedInvoiceId : requestAmount)
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/25'
                   : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
               )}
@@ -285,8 +292,8 @@ export function LiquidityRequest() {
             </button>
           )}
           {step === 3 && (
-            <button 
-              onClick={() => { setStep(1); setSelectedInvoice(null); setRequestAmount(''); }}
+            <button
+              onClick={() => { setStep(1); setSelectedInvoiceId(null); setRequestAmount(''); }}
               className="flex-1 px-6 py-2.5 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors font-medium"
             >
               Submit Another Request

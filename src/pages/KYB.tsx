@@ -1,27 +1,63 @@
-import { useState } from 'react';
-import { 
-  Shield, 
-  Upload, 
-  CheckCircle, 
+import { useState, useEffect } from 'react';
+import {
+  Shield,
+  Upload,
+  CheckCircle,
   Building2,
   FileText,
   User,
   ArrowRight,
   ExternalLink,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
-import { mockVendor } from '@/data/mockData';
+import { useWallet } from '@/context/WalletContext';
 import { cn } from '@/utils/cn';
 
 export function KYB() {
+  const { account } = useWallet();
   const [activeTab, setActiveTab] = useState<'status' | 'submit'>('status');
+  const [kybStatus, setKybStatus] = useState<'none' | 'pending' | 'verified'>('none');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const verificationSteps = [
-    { id: 1, title: 'Business Information', status: 'completed', icon: Building2 },
-    { id: 2, title: 'Legal Documents', status: 'completed', icon: FileText },
-    { id: 3, title: 'Owner Verification', status: 'completed', icon: User },
-    { id: 4, title: 'Final Review', status: 'completed', icon: Shield },
+  useEffect(() => {
+    if (account) {
+      const saved = localStorage.getItem(`kyb_status_${account}`);
+      if (saved) {
+        setKybStatus(saved as any);
+      } else {
+        setKybStatus('none');
+      }
+    }
+  }, [account]);
+
+  const handleVerify = () => {
+    setIsSubmitting(true);
+    // Simulate verification delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setKybStatus('verified');
+      if (account) localStorage.setItem(`kyb_status_${account}`, 'verified');
+      setActiveTab('status');
+    }, 2000);
+  };
+
+  const steps = [
+    { id: 1, title: 'Business Information', icon: Building2 },
+    { id: 2, title: 'Legal Documents', icon: FileText },
+    { id: 3, title: 'Owner Verification', icon: User },
+    { id: 4, title: 'Final Review', icon: Shield },
   ];
+
+  if (!account) {
+    return (
+      <div className="text-center py-20">
+        <Shield className="w-16 h-16 text-[hsl(var(--muted-foreground))] mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-[hsl(var(--foreground))]">Connect Wallet</h2>
+        <p className="text-[hsl(var(--muted-foreground))]">Please connect your wallet to access KYB Verification.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -31,36 +67,10 @@ export function KYB() {
         <p className="text-[hsl(var(--muted-foreground))]">Know Your Business - Verify your business identity</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setActiveTab('status')}
-          className={cn(
-            "px-5 py-2.5 rounded-xl font-medium transition-all",
-            activeTab === 'status' 
-              ? 'bg-emerald-500 text-white' 
-              : 'bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]'
-          )}
-        >
-          Verification Status
-        </button>
-        <button
-          onClick={() => setActiveTab('submit')}
-          className={cn(
-            "px-5 py-2.5 rounded-xl font-medium transition-all",
-            activeTab === 'submit' 
-              ? 'bg-emerald-500 text-white' 
-              : 'bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]'
-          )}
-        >
-          Submit Documents
-        </button>
-      </div>
-
-      {activeTab === 'status' && (
+      {kybStatus === 'verified' ? (
         <>
           {/* Verification Status Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 lg:p-8 text-white">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 lg:p-8 text-white animate-fade-in">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10">
               <div className="flex items-center gap-4 mb-6">
@@ -69,63 +79,28 @@ export function KYB() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">Your Business is Verified</h3>
-                  <p className="text-emerald-100">KYB Status: {mockVendor.kybStatus.toUpperCase()}</p>
+                  <p className="text-emerald-100">KYB Status: VERIFIED</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="bg-white/10 backdrop-blur rounded-xl p-4">
                   <p className="text-xs text-emerald-100 mb-1">Business Name</p>
-                  <p className="font-medium text-sm">{mockVendor.businessName}</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                  <p className="text-xs text-emerald-100 mb-1">Email</p>
-                  <p className="font-medium text-sm">{mockVendor.email}</p>
+                  <p className="font-medium text-sm">Vendor {account.slice(0, 6)}</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-4">
                   <p className="text-xs text-emerald-100 mb-1">Wallet Address</p>
-                  <p className="font-mono text-sm">{mockVendor.walletAddress.slice(0, 10)}...</p>
+                  <p className="font-mono text-sm">{account.slice(0, 10)}...</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-4">
                   <p className="text-xs text-emerald-100 mb-1">Credit Score</p>
-                  <p className="font-bold text-xl">{mockVendor.creditScore}</p>
+                  <p className="font-bold text-xl">785</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <p className="text-xs text-emerald-100 mb-1">Verification Date</p>
+                  <p className="font-bold text-sm">{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Verification Steps */}
-          <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-6">
-            <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-6">Verification Progress</h3>
-            <div className="space-y-4">
-              {verificationSteps.map((step, index) => (
-                <div key={step.id} className="flex items-center gap-4">
-                  <div className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center",
-                    step.status === 'completed' ? 'bg-emerald-500/10' : 'bg-[hsl(var(--muted))]'
-                  )}>
-                    {step.status === 'completed' ? (
-                      <CheckCircle className="w-5 h-5 text-emerald-500" />
-                    ) : (
-                      <step.icon className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className={cn(
-                      "font-medium",
-                      step.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' : 'text-[hsl(var(--muted-foreground))]'
-                    )}>
-                      {step.title}
-                    </p>
-                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                      {step.status === 'completed' ? 'Completed' : 'Pending'}
-                    </p>
-                  </div>
-                  {index < verificationSteps.length - 1 && (
-                    <ArrowRight className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-                  )}
-                </div>
-              ))}
             </div>
           </div>
 
@@ -160,59 +135,39 @@ export function KYB() {
             </div>
           </div>
         </>
-      )}
 
-      {activeTab === 'submit' && (
-        <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-            <span className="text-emerald-500 font-medium">Status: Already Verified</span>
+      ) : (
+        <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-6 animate-slide-in">
+          <div className="text-center mb-8">
+            <Shield className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-[hsl(var(--foreground))]">Start Verification</h2>
+            <p className="text-[hsl(var(--muted-foreground))] max-w-md mx-auto">
+              Complete the verification process to unlock full platform features and get funded.
+            </p>
           </div>
 
-          <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-6">Required Documents</h3>
-          
-          <div className="space-y-3">
-            {[
-              { name: 'Business Registration Number', status: 'uploaded' },
-              { name: 'Certificate of Incorporation', status: 'uploaded' },
-              { name: 'Company Tax ID', status: 'uploaded' },
-              { name: 'Director/Owner ID', status: 'uploaded' },
-              { name: 'Proof of Business Address', status: 'uploaded' },
-            ].map((doc, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-[hsl(var(--muted))] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                  <span className="font-medium text-[hsl(var(--foreground))]">{doc.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  {doc.status === 'uploaded' ? (
-                    <span className="text-sm text-emerald-500 flex items-center gap-1.5 font-medium">
-                      <CheckCircle className="w-4 h-4" />
-                      Verified
-                    </span>
-                  ) : (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
-                      <Upload className="w-4 h-4" />
-                      Upload
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 p-5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-xl">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5" />
+          <div className="space-y-4 max-w-2xl mx-auto">
+            {/* Simplified Form */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h4 className="font-semibold text-[hsl(var(--foreground))] mb-1">Verification Complete</h4>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  All documents have been verified and your business is now registered on the Creditcoin network.
-                </p>
-                <button className="mt-3 text-sm font-medium text-emerald-500 hover:text-emerald-600 flex items-center gap-1.5">
-                  View on Blockchain <ExternalLink className="w-3.5 h-3.5" />
-                </button>
+                <label className="text-sm font-medium text-[hsl(var(--foreground))]">Business Name</label>
+                <input type="text" placeholder="My Business Co." className="w-full mt-1 p-3 rounded-xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))] outline-none focus:border-emerald-500" />
               </div>
+              <div>
+                <label className="text-sm font-medium text-[hsl(var(--foreground))]">Registration Number</label>
+                <input type="text" placeholder="REG-123456" className="w-full mt-1 p-3 rounded-xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))] outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <button
+                onClick={handleVerify}
+                disabled={isSubmitting}
+                className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                {isSubmitting ? 'Verifying...' : 'Submit Verification'}
+              </button>
             </div>
           </div>
         </div>

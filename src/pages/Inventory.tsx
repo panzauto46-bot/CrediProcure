@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { 
-  Package, 
-  Plus, 
-  Search, 
+import { useState, useEffect } from 'react';
+import {
+  Package,
+  Plus,
+  Search,
   Filter,
   Edit,
   Trash2,
@@ -11,7 +11,6 @@ import {
   XCircle,
   X
 } from 'lucide-react';
-import { mockInventory } from '@/data/mockData';
 import { InventoryItem } from '@/types';
 import { cn } from '@/utils/cn';
 
@@ -26,7 +25,62 @@ const formatCurrency = (amount: number) => {
 export function Inventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [inventory] = useState<InventoryItem[]>(mockInventory);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+
+  // Load from LocalStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('crediprocure_inventory');
+    if (saved) {
+      setInventory(JSON.parse(saved));
+    } else {
+      // Default sample item if empty
+      setInventory([
+        {
+          id: '1',
+          name: 'Sample Router',
+          sku: 'NET-001',
+          quantity: 10,
+          price: 500,
+          category: 'Networking',
+          status: 'in_stock'
+        }
+      ]);
+    }
+  }, []);
+
+  // Save to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('crediprocure_inventory', JSON.stringify(inventory));
+  }, [inventory]);
+
+  const [newItem, setNewItem] = useState({
+    name: '',
+    sku: '',
+    category: 'Networking',
+    quantity: 0,
+    price: 0
+  });
+
+  const handleAddItem = () => {
+    const item: InventoryItem = {
+      id: Date.now().toString(),
+      name: newItem.name,
+      sku: newItem.sku,
+      category: newItem.category,
+      quantity: Number(newItem.quantity),
+      price: Number(newItem.price),
+      status: Number(newItem.quantity) === 0 ? 'out_of_stock' : Number(newItem.quantity) < 10 ? 'low_stock' : 'in_stock'
+    };
+    setInventory([...inventory, item]);
+    setShowAddModal(false);
+    setNewItem({ name: '', sku: '', category: 'Networking', quantity: 0, price: 0 });
+  };
+
+  const handleDeleteItem = (id: string) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      setInventory(inventory.filter(i => i.id !== id));
+    }
+  };
 
   const filteredInventory = inventory.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,7 +121,7 @@ export function Inventory() {
           <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Inventory Management</h1>
           <p className="text-[hsl(var(--muted-foreground))]">Track and manage your procurement stock</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowAddModal(true)}
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
         >
@@ -147,48 +201,54 @@ export function Inventory() {
               </tr>
             </thead>
             <tbody>
-              {filteredInventory.map((item) => (
-                <tr key={item.id} className="border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[hsl(var(--muted))] rounded-lg flex items-center justify-center">
-                        <Package className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
-                      </div>
-                      <span className="font-medium text-[hsl(var(--foreground))]">{item.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-[hsl(var(--muted-foreground))] font-mono text-sm">{item.sku}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-lg text-sm">
-                      {item.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right font-semibold text-[hsl(var(--foreground))]">{item.quantity}</td>
-                  <td className="px-6 py-4 text-right text-[hsl(var(--foreground))]">{formatCurrency(item.price)}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(item.status)}
-                      <span className={cn(
-                        "text-sm font-medium",
-                        item.status === 'in_stock' ? 'text-emerald-600 dark:text-emerald-400' :
-                        item.status === 'low_stock' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
-                      )}>
-                        {getStatusLabel(item.status)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-1">
-                      <button className="p-2 hover:bg-[hsl(var(--accent))] rounded-lg transition-colors">
-                        <Edit className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-                      </button>
-                      <button className="p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
+              {filteredInventory.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-[hsl(var(--muted-foreground))]">No items found</td>
                 </tr>
-              ))}
+              ) : (
+                filteredInventory.map((item) => (
+                  <tr key={item.id} className="border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[hsl(var(--muted))] rounded-lg flex items-center justify-center">
+                          <Package className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
+                        </div>
+                        <span className="font-medium text-[hsl(var(--foreground))]">{item.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-[hsl(var(--muted-foreground))] font-mono text-sm">{item.sku}</td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-lg text-sm">
+                        {item.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right font-semibold text-[hsl(var(--foreground))]">{item.quantity}</td>
+                    <td className="px-6 py-4 text-right text-[hsl(var(--foreground))]">{formatCurrency(item.price)}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(item.status)}
+                        <span className={cn(
+                          "text-sm font-medium",
+                          item.status === 'in_stock' ? 'text-emerald-600 dark:text-emerald-400' :
+                            item.status === 'low_stock' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
+                        )}>
+                          {getStatusLabel(item.status)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-1">
+                        <button className="p-2 hover:bg-[hsl(var(--accent))] rounded-lg transition-colors">
+                          <Edit className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
+                        </button>
+                        <button onClick={() => handleDeleteItem(item.id)} className="p-2 hover:bg-red-500/10 rounded-lg transition-colors">
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -207,44 +267,69 @@ export function Inventory() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Item Name</label>
-                <input type="text" className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]" />
+                <input
+                  type="text"
+                  value={newItem.name}
+                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">SKU</label>
-                  <input type="text" className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]" />
+                  <input
+                    type="text"
+                    value={newItem.sku}
+                    onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Category</label>
-                  <select className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]">
+                  <select
+                    value={newItem.category}
+                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                  >
                     <option>Networking</option>
                     <option>Industrial</option>
                     <option>Server</option>
                     <option>Power</option>
                     <option>Cabling</option>
+                    <option>Other</option>
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Quantity</label>
-                  <input type="number" className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]" />
+                  <input
+                    type="number"
+                    value={newItem.quantity}
+                    onChange={(e) => setNewItem({ ...newItem, quantity: Number(e.target.value) })}
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Price (USD)</label>
-                  <input type="number" className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]" />
+                  <input
+                    type="number"
+                    value={newItem.price}
+                    onChange={(e) => setNewItem({ ...newItem, price: Number(e.target.value) })}
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                  />
                 </div>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button 
+              <button
                 onClick={() => setShowAddModal(false)}
                 className="flex-1 px-4 py-3 border border-[hsl(var(--border))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors font-medium"
               >
                 Cancel
               </button>
-              <button 
-                onClick={() => setShowAddModal(false)}
+              <button
+                onClick={handleAddItem}
                 className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
               >
                 Save Item

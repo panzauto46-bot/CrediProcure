@@ -124,13 +124,21 @@ export function Marketplace() {
 
       await tx.wait();
 
+      // Save to local portfolio
+      const portfolioKey = `crediprocure_portfolio_${account}`;
+      const existing = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
+      if (!existing.includes(selectedInvoice.id)) {
+        existing.push(selectedInvoice.id);
+        localStorage.setItem(portfolioKey, JSON.stringify(existing));
+      }
+
       setFundStep(3); // "Done"
 
       setTimeout(() => {
         setShowFundModal(false);
         setFundStep(1);
         setFundAmount('');
-        alert(`Funding Successful! TX: ${tx.hash}`);
+        // alert(`Funding Successful! TX: ${tx.hash}`); // Removed alert for cleaner UX
       }, 2000);
 
     } catch (error) {
