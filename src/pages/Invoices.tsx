@@ -261,32 +261,68 @@ export function Invoices() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[hsl(var(--card))] p-6 rounded-2xl w-full max-w-md border border-[hsl(var(--border))]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-[hsl(var(--card))] p-6 rounded-2xl w-full max-w-md border border-[hsl(var(--border))] shadow-2xl relative">
             <div className="flex justify-between mb-4">
               <h3 className="text-xl font-bold">Create New Invoice</h3>
-              <button onClick={() => setShowCreateModal(false)}><X className="w-5 h-5" /></button>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="p-1 hover:bg-black/10 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
             <div className="space-y-4">
-              <input className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))]" placeholder="Client Name" value={newInvoice.clientName} onChange={e => setNewInvoice({ ...newInvoice, clientName: e.target.value })} />
-              <input className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))]" type="number" placeholder="Amount (USD)" value={newInvoice.amount} onChange={e => setNewInvoice({ ...newInvoice, amount: e.target.value })} />
-              <input className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))]" type="date" placeholder="Due Date" value={newInvoice.dueDate} onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })} />
-              <input className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))]" placeholder="Description" value={newInvoice.description} onChange={e => setNewInvoice({ ...newInvoice, description: e.target.value })} />
-              <button onClick={handleCreateInvoice} className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold">Create Draft</button>
+              <input
+                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
+                placeholder="Client Name"
+                value={newInvoice.clientName}
+                onChange={e => setNewInvoice({ ...newInvoice, clientName: e.target.value })}
+              />
+              <input
+                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
+                type="number"
+                placeholder="Amount (USD)"
+                value={newInvoice.amount}
+                onChange={e => setNewInvoice({ ...newInvoice, amount: e.target.value })}
+              />
+              <input
+                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
+                type="date"
+                placeholder="Due Date"
+                value={newInvoice.dueDate}
+                onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+              />
+              <input
+                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
+                placeholder="Description"
+                value={newInvoice.description}
+                onChange={e => setNewInvoice({ ...newInvoice, description: e.target.value })}
+              />
+              <button
+                onClick={handleCreateInvoice}
+                className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25"
+              >
+                Create Draft
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Mint Modal - Simplified for brevity in this rewrite, assuming reused logic */}
+      {/* Mint Modal */}
       {showMintModal && selectedInvoice && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[hsl(var(--card))] rounded-2xl w-full max-w-lg p-6 border border-[hsl(var(--border))]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-[hsl(var(--card))] rounded-2xl w-full max-w-lg p-6 border border-[hsl(var(--border))] shadow-2xl relative">
             <h3 className="text-xl font-bold mb-4">Minting {selectedInvoice.invoiceNumber}</h3>
-            {mintStep === 0 && <button onClick={processMint} className="w-full py-3 bg-blue-500 text-white rounded-xl">Confirm Mint</button>}
-            {mintStep === 1 && <p className="text-center">Minting...</p>}
-            {mintStep === 2 && <p className="text-center">Confirming...</p>}
-            {mintStep === 3 && <p className="text-center text-emerald-500">Success!</p>}
+            {mintStep === 0 && <button onClick={processMint} className="w-full py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 font-bold transition-all">Confirm Mint</button>}
+            {mintStep === 1 && <p className="text-center flex items-center justify-center gap-2 py-4"><Loader2 className="animate-spin" /> Minting...</p>}
+            {mintStep === 2 && <p className="text-center flex items-center justify-center gap-2 py-4"><Loader2 className="animate-spin" /> Confirming Transaction...</p>}
+            {mintStep === 3 && <p className="text-center text-emerald-500 font-bold py-4">Success! Invoice Minted on Chain.</p>}
+
+            {mintStep === 0 && (
+              <button onClick={() => setShowMintModal(false)} className="w-full mt-2 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:underline">Cancel</button>
+            )}
           </div>
         </div>
       )}
