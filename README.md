@@ -214,6 +214,31 @@ CrediProcure/
 
 ---
 
+## ⚡ Technical Highlights: Handling Real-World Latency
+
+Building on a Testnet often involves RPC latency and indexing delays. CrediProcure implements **Advanced UX Patterns** to ensure a seamless experience despite blockchain lag:
+
+### 1. 🔄 Hybrid Data Fetching Engine
+The application uses a **Dual-Source Truth** system for invoices:
+- **Source A (Blockchain)**: The ultimate source of truth via RPC calls.
+- **Source B (Local Optimistic Storage)**: Immediate capture of "Minted" status locally.
+- **The Engine**: Automatically merges both sources, deduplicates, and presents a unified view. This means **Zero Waiting Time** for users after minting.
+
+### 2. 🚀 Optimistic UI Updates
+We don't make users wait for block confirmations to see progress.
+- **Instant Feedback**: Creating a draft or minting an invoice updates the UI immediately.
+- **Background Synchronization**: The app polls the blockchain in the background to confirm stability without freezing the interface.
+
+### 3. 🛡️ Real-Time System Diagnostics
+Transparencry is key. We included a **Live Debug Panel** in the `Liquidity Request` page that shows:
+- **Wallet Connection Strength**
+- **On-Chain vs. Local Data Sync Status**
+- **Real-Time RPC Fetching Indicators**
+
+*This architecture ensures CrediProcure is robust enough for real-world usage where network conditions are unpredictable.*
+
+---
+
 ## 🗺️ Development Roadmap
 
 | Phase | Milestone | Deliverables | Status |
