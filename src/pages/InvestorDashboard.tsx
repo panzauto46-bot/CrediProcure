@@ -24,7 +24,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { Link } from 'react-router-dom';
+
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -169,7 +169,7 @@ export function InvestorDashboard() {
     },
     {
       title: 'Active Investments',
-      value: activeInvestments.toString(),
+      value: activeCount.toString(),
       change: '+2',
       trend: 'up',
       icon: FileText,
@@ -291,16 +291,16 @@ export function InvestorDashboard() {
               <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5">
                 <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <Link to="/marketplace" className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all group">
+                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all group">
                     <Coins className="w-5 h-5" />
                     <span className="font-medium">Fund Invoice</span>
                     <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                  <Link to="/pool" className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group">
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group">
                     <DollarSign className="w-5 h-5" />
                     <span className="font-medium">Add to Pool</span>
                     <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
+                  </button>
                 </div>
               </div>
 
@@ -311,9 +311,9 @@ export function InvestorDashboard() {
                   <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
                     {opportunities.length} new invoices available directly from vendors.
                   </p>
-                  <Link to="/marketplace" className="text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+                  <button className="text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
                     View Marketplace <ArrowUpRight className="w-3.5 h-3.5" />
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
@@ -323,7 +323,7 @@ export function InvestorDashboard() {
           <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))]">
             <div className="p-5 border-b border-[hsl(var(--border))] flex items-center justify-between">
               <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Recent Investments</h3>
-              <Link to="/portfolio" className="text-sm text-cyan-500 hover:text-cyan-600 font-medium">View All</Link>
+              <button className="text-sm text-cyan-500 hover:text-cyan-600 font-medium">View All</button>
             </div>
             <div className="p-4 space-y-3">
               {recentInvestments.length === 0 ? (
