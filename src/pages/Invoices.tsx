@@ -164,9 +164,10 @@ export function Invoices() {
       setMintStep(2); // Confirming
       await tx.wait();
 
+      // Fix: Use Safe Account Lowercase for Deletion key
+      const safeAccount = account.toLowerCase();
+      const draftsKey = `crediprocure_drafts_${safeAccount}`;
 
-      // Remove from drafts if successful
-      const draftsKey = `crediprocure_drafts_${account}`;
       const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
       const updatedDrafts = drafts.filter(i => i.id !== selectedInvoice.id);
       localStorage.setItem(draftsKey, JSON.stringify(updatedDrafts));
@@ -186,10 +187,14 @@ export function Invoices() {
     }
   };
 
-  const filteredInvoices = invoices.filter(inv =>
-    inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inv.clientName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredInvoices = invoices.filter(inv => {
+    if (!inv) return false;
+    const term = searchTerm.toLowerCase();
+    return (
+      (inv.invoiceNumber || '').toLowerCase().includes(term) ||
+      (inv.clientName || '').toLowerCase().includes(term)
+    );
+  });
 
   const getStatusConfig = (status: Invoice['status']) => {
     switch (status) {
