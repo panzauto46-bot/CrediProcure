@@ -26,16 +26,39 @@ Built as a high-performance prototype for the DoraHacks Hackathon, focusing on s
 
 ---
 
+## 🏗️ Smart Contract Architecture
+
+Our decentralized backend is powered by secure and efficient smart contracts deployed on the **Creditcoin Network**.
+
+### 1. InvoiceNFT (ERC-721)
+Represents the Real World Asset (Invoice) on-chain.
+- **Minting**: Vendors mint an NFT representing their invoice data (Amount, Due Date, Interest Rate).
+- **Metadata**: Stores immutable invoice details directly on-chain for transparency.
+- **Status Tracking**: Tracks funding status (`isFunded`) to prevent double-financing.
+
+### 2. LendingPool
+The liquidity engine connecting investors and vendors.
+- **Liquidity Provision**: Investors deposit stablecoins (USDC/USDT) into the pool to earn yields.
+- **Automated Funding**: Approved invoices are automatically funded from the pool, transferring stablecoins to the vendor.
+- **Repayment Logic**: Handles loan repayments and distributes interest back to the liquidity providers.
+
+---
+
 ## 🛠️ Tech Stack
 
 Built with cutting-edge technology for maximum performance and scalability:
 
-- **Frontend**: [React 19](https://react.dev/)
+### Frontend
+- **Framework**: [React 19](https://react.dev/) & [Vite](https://vitejs.dev/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Data Visualization**: [Recharts](https://recharts.org/)
+
+### Blockchain & Smart Contracts
+- **Network**: [Creditcoin Testnet](https://creditcoin.org/)
+- **Development Environment**: [Hardhat](https://hardhat.org/)
+- **Language**: [Solidity 0.8.20](https://soliditylang.org/)
+- **Testing**: Chai & Ethers.js
 
 ---
 
@@ -44,49 +67,56 @@ Built with cutting-edge technology for maximum performance and scalability:
 | Phase | Description | Status |
 | :--- | :--- | :--- |
 | **Phase 1** | Concept & UI/UX Design (User Flow, Dashboard, Marketplace) | ✅ Completed |
-| **Phase 2** | Smart Contract Development (Invoice NFT, Liquidity Pool) | 🚧 In Progress |
-| **Phase 3** | Frontend & Web3 Integration (Wallet Connect, Contract Integration) | 📅 Upcoming |
+| **Phase 2** | Smart Contract Development (Invoice NFT, Liquidity Pool, Unit Tests) | ✅ Completed |
+| **Phase 3** | Frontend & Web3 Integration (Wallet Connect, Contract Integration) | 🚧 In Progress |
 | **Phase 4** | Finalization & Submission (Demo Video, Pitch Deck) | 📅 Upcoming |
 
 ---
 
 ## 🚀 Getting Started
 
-Follow these steps to run the project locally:
+Follow these steps to run the project locally.
 
-### Prerequisites
-Ensure you have **Node.js** (latest version recommended) and **npm** installed.
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/panzauto46-bot/CrediProcure.git
-   cd CrediProcure
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Open in browser**:
-   Visit `http://localhost:5173` (or the port shown in your terminal).
-
-### Build for Production
-
-To create a production-ready build:
+### 1. Frontend Setup
 
 ```bash
-npm run build
+# Clone the repository
+git clone https://github.com/panzauto46-bot/CrediProcure.git
+cd CrediProcure
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+Visit `http://localhost:5173` to view the application.
+
+### 2. Smart Contract Development
+
+The smart contracts are located in the `smart-contracts/` directory.
+
+```bash
+# Navigate to smart contracts folder
+cd smart-contracts
+
+# Install dependencies
+npm install
+
+# Run Unit Tests
+npx hardhat test
+
+# Compile Contracts
+npx hardhat compile
 ```
 
-The output will be in the `dist` folder.
+#### Deployment to Creditcoin Testnet
+1. Create a `.env` file in `smart-contracts/` based on `.env.example`.
+2. Add your `PRIVATE_KEY`.
+3. Run the deployment script:
+   ```bash
+   npx hardhat run scripts/deploy.ts --network creditcoinTestnet
+   ```
 
 ---
 
