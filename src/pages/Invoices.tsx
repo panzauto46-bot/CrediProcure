@@ -49,8 +49,9 @@ export function Invoices() {
     try {
       const allInvoices: Invoice[] = [];
 
-      // 1. Load Drafts from LocalStorage
-      const draftsKey = `crediprocure_drafts_${account}`;
+      // 1. Load Drafts from LocalStorage (Safe Lowercase)
+      const safeAccount = account.toLowerCase();
+      const draftsKey = `crediprocure_drafts_${safeAccount}`;
       const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
       allInvoices.push(...drafts);
 
@@ -95,27 +96,47 @@ export function Invoices() {
   const handleCreateInvoice = () => {
     if (!account) return alert('Connect wallet');
 
+    // Validation
+    if (!newInvoice.clientName || !newInvoice.amount) {
+      alert('Please fill in Client Name and Amount');
+      return;
+    }
+
+    const mockId = `draft-${Date.now()}`;
     const invoice: Invoice = {
-      id: `draft-${Date.now()}`,
-      invoiceNumber: `DRAFT-${Math.floor(Math.random() * 1000)}`,
+      id: mockId,
+      invoiceNumber: `DRAFT-${Math.floor(Math.random() * 10000)}`,
       clientName: newInvoice.clientName,
       amount: Number(newInvoice.amount),
-      dueDate: newInvoice.dueDate,
-      description: newInvoice.description,
+      dueDate: newInvoice.dueDate || new Date().toISOString().split('T')[0],
+      description: newInvoice.description || 'No description',
       status: 'pending',
       riskLevel: 'low',
       createdAt: new Date().toISOString().split('T')[0],
-      yieldRate: 10 // Default proposed yield
+      yieldRate: 10
     };
 
-    const draftsKey = `crediprocure_drafts_${account}`;
-    const current = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-    current.push(invoice);
-    localStorage.setItem(draftsKey, JSON.stringify(current));
+    // Save to LocalStorage (Case Insensitive Key)
+    const safeAccount = account.toLowerCase();
+    const draftsKey = `crediprocure_drafts_${safeAccount}`;
 
-    setShowCreateModal(false);
-    setNewInvoice({ clientName: '', amount: '', dueDate: '', description: '' });
-    loadData();
+    try {
+      const current = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+      current.push(invoice);
+      localStorage.setItem(draftsKey, JSON.stringify(current));
+
+      // OPTIMISTIC UPDATE (Force UI update immediately)
+      setInvoices(prev => [invoice, ...prev]); // Add to top of list
+
+      setShowCreateModal(false);
+      setNewInvoice({ clientName: '', amount: '', dueDate: '', description: '' });
+
+      // Optional: Show success feedback?
+      // alert('Draft Created!'); 
+    } catch (e) {
+      console.error("LocalStorage Error:", e);
+      alert("Failed to save draft. Check console.");
+    }
   };
 
   const handleMint = (invoice: Invoice) => {
