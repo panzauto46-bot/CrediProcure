@@ -32,42 +32,43 @@ export function LiquidityRequest() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch Minted Invoices
-  useEffect(() => {
-    const loadData = async () => {
-      if (!account || !contracts.invoiceNFT) return;
-      setIsLoading(true);
-      try {
-        const balance = await contracts.invoiceNFT.balanceOf(account);
-        const fetched: Invoice[] = [];
-        for (let i = 0; i < Number(balance); i++) {
-          const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
-          const iv = await contracts.invoiceNFT.invoices(tokenId);
+  const loadData = async () => {
+    if (!account || !contracts.invoiceNFT) return;
+    setIsLoading(true);
+    try {
+      const balance = await contracts.invoiceNFT.balanceOf(account);
+      const fetched: Invoice[] = [];
+      for (let i = 0; i < Number(balance); i++) {
+        const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
+        const iv = await contracts.invoiceNFT.invoices(tokenId);
 
-          if (!iv.isFunded) { // Only show MINTED (not funded) invoices
-            fetched.push({
-              id: iv.id.toString(),
-              invoiceNumber: `INV-${iv.id}`,
-              clientName: "My Company",
-              amount: Number(ethers.formatUnits(iv.amount, 18)),
-              status: 'minted',
-              dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
-              yieldRate: Number(iv.yieldRate) / 100,
-              description: `Invoice #${iv.id}`,
-              tokenId: iv.id.toString(),
-              riskLevel: 'low',
-              createdAt: new Date().toISOString().split('T')[0]
-            });
-          }
+        if (!iv.isFunded) { // Only show MINTED (not funded) invoices
+          fetched.push({
+            id: iv.id.toString(),
+            invoiceNumber: `INV-${iv.id}`,
+            clientName: "My Company",
+            amount: Number(ethers.formatUnits(iv.amount, 18)),
+            status: 'minted',
+            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
+            yieldRate: Number(iv.yieldRate) / 100,
+            description: `Invoice #${iv.id}`,
+            tokenId: iv.id.toString(),
+            riskLevel: 'low',
+            createdAt: new Date().toISOString().split('T')[0]
+          });
         }
-        setInvoices(fetched.reverse());
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
       }
-    };
+      setInvoices(fetched.reverse());
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
-  }, [account, contracts]);
+  }, [account, contracts.invoiceNFT]);
 
   const selected = invoices.find(inv => inv.id === selectedInvoiceId);
   const maxLTV = selected ? selected.amount * 0.85 : 0;
@@ -135,7 +136,18 @@ export function LiquidityRequest() {
       <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-6">
         {step === 1 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Select Invoice for Funding</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Select Invoice for Funding</h3>
+              <button
+                onClick={loadData}
+                disabled={isLoading}
+                className="p-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2"
+                title="Refresh List"
+              >
+                <Loader2 className={cn("w-4 h-4", isLoading && "animate-spin")} />
+                Refresh
+              </button>
+            </div>
 
             {isLoading ? (
               <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-500" /></div>

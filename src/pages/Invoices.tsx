@@ -62,6 +62,8 @@ export function Invoices() {
     if (contracts.invoiceNFT) {
       try {
         const balance = await contracts.invoiceNFT.balanceOf(account);
+        console.log(`Fetching ${balance} invoices from chain...`);
+
         const chainInvoices: Invoice[] = [];
         for (let i = 0; i < Number(balance); i++) {
           const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
@@ -178,7 +180,7 @@ export function Invoices() {
         setShowMintModal(false);
         setMintStep(0);
         loadData(); // Reload to see new minted status
-      }, 2000);
+      }, 2000); // 2 second delay before reload logic
 
     } catch (error) {
       console.error("Mint failed:", error);
@@ -213,125 +215,201 @@ export function Invoices() {
           <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Invoices & RWA Tokens</h1>
           <p className="text-[hsl(var(--muted-foreground))]">Manage invoices and mint them as Real World Assets</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
-        >
-          <Plus className="w-5 h-5" />
-          Create Invoice
-        </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Invoices', value: invoices.length, color: 'text-[hsl(var(--foreground))]' },
-          { label: 'Minted to RWA', value: invoices.filter(i => i.status === 'minted').length, color: 'text-blue-500' },
-          { label: 'Funded', value: invoices.filter(i => i.status === 'funded').length, color: 'text-emerald-500' },
-          { label: 'Repaid', value: invoices.filter(i => i.status === 'repaid').length, color: 'text-purple-500' },
-        ].map((stat, i) => (
-          <div key={i} className="bg-[hsl(var(--card))] rounded-xl p-4 border border-[hsl(var(--border))]">
-            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">{stat.label}</p>
-            <p className={cn("text-2xl font-bold", stat.color)}>{stat.value}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Total Invoices</p>
+          <p className="text-2xl font-bold">{invoices.length}</p>
+        </div>
+        <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Minted to RWA</p>
+          <p className="text-2xl font-bold text-blue-500">
+            {invoices.filter(i => i.status === 'minted' || i.status === 'funded').length}
+          </p>
+        </div>
+        <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Funded</p>
+          <p className="text-2xl font-bold text-emerald-500">
+            {invoices.filter(i => i.status === 'funded').length}
+          </p>
+        </div>
+        <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Repaid</p>
+          <p className="text-2xl font-bold text-purple-500">
+            {invoices.filter(i => i.status === 'repaid').length}
+          </p>
+        </div>
       </div>
 
-      {/* List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {isLoading ? <div className="col-span-2 text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto" /></div> :
-          filteredInvoices.length === 0 ? <div className="col-span-2 text-center py-10 text-[hsl(var(--muted-foreground))]">No invoices found. Create one to get started.</div> :
-            filteredInvoices.map((invoice) => {
-              const statusConfig = getStatusConfig(invoice.status);
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[hsl(var(--muted-foreground))]" />
+          <input
+            type="text"
+            placeholder="Search invoices..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadData}
+            disabled={isLoading}
+            className="p-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors"
+            title="Refresh List"
+          >
+            <Loader2 className={cn("w-5 h-5", isLoading && "animate-spin")} />
+          </button>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Create Invoice</span>
+          </button>
+        </div>
+      </div>
+
+
+      {/* Invoices List */}
+      <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] overflow-hidden">
+        {isLoading && invoices.length === 0 ? (
+          <div className="p-8 text-center text-[hsl(var(--muted-foreground))]">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 opacity-50" />
+            <p>Loading invoices...</p>
+          </div>
+        ) : filteredInvoices.length === 0 ? (
+          <div className="p-12 text-center text-[hsl(var(--muted-foreground))]">
+            <p>No invoices found. Create one to get started.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[hsl(var(--border))]">
+            {filteredInvoices.map((invoice) => {
+              const status = getStatusConfig(invoice.status);
               return (
-                <div key={invoice.id} className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5 hover:border-emerald-500/30 transition-colors">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-gray-500" />
+                <div key={invoice.id} className="p-5 hover:bg-[hsl(var(--muted))] transition-colors group">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[hsl(var(--muted))] flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-[hsl(var(--foreground))]">{invoice.invoiceNumber}</h3>
                         <p className="text-sm text-[hsl(var(--muted-foreground))]">{invoice.clientName}</p>
                       </div>
                     </div>
-                    <span className={cn("px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5", statusConfig.color)}>
-                      <statusConfig.icon className="w-3.5 h-3.5" />
-                      {statusConfig.label}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-[hsl(var(--muted))] rounded-lg p-3">
-                      <p className="text-xs text-[hsl(var(--muted-foreground))]">Amount</p>
-                      <p className="font-bold">{formatCurrency(invoice.amount)}</p>
-                    </div>
-                    <div className="bg-[hsl(var(--muted))] rounded-lg p-3">
-                      <p className="text-xs text-[hsl(var(--muted-foreground))]">Due Date</p>
-                      <p className="font-medium">{invoice.dueDate}</p>
-                    </div>
-                  </div>
 
-                  {invoice.status === 'pending' && (
-                    <button
-                      onClick={() => handleMint(invoice)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all font-medium"
-                    >
-                      <Coins className="w-4 h-4" /> Mint to RWA
-                    </button>
-                  )}
-                  {invoice.status === 'minted' && (
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all font-medium">
-                      <DollarSign className="w-4 h-4" /> Request Funding
-                    </button>
-                  )}
+                    <div className="flex items-center gap-6 sm:ml-auto">
+                      <div className="text-right">
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Amount</p>
+                        <p className="font-bold text-[hsl(var(--foreground))]">{formatCurrency(invoice.amount)}</p>
+                      </div>
+
+                      <div className="text-right hidden sm:block">
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Due Date</p>
+                        <p className="font-medium text-[hsl(var(--foreground))]">{invoice.dueDate}</p>
+                      </div>
+
+                      <div className={cn("px-3 py-1 rounded-full flex items-center gap-1.5 text-xs font-medium", status.color)}>
+                        <status.icon className="w-3.5 h-3.5" />
+                        {status.label}
+                      </div>
+
+                      {invoice.status === 'pending' && (
+                        <button
+                          onClick={() => handleMint(invoice)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Mint to RWA
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               );
             })}
+          </div>
+        )}
       </div>
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
-          <div className="bg-[hsl(var(--card))] p-6 rounded-2xl w-full max-w-md border border-[hsl(var(--border))] shadow-2xl relative">
-            <div className="flex justify-between mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-[hsl(var(--border))] flex items-center justify-between">
               <h3 className="text-xl font-bold">Create New Invoice</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-1 hover:bg-black/10 rounded-full transition-colors"
+                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-4">
-              <input
-                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
-                placeholder="Client Name"
-                value={newInvoice.clientName}
-                onChange={e => setNewInvoice({ ...newInvoice, clientName: e.target.value })}
-              />
-              <input
-                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
-                type="number"
-                placeholder="Amount (USD)"
-                value={newInvoice.amount}
-                onChange={e => setNewInvoice({ ...newInvoice, amount: e.target.value })}
-              />
-              <input
-                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
-                type="date"
-                placeholder="Due Date"
-                value={newInvoice.dueDate}
-                onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
-              />
-              <input
-                className="w-full p-3 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] focus:ring-2 focus:ring-emerald-500 outline-none"
-                placeholder="Description"
-                value={newInvoice.description}
-                onChange={e => setNewInvoice({ ...newInvoice, description: e.target.value })}
-              />
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Client Name</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                  placeholder="e.g. Acme Corp"
+                  value={newInvoice.clientName}
+                  onChange={e => setNewInvoice({ ...newInvoice, clientName: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Amount (USD)</label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="number"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                      placeholder="0.00"
+                      value={newInvoice.amount}
+                      onChange={e => setNewInvoice({ ...newInvoice, amount: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Due Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                    value={newInvoice.dueDate}
+                    onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Description (Optional)</label>
+                <textarea
+                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none min-h-[100px]"
+                  placeholder="Details about services provided..."
+                  value={newInvoice.description}
+                  onChange={e => setNewInvoice({ ...newInvoice, description: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-[hsl(var(--border))] flex justify-end gap-3">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors font-medium"
+              >
+                Cancel
+              </button>
               <button
                 onClick={handleCreateInvoice}
-                className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25"
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors font-bold shadow-lg shadow-emerald-500/20"
               >
                 Create Draft
               </button>
@@ -343,16 +421,72 @@ export function Invoices() {
       {/* Mint Modal */}
       {showMintModal && selectedInvoice && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
-          <div className="bg-[hsl(var(--card))] rounded-2xl w-full max-w-lg p-6 border border-[hsl(var(--border))] shadow-2xl relative">
-            <h3 className="text-xl font-bold mb-4">Minting {selectedInvoice.invoiceNumber}</h3>
-            {mintStep === 0 && <button onClick={processMint} className="w-full py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 font-bold transition-all">Confirm Mint</button>}
-            {mintStep === 1 && <p className="text-center flex items-center justify-center gap-2 py-4"><Loader2 className="animate-spin" /> Minting...</p>}
-            {mintStep === 2 && <p className="text-center flex items-center justify-center gap-2 py-4"><Loader2 className="animate-spin" /> Confirming Transaction...</p>}
-            {mintStep === 3 && <p className="text-center text-emerald-500 font-bold py-4">Success! Invoice Minted on Chain.</p>}
+          <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="p-8 text-center">
+              {mintStep === 0 && (
+                <>
+                  <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Coins className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Mint Invoice to RWA</h3>
+                  <p className="text-[hsl(var(--muted-foreground))] mb-8">
+                    This will tokenize invoice <span className="font-mono text-[hsl(var(--foreground))]">{selectedInvoice.invoiceNumber}</span> on the Creditcoin blockchain correctly.
+                  </p>
 
-            {mintStep === 0 && (
-              <button onClick={() => setShowMintModal(false)} className="w-full mt-2 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:underline">Cancel</button>
-            )}
+                  <div className="bg-[hsl(var(--muted))] p-4 rounded-xl mb-8 text-left">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm text-[hsl(var(--muted-foreground))]">Gas Fee (Est.)</span>
+                      <span className="font-medium">~0.002 CTC</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-[hsl(var(--muted-foreground))]">Platform Fee</span>
+                      <span className="font-medium text-emerald-500">Free</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowMintModal(false)}
+                      className="flex-1 py-3 rounded-xl border border-[hsl(var(--border))] font-medium hover:bg-[hsl(var(--muted))]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={processMint}
+                      className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/25"
+                    >
+                      Confirm Mint
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {mintStep === 1 && (
+                <>
+                  <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-6" />
+                  <h3 className="text-xl font-bold mb-2">Minting {selectedInvoice.invoiceNumber}</h3>
+                  <p className="text-[hsl(var(--muted-foreground))]">Please confirm the transaction in your wallet...</p>
+                </>
+              )}
+
+              {mintStep === 2 && (
+                <>
+                  <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-6" />
+                  <h3 className="text-xl font-bold mb-2">Confirming on Chain</h3>
+                  <p className="text-[hsl(var(--muted-foreground))]">Waiting for block confirmation...</p>
+                </>
+              )}
+
+              {mintStep === 3 && (
+                <>
+                  <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-emerald-500">Success! Invoice Minted on Chain.</h3>
+                  <p className="text-[hsl(var(--muted-foreground))]">Redirecting...</p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
