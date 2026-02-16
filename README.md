@@ -90,4 +90,5 @@ The output will be in the `dist` folder.
 
 ---
 
-© 2024 CrediProcure. Built for the Future of Finance.
+© 2026 CrediProcure. Built for the Future of Finance.
+Licensed by Pandu Dargah.
