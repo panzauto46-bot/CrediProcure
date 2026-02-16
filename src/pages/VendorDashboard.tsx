@@ -1,7 +1,7 @@
-import { 
-  TrendingUp, 
-  FileText, 
-  DollarSign, 
+import {
+  TrendingUp,
+  FileText,
+  DollarSign,
   Clock,
   ArrowUpRight,
   ArrowDownRight,
@@ -11,7 +11,11 @@ import {
   Zap,
   ExternalLink
 } from 'lucide-react';
-import { mockVendor, mockInvoices } from '@/data/mockData';
+// import { mockVendor, mockInvoices } from '@/data/mockData';
+import { Invoice } from '@/types';
+import { useWallet } from '@/context/WalletContext';
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 
 const formatCurrency = (amount: number) => {
@@ -24,12 +28,49 @@ const formatCurrency = (amount: number) => {
 };
 
 export function VendorDashboard() {
-  const totalInvoiceValue = mockInvoices.reduce((sum, inv) => sum + inv.amount, 0);
-  const fundedAmount = mockInvoices
-    .filter(inv => inv.status === 'funded' || inv.status === 'repaid')
+  const { account, contracts } = useWallet();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!account || !contracts.invoiceNFT) return;
+      try {
+        const balance = await contracts.invoiceNFT.balanceOf(account);
+        const fetched: Invoice[] = [];
+        for (let i = 0; i < Number(balance); i++) {
+          const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
+          const iv = await contracts.invoiceNFT.invoices(tokenId);
+          fetched.push({
+            id: iv.id.toString(),
+            invoiceNumber: `INV-${iv.id}`,
+            clientName: "My Company",
+            amount: Number(ethers.formatUnits(iv.amount, 18)),
+            status: iv.isFunded ? 'funded' : 'minted',
+            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
+            yieldRate: Number(iv.yieldRate) / 100,
+            description: `Invoice #${iv.id}`,
+            tokenId: iv.id.toString(),
+            riskLevel: 'low',
+            createdAt: new Date().toISOString().split('T')[0]
+          });
+        }
+        setInvoices(fetched.reverse());
+      } catch (e) {
+        console.error(e);
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [account, contracts]);
+
+  const totalInvoiceValue = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const fundedAmount = invoices
+    .filter(inv => inv.status === 'funded')
     .reduce((sum, inv) => sum + inv.amount, 0);
-  const pendingAmount = mockInvoices
-    .filter(inv => inv.status === 'pending' || inv.status === 'minted')
+  const pendingAmount = invoices
+    .filter(inv => inv.status === 'minted') // Only 'minted' is pending funding
     .reduce((sum, inv) => sum + inv.amount, 0);
 
   const stats = [
@@ -59,7 +100,7 @@ export function VendorDashboard() {
     },
     {
       title: 'Credit Score',
-      value: mockVendor.creditScore.toString(),
+      value: '785', // Hardcoded good score or random
       change: '+15 pts',
       trend: 'up',
       icon: TrendingUp,
@@ -73,7 +114,7 @@ export function VendorDashboard() {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-6 lg:p-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-        
+
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
@@ -83,13 +124,13 @@ export function VendorDashboard() {
                 </span>
               </div>
               <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
-                Welcome back, {mockVendor.businessName.split(' ')[0]}! 👋
+                Welcome back, {account ? `Vendor ${account.slice(0, 6)}...` : 'Guest'}! 👋
               </h1>
               <p className="text-slate-400 max-w-lg">
                 Manage your invoices and get instant funding through Creditcoin's decentralized invoice factoring
               </p>
             </div>
-            
+
             <div className="flex flex-wrap gap-3">
               <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl px-5 py-4">
                 <p className="text-xs text-slate-400 mb-1">KYB Status</p>
@@ -102,7 +143,7 @@ export function VendorDashboard() {
                 <p className="text-xs text-slate-400 mb-1">On-Chain Score</p>
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span className="text-white font-bold">{mockVendor.creditScore}</span>
+                  <span className="text-white font-bold">785</span>
                 </div>
               </div>
             </div>
@@ -120,8 +161,8 @@ export function VendorDashboard() {
               </div>
               <div className={cn(
                 "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
-                stat.trend === 'up' 
-                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' 
+                stat.trend === 'up'
+                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
                   : 'text-red-600 dark:text-red-400 bg-red-500/10'
               )}>
                 {stat.trend === 'up' ? (
@@ -147,18 +188,18 @@ export function VendorDashboard() {
             <button className="text-sm text-emerald-500 hover:text-emerald-600 font-medium">View All</button>
           </div>
           <div className="p-4 space-y-3">
-            {mockInvoices.slice(0, 4).map((invoice) => (
+            {invoices.slice(0, 4).map((invoice) => (
               <div key={invoice.id} className="flex items-center justify-between p-4 bg-[hsl(var(--muted))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors group cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center",
                     invoice.status === 'funded' || invoice.status === 'repaid' ? 'bg-emerald-500/10' :
-                    invoice.status === 'minted' ? 'bg-blue-500/10' : 'bg-amber-500/10'
+                      invoice.status === 'minted' ? 'bg-blue-500/10' : 'bg-amber-500/10'
                   )}>
                     <FileText className={cn(
                       "w-5 h-5",
                       invoice.status === 'funded' || invoice.status === 'repaid' ? 'text-emerald-500' :
-                      invoice.status === 'minted' ? 'text-blue-500' : 'text-amber-500'
+                        invoice.status === 'minted' ? 'text-blue-500' : 'text-amber-500'
                     )} />
                   </div>
                   <div>
@@ -171,9 +212,9 @@ export function VendorDashboard() {
                   <span className={cn(
                     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
                     invoice.status === 'funded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                    invoice.status === 'minted' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                    invoice.status === 'repaid' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
-                    'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                      invoice.status === 'minted' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                        invoice.status === 'repaid' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
+                          'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                   )}>
                     {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                   </span>

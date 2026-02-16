@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   FileText,
@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   Loader2
 } from 'lucide-react';
-import { mockMarketplaceInvoices } from '@/data/mockData';
+// import { mockMarketplaceInvoices } from '@/data/mockData';
 import { Invoice } from '@/types';
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
@@ -33,11 +33,56 @@ export function Marketplace() {
   const [fundAmount, setFundAmount] = useState('');
   const [fundStep, setFundStep] = useState(1);
   const { contracts, account } = useWallet();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filteredInvoices = mockMarketplaceInvoices.filter(inv => {
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      if (!contracts.invoiceNFT) return;
+      setLoading(true);
+      try {
+        const total = await contracts.invoiceNFT.totalSupply();
+        const count = Number(total);
+        const loaded = [];
+        // Show latest 20
+        const start = Math.max(0, count - 20);
+        for (let i = count - 1; i >= start; i--) {
+          const tokenId = await contracts.invoiceNFT.tokenByIndex(i);
+          const data = await contracts.invoiceNFT.invoices(tokenId);
+
+          // Only show NOT funded invoices in list (or filter in UI)
+          // Showing all helps debug. Filter below or use filteredInvoices.
+
+          loaded.push({
+            id: data.id.toString(),
+            invoiceNumber: `INV-#${data.id}`,
+            clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
+            amount: Number(ethers.formatUnits(data.amount, 18)),
+            yieldRate: Number(data.yieldRate) / 100,
+            dueDate: new Date(Number(data.dueDate) * 1000).toISOString().split('T')[0],
+            riskLevel: Number(data.yieldRate) >= 1000 ? 'high' : Number(data.yieldRate) >= 500 ? 'medium' : 'low',
+            description: 'RWA Invoice Financing',
+            status: data.isFunded ? 'funded' : 'minted',
+            tokenId: data.id.toString()
+          } as Invoice);
+        }
+        setInvoices(loaded);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInvoices();
+  }, [contracts.invoiceNFT]);
+
+  const filteredInvoices = invoices.filter(inv => {
+    // Only show available (not funded) by default? Or show all with status badge.
+    // Let's filter by search/risk as before.
     const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.clientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRisk = riskFilter === 'all' || inv.riskLevel === riskFilter;
+    // Optional: Hide funded if needed. Current UI shows status badge.
     return matchSearch && matchRisk;
   });
 
@@ -138,10 +183,10 @@ export function Marketplace() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Available Invoices', value: mockMarketplaceInvoices.length, color: 'text-[hsl(var(--foreground))]' },
-          { label: 'Total Value', value: formatCurrency(mockMarketplaceInvoices.reduce((sum, inv) => sum + inv.amount, 0)), color: 'text-blue-500' },
-          { label: 'Low Risk', value: mockMarketplaceInvoices.filter(i => i.riskLevel === 'low').length, color: 'text-emerald-500' },
-          { label: 'High Yield (12%+)', value: mockMarketplaceInvoices.filter(i => i.yieldRate >= 12).length, color: 'text-purple-500' },
+          { label: 'Available Invoices', value: invoices.filter(i => i.status !== 'funded').length, color: 'text-[hsl(var(--foreground))]' },
+          { label: 'Total Value', value: formatCurrency(invoices.reduce((sum, inv) => sum + inv.amount, 0)), color: 'text-blue-500' },
+          { label: 'Low Risk', value: invoices.filter(i => i.riskLevel === 'low').length, color: 'text-emerald-500' },
+          { label: 'High Yield (12%+)', value: invoices.filter(i => i.yieldRate >= 12).length, color: 'text-purple-500' },
         ].map((stat, i) => (
           <div key={i} className="bg-[hsl(var(--card))] rounded-xl p-4 border border-[hsl(var(--border))]">
             <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">{stat.label}</p>

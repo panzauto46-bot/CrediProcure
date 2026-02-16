@@ -1,14 +1,12 @@
 # CrediProcure 🚀
-
 **Web3 B2B Invoice Financing Platform powered by Real World Assets (RWA) on Creditcoin**
 
 ---
 
 ## 📖 About CrediProcure
+CrediProcure is a decentralized solution bridging the gap between B2B vendors and global investors through **Real World Asset (RWA) tokenization**. We empower businesses to unlock instant liquidity from their invoices while offering investors secure, transparent, and stable yield opportunities within the DeFi ecosystem.
 
-**CrediProcure** is a decentralized solution bridging the gap between B2B vendors and global investors through **Real World Asset (RWA)** tokenization. We empower businesses to unlock instant liquidity from their invoices while offering investors secure, transparent, and stable yield opportunities within the DeFi ecosystem.
-
-Built as a high-performance prototype for the DoraHacks Hackathon, focusing on speed, security, and a seamless user experience.
+Built as a high-performance prototype for the **DoraHacks Hackathon**, focusing on speed, security, and a seamless user experience.
 
 ---
 
@@ -27,7 +25,6 @@ Built as a high-performance prototype for the DoraHacks Hackathon, focusing on s
 ---
 
 ## 🏗️ Smart Contract Architecture
-
 Our decentralized backend is powered by secure and efficient smart contracts deployed on the **Creditcoin Network**.
 
 ### 1. InvoiceNFT (ERC-721)
@@ -45,19 +42,18 @@ The liquidity engine connecting investors and vendors.
 ---
 
 ## 🛠️ Tech Stack
-
 Built with cutting-edge technology for maximum performance and scalability:
 
-### Frontend
-- **Framework**: [React 19](https://react.dev/) & [Vite](https://vitejs.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
+**Frontend**
+- **Framework**: React 19 & Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Icons**: Lucide React
 
-### Blockchain & Smart Contracts
-- **Network**: [Creditcoin Testnet](https://creditcoin.org/)
-- **Development Environment**: [Hardhat](https://hardhat.org/)
-- **Language**: [Solidity 0.8.20](https://soliditylang.org/)
+**Blockchain & Smart Contracts**
+- **Network**: Creditcoin Testnet
+- **Development Environment**: Hardhat
+- **Language**: Solidity 0.8.20
 - **Testing**: Chai & Ethers.js
 
 ---
@@ -74,11 +70,9 @@ Built with cutting-edge technology for maximum performance and scalability:
 ---
 
 ## 🚀 Getting Started
-
 Follow these steps to run the project locally.
 
 ### 1. Frontend Setup
-
 ```bash
 # Clone the repository
 git clone https://github.com/panzauto46-bot/CrediProcure.git
@@ -93,7 +87,6 @@ npm run dev
 Visit `http://localhost:5173` to view the application.
 
 ### 2. Smart Contract Development
-
 The smart contracts are located in the `smart-contracts/` directory.
 
 ```bash
@@ -110,15 +103,14 @@ npx hardhat test
 npx hardhat compile
 ```
 
-#### Deployment to Creditcoin Testnet
+### Deployment to Creditcoin Testnet
 1. Create a `.env` file in `smart-contracts/` based on `.env.example`.
 2. Add your `PRIVATE_KEY`.
 3. Run the deployment script:
-   ```bash
-   npx hardhat run scripts/deploy.ts --network creditcoinTestnet
-   ```
+```bash
+npx hardhat run scripts/deploy.ts --network creditcoinTestnet
+```
 
 ---
 
-© 2026 CrediProcure. Built for the Future of Finance.
-Licensed by Pandu Dargah.
+**© 2026 CrediProcure.** Built for the Future of Finance. Licensed by Pandu Dargah.

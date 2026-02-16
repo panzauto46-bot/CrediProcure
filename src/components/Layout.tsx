@@ -226,7 +226,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                   </div>
                   <div className="hidden sm:block text-left">
                     <p className="text-sm font-medium text-[hsl(var(--foreground))]">
-                      {userType === 'vendor' ? 'Maju Bersama' : 'Investor'}
+                      {userType === 'vendor' ? (account ? `Vendor ${account.slice(0, 6)}...` : 'Vendor Guest') : 'Investor'}
                     </p>
                     <p className="text-xs text-[hsl(var(--muted-foreground))]">
                       {userType === 'vendor' ? 'Verified' : 'Active'}

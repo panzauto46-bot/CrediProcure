@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   FileText,
   Plus,
@@ -12,7 +12,7 @@ import {
   X,
   Loader2
 } from 'lucide-react';
-import { mockInvoices } from '@/data/mockData';
+// import { mockInvoices } from '@/data/mockData';
 import { Invoice } from '@/types';
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
@@ -31,7 +31,44 @@ export function Invoices() {
   const [showMintModal, setShowMintModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [mintStep, setMintStep] = useState(0);
-  const [invoices] = useState<Invoice[]>(mockInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!account || !contracts.invoiceNFT) return;
+      setIsLoading(true);
+      try {
+        const balance = await contracts.invoiceNFT.balanceOf(account);
+        const fetched: Invoice[] = [];
+        for (let i = 0; i < Number(balance); i++) {
+          const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
+          const iv = await contracts.invoiceNFT.invoices(tokenId); // Returns struct
+
+          // Map Contract Data to UI
+          fetched.push({
+            id: iv.id.toString(),
+            invoiceNumber: `INV-${iv.id}`,
+            clientName: "My Company", // Vendor name
+            amount: Number(ethers.formatUnits(iv.amount, 18)),
+            status: iv.isFunded ? 'funded' : 'minted',
+            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
+            yieldRate: Number(iv.yieldRate) / 100, // 500 -> 5.0
+            description: `RWA Invoice #${iv.id}`,
+            tokenId: iv.id.toString(),
+            riskLevel: 'low', // Default
+            createdAt: new Date().toISOString().split('T')[0]
+          });
+        }
+        setInvoices(fetched.reverse()); // Show newest first
+      } catch (err) {
+        console.error("Failed to load invoices:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [account, contracts.invoiceNFT]);
   const { contracts, account } = useWallet();
 
   const filteredInvoices = invoices.filter(inv =>
