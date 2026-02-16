@@ -1,0 +1,20 @@
+{
+    "name": "crediprocure-contracts",
+    "version": "1.0.0",
+    "description": "Smart contracts for CrediProcure RWA platform",
+    "scripts": {
+        "test": "npx hardhat test",
+        "compile": "npx hardhat compile",
+        "deploy": "npx hardhat run scripts/deploy.ts"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "hardhat": "^2.19.4",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^5.0.1",
+        "dotenv": "^16.3.1"
+    }
+}
