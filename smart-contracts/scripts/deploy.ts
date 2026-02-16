@@ -1,5 +1,7 @@
 
 import { ethers } from "hardhat";
+import * as fs from "fs";
+import * as path from "path";
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -26,6 +28,30 @@ async function main() {
     // 4. Set LendingPool in InvoiceNFT
     await invoiceNft.setLendingPool(lendingPool.target);
     console.log("LendingPool address set in InvoiceNFT");
+
+    // Copy ABIs to frontend (src/abis)
+    const contractsDir = path.join(__dirname, "..", "contracts");
+    const artifactsDir = path.join(__dirname, "..", "artifacts", "contracts");
+    const destDir = path.join(__dirname, "..", "..", "src", "abis");
+
+    if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    const contracts = ["InvoiceNFT", "LendingPool", "MockStablecoin"];
+
+    contracts.forEach(contract => {
+        const artifactPath = path.join(artifactsDir, `${contract}.sol`, `${contract}.json`);
+        const destPath = path.join(destDir, `${contract}.json`);
+
+        if (fs.existsSync(artifactPath)) {
+            const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+            // We only need the ABI
+            const abiData = { abi: artifact.abi };
+            fs.writeFileSync(destPath, JSON.stringify(abiData, null, 2));
+            console.log(`Copied ABI for ${contract}`);
+        }
+    });
 
     // Verify contracts (if on live network)
     // ...
