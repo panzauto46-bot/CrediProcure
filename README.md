@@ -1,107 +1,93 @@
-# CrediProcure
+# CrediProcure 🚀
 
-Platform Web3 untuk pembiayaan invoice B2B yang menghubungkan vendor dan investor melalui mekanisme RWA (Real World Asset) di atas jaringan Creditcoin.
-
-UI/UX prototype untuk platform manajemen kredit dan procurement yang dibangun dengan React, TypeScript, Vite, dan Tailwind CSS.
+**Platform Web3 untuk Pembiayaan Invoice B2B Berbasis RWA di Jaringan Creditcoin**
 
 ---
 
-## Ringkasan
+## 📖 Tentang CrediProcure
 
-CrediProcure membantu bisnis mendapatkan likuiditas dari invoice dan membuka peluang investasi berbasis aset dunia nyata bagi investor. Project ini dikembangkan sebagai prototipe untuk kompetisi/hackathon.
+CrediProcure adalah solusi inovatif yang menghubungkan vendor dan investor global melalui mekanisme **Real World Asset (RWA)**. Platform ini memberdayakan bisnis untuk mendapatkan likuiditas instan dari invoice mereka, sembari membuka peluang investasi yang aman dan transparan bagi para investor di ekosistem DeFi.
 
-## Fitur Utama
-
-- Dashboard procurement untuk vendor (pengelolaan invoice, pengajuan pendanaan, tracking status).
-- Marketplace investor bergaya DeFi/Web3.
-- Rencana integrasi smart contract Creditcoin dan dompet kripto (seperti MetaMask).
-
-## Daftar Isi
-
-- [Ringkasan](#ringkasan)
-- [Fitur Utama](#fitur-utama)
-- [Roadmap Pengembangan](#roadmap-pengembangan)
-- [Tech Stack](#tech-stack)
-- [Cara Menjalankan Project Secara Lokal](#cara-menjalankan-project-secara-lokal)
-- [Build untuk Production](#build-untuk-production)
-- [Deploy ke Vercel (via GitHub)](#deploy-ke-vercel-via-github)
+Dibangun sebagai prototipe modern dengan fokus pada kecepatan, keamanan, dan pengalaman pengguna (UX) yang seamless.
 
 ---
 
-## Roadmap Pengembangan
+## ✨ Fitur Utama
 
-### Fase 1: Konsep & Desain UI/UX (Target: 3–5 hari)
+### 🏢 Untuk Vendor (Peminjam)
+- **Dashboard Procurement Terintegrasi**: Kelola invoice, ajukan pendanaan, dan pantau status persetujuan secara real-time.
+- **Likuiditas Cepat**: Pencairan dana instan setelah invoice disetujui dan didanai oleh investor.
+- **Transparansi Penuh**: Lacak setiap langkah proses pendanaan di blockchain.
 
-- [x] Membuat sketsa user flow (alur pengguna dari login sampai pencairan dana).
-- [x] Mendesain UI/UX untuk Dashboard Procurement (mirip SaaS tradisional agar mudah dipakai bisnis).
-- [x] Mendesain UI/UX untuk Marketplace Investor (bergaya Web3/DeFi).
-- [x] Menyiapkan logo "CrediProcure".
+### 💰 Untuk Investor (Pemberi Pinjaman)
+- **Marketplace Terdesentralisasi**: Jelajahi peluang pendanaan invoice yang telah diverifikasi.
+- **Imbal Hasil Kompetitif**: Dapatkan keuntungan dari aset dunia nyata yang stabil.
+- **Keamanan RWA**: Investasi didukung oleh aset riil (invoice) yang tercatat di jaringan Creditcoin.
 
-### Fase 2: Pengembangan Smart Contract (Target: 1 minggu)
+---
 
-- [ ] Membuat smart contract untuk mencetak NFT dari data Invoice (RWA).
-- [ ] Membuat smart contract untuk kolam pendanaan (Liquidity Pool).
-- [ ] Melakukan uji coba smart contract di lokal.
-- [ ] Deploy smart contract yang sudah jadi ke Creditcoin Testnet.
+## 🛠️ Teknologi & Stack
 
-### Fase 3: Integrasi & Prototipe Web (Target: 1 minggu)
+Project ini dibangun menggunakan teknologi modern untuk memastikan performa tinggi dan skalabilitas:
 
-- [ ] Membangun frontend aplikasi web (React.js/Next.js).
-- [ ] Menghubungkan frontend dengan dompet kripto (MetaMask) dan jaringan Creditcoin.
-- [ ] Menghubungkan frontend dengan smart contract agar fitur "Mint Invoice" dan "Danai" berjalan di testnet.
-- [ ] Melakukan bug testing mandiri.
+- **Frontend**: [React 19](https://react.dev/)
+- **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Data Visualization**: [Recharts](https://recharts.org/)
 
-### Fase 4: Persiapan Final & Submission (Target: H-3 sebelum 7 Maret)
+---
 
-- [ ] Merekam video demo (3–5 menit) yang menunjukkan alur dari sisi vendor dan investor.
-- [ ] Membuat pitch deck (PDF) berisi masalah, solusi, dan potensi pasar.
-- [ ] Merapikan repositori GitHub (README.md yang jelas dan profesional).
-- [ ] Mengisi formulir pendaftaran di DoraHacks sebelum deadline.
+## 🗺️ Roadmap Pengembangan
 
-## Tech Stack
+| Fase | Deskripsi | Status |
+| :--- | :--- | :--- |
+| **Fase 1** | Konsep & Desain UI/UX (User Flow, Dashboard, Marketplace) | ✅ Selesai |
+| **Fase 2** | Pengembangan Smart Contract (NFT Invoice, Liquidity Pool) | 🚧 Dalam Proses |
+| **Fase 3** | Integrasi Frontend & Web3 (Wallet Connect, Contract Integration) | 📅 Mendatang |
+| **Fase 4** | Finalisasi & Submission (Demo Video, Pitch Deck) | 📅 Mendatang |
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS 4
+---
 
-## Cara Menjalankan Project Secara Lokal
+## 🚀 Cara Menjalankan
 
-Pastikan sudah terinstall **Node.js** dan **npm**.
+Ikuti langkah-langkah berikut untuk menjalankan project ini di komputer lokal Anda:
 
-```bash
-# install dependency
-npm install
+### Prasyarat
+Pastikan Anda telah menginstal **Node.js** (versi terbaru disarankan) dan **npm**.
 
-# menjalankan mode development
-npm run dev
-```
+### Instalasi & Menjalankan
 
-Setelah `npm run dev`, buka URL yang muncul di terminal (biasanya `http://localhost:5173`).
+1. **Clone repository ini** (jika belum):
+   ```bash
+   git clone https://github.com/panzauto46-bot/CrediProcure.git
+   cd CrediProcure
+   ```
 
-## Build untuk Production
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Jalankan server development**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Buka di browser**:
+   Akses `http://localhost:5173` (atau port lain yang ditampilkan di terminal).
+
+### Build untuk Produksi
+
+Untuk membuat build yang siap deploy:
 
 ```bash
 npm run build
 ```
 
-Untuk melihat hasil build secara lokal:
+Hasil build akan berada di folder `dist`.
 
-```bash
-npm run preview
-```
+---
 
-## Deploy ke Vercel (via GitHub)
-
-1. Push kode ke repository GitHub ini (`panzauto46-bot/CrediProcure`).
-2. Buka [https://vercel.com](https://vercel.com) dan login.
-3. Pilih **Add New Project** → **Import Git Repository**.
-4. Pilih repo **CrediProcure** dari GitHub.
-5. Vercel akan otomatis mendeteksi framework **Vite**.
-6. Pastikan:
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-7. Klik **Deploy** dan tunggu sampai proses selesai.
-
-Setelah itu, Vercel akan memberikan URL deploy yang bisa dibagikan.
-
+© 2024 CrediProcure via Panz Auto. All Rights Reserved.
