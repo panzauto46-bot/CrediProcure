@@ -57,9 +57,20 @@ contract LendingPool is Ownable, ReentrancyGuard {
         // Transfer funds to vendor/borrower
         stablecoin.transfer(invoice.vendor, invoice.amount);
         
-        // Update state
-        // In a real app, we'd Mint a Debt token or similar
+        emit InvoiceFunded(tokenId, invoice.vendor, invoice.amount);
+    }
+
+    // P2P Funding: Investor funds specific invoice directly
+    function fundInvoiceDirect(uint256 tokenId) external nonReentrant {
+        InvoiceNFT.InvoiceData memory invoice = invoiceNft.getInvoice(tokenId);
+        require(!invoice.isFunded, "Already funded");
         
+        // Transfer funds from investor to vendor
+        stablecoin.transferFrom(msg.sender, invoice.vendor, invoice.amount);
+        
+        // Mark as funded
+        invoiceNft.setFunded(tokenId, true);
+
         emit InvoiceFunded(tokenId, invoice.vendor, invoice.amount);
     }
     

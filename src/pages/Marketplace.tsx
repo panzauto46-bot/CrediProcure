@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { 
-  Search, 
+import {
+  Search,
   FileText,
   TrendingUp,
   Shield,
@@ -13,7 +13,9 @@ import {
 } from 'lucide-react';
 import { mockMarketplaceInvoices } from '@/data/mockData';
 import { Invoice } from '@/types';
+import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
+import { useWallet } from '@/context/WalletContext';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -30,10 +32,11 @@ export function Marketplace() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [fundAmount, setFundAmount] = useState('');
   const [fundStep, setFundStep] = useState(1);
+  const { contracts, account } = useWallet();
 
   const filteredInvoices = mockMarketplaceInvoices.filter(inv => {
     const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       inv.clientName.toLowerCase().includes(searchTerm.toLowerCase());
+      inv.clientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRisk = riskFilter === 'all' || inv.riskLevel === riskFilter;
     return matchSearch && matchRisk;
   });
@@ -45,11 +48,49 @@ export function Marketplace() {
     setFundAmount('');
   };
 
-  const processFund = () => {
-    if (fundStep < 3) {
-      setFundStep(fundStep + 1);
-    } else {
-      setShowFundModal(false);
+  const processFund = async () => {
+    if (!selectedInvoice || !contracts.lendingPool || !contracts.stablecoin || !account) {
+      alert("Please connect wallet first!");
+      return;
+    }
+
+    try {
+      setFundStep(2); // "Processing..."
+
+      const amountToFund = ethers.parseUnits(fundAmount, 18);
+
+      // 1. Approve stablecoin transfer
+      const approvalTx = await contracts.stablecoin.approve(contracts.lendingPool.target, amountToFund);
+      await approvalTx.wait();
+
+      // 2. Fund Invoice (P2P or Pool)
+      // Note: This requires the contract to have 'fundInvoiceDirect' or similar, 
+      // or if using Pool model, just 'deposit'
+      // For this demo, we assume we call fundInvoiceDirect if added, or deposit.
+
+      // Try fundInvoiceDirect if exists in ABI, else deposit
+      let tx;
+      if (contracts.lendingPool.fundInvoiceDirect) {
+        tx = await contracts.lendingPool.fundInvoiceDirect(selectedInvoice.tokenId || 0); // Need real tokenId
+      } else {
+        // Fallback to deposit for demo
+        tx = await contracts.lendingPool.deposit(amountToFund);
+      }
+
+      await tx.wait();
+
+      setFundStep(3); // "Done"
+
+      setTimeout(() => {
+        setShowFundModal(false);
+        setFundStep(1);
+        setFundAmount('');
+        alert(`Funding Successful! TX: ${tx.hash}`);
+      }, 2000);
+
+    } catch (error) {
+      console.error("Funding failed:", error);
+      alert("Funding failed! See console.");
       setFundStep(1);
     }
   };
@@ -178,7 +219,7 @@ export function Marketplace() {
                 <span className="font-mono text-xs">{invoice.tokenId}</span>
                 <ExternalLink className="w-3.5 h-3.5 cursor-pointer hover:text-[hsl(var(--foreground))]" />
               </div>
-              <button 
+              <button
                 onClick={() => handleFund(invoice)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all font-medium"
               >
@@ -296,7 +337,7 @@ export function Marketplace() {
               </div>
             )}
 
-            <button 
+            <button
               onClick={processFund}
               disabled={fundStep === 1 && !fundAmount}
               className={cn(

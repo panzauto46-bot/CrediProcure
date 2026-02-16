@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Package, 
-  Coins, 
-  Store, 
-  PieChart, 
+import {
+  LayoutDashboard,
+  FileText,
+  Package,
+  Coins,
+  Store,
+  PieChart,
   History,
   Shield,
   Menu,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useTheme } from '@/context/ThemeContext';
+import { useWallet } from '@/context/WalletContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { account, connectWallet, disconnectWallet } = useWallet();
 
   const vendorMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,7 +57,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
     <div className="min-h-screen bg-[hsl(var(--background))] transition-colors duration-300">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
@@ -79,7 +81,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                   <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium tracking-wide">POWERED BY CREDITCOIN</p>
                 </div>
               </div>
-              <button 
+              <button
                 className="lg:hidden p-2 hover:bg-[hsl(var(--accent))] rounded-lg transition-colors"
                 onClick={() => setSidebarOpen(false)}
               >
@@ -98,8 +100,8 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                 }}
                 className={cn(
                   "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200",
-                  userType === 'vendor' 
-                    ? "bg-[hsl(var(--card))] text-emerald-500 shadow-sm" 
+                  userType === 'vendor'
+                    ? "bg-[hsl(var(--card))] text-emerald-500 shadow-sm"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 )}
               >
@@ -112,8 +114,8 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                 }}
                 className={cn(
                   "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200",
-                  userType === 'investor' 
-                    ? "bg-[hsl(var(--card))] text-cyan-500 shadow-sm" 
+                  userType === 'investor'
+                    ? "bg-[hsl(var(--card))] text-cyan-500 shadow-sm"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 )}
               >
@@ -147,18 +149,29 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
             ))}
           </nav>
 
-          {/* Wallet Status */}
           <div className="p-4 border-t border-[hsl(var(--border))]">
-            <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl p-4 border border-emerald-500/20">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse-glow" />
-                <span className="text-xs text-[hsl(var(--muted-foreground))]">Creditcoin Testnet</span>
+            {account ? (
+              <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl p-4 border border-emerald-500/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse-glow" />
+                  <span className="text-xs text-[hsl(var(--muted-foreground))]">Creditcoin Testnet</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-emerald-500" />
+                  <span className="text-sm font-mono text-[hsl(var(--foreground))]">
+                    {account.slice(0, 6)}...{account.slice(-4)}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Wallet className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-mono text-[hsl(var(--foreground))]">0x742d...F423</span>
-              </div>
-            </div>
+            ) : (
+              <button
+                onClick={connectWallet}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium shadow-lg shadow-emerald-500/20"
+              >
+                <Wallet className="w-4 h-4" />
+                Connect Wallet
+              </button>
+            )}
           </div>
         </div>
       </aside>
@@ -168,7 +181,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
         {/* Top Header */}
         <header className="sticky top-0 z-30 glass border-b border-[hsl(var(--border))]">
           <div className="flex items-center justify-between px-4 lg:px-8 py-4">
-            <button 
+            <button
               className="lg:hidden p-2 hover:bg-[hsl(var(--accent))] rounded-lg transition-colors"
               onClick={() => setSidebarOpen(true)}
             >
@@ -226,7 +239,10 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
                     <div className="absolute right-0 mt-2 w-48 bg-[hsl(var(--card))] rounded-xl shadow-xl border border-[hsl(var(--border))] py-2 z-50 animate-slide-in">
-                      <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors">
+                      <button
+                        onClick={disconnectWallet}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors"
+                      >
                         <LogOut className="w-4 h-4" />
                         Disconnect Wallet
                       </button>

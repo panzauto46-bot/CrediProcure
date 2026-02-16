@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { WalletProvider } from '@/context/WalletContext';
 import { Layout } from '@/components/Layout';
 import { VendorDashboard } from '@/pages/VendorDashboard';
 import { Inventory } from '@/pages/Inventory';
@@ -31,7 +32,7 @@ function AppContent() {
         return <KYB />;
       case 'credit-history':
         return <CreditHistory />;
-      
+
       // Investor Pages
       case 'investor-dashboard':
         return <InvestorDashboard />;
@@ -41,15 +42,15 @@ function AppContent() {
         return <Portfolio />;
       case 'pool':
         return <LiquidityPool />;
-      
+
       default:
         return <VendorDashboard />;
     }
   };
 
   return (
-    <Layout 
-      currentPage={currentPage} 
+    <Layout
+      currentPage={currentPage}
       setCurrentPage={setCurrentPage}
       userType={userType}
       setUserType={setUserType}
@@ -62,7 +63,9 @@ function AppContent() {
 export function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <WalletProvider>
+        <AppContent />
+      </WalletProvider>
     </ThemeProvider>
   );
 }

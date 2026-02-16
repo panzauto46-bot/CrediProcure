@@ -68,7 +68,7 @@ Built with cutting-edge technology for maximum performance and scalability:
 | :--- | :--- | :--- |
 | **Phase 1** | Concept & UI/UX Design (User Flow, Dashboard, Marketplace) | ✅ Completed |
 | **Phase 2** | Smart Contract Development (Invoice NFT, Liquidity Pool, Unit Tests) | ✅ Completed |
-| **Phase 3** | Frontend & Web3 Integration (Wallet Connect, Contract Integration) | 🚧 In Progress |
+| **Phase 3** | Frontend & Web3 Integration (Wallet Connect, Contract Integration) | ✅ Completed |
 | **Phase 4** | Finalization & Submission (Demo Video, Pitch Deck) | 📅 Upcoming |
 
 ---

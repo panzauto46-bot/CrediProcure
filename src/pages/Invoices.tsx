@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { 
-  FileText, 
-  Plus, 
-  Search, 
+import {
+  FileText,
+  Plus,
+  Search,
   Upload,
   Coins,
   ExternalLink,
@@ -14,7 +14,9 @@ import {
 } from 'lucide-react';
 import { mockInvoices } from '@/data/mockData';
 import { Invoice } from '@/types';
+import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
+import { useWallet } from '@/context/WalletContext';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -30,6 +32,7 @@ export function Invoices() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [mintStep, setMintStep] = useState(0);
   const [invoices] = useState<Invoice[]>(mockInvoices);
+  const { contracts, account } = useWallet();
 
   const filteredInvoices = invoices.filter(inv =>
     inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,11 +45,38 @@ export function Invoices() {
     setMintStep(0);
   };
 
-  const processMint = () => {
-    if (mintStep < 3) {
-      setMintStep(mintStep + 1);
-    } else {
-      setShowMintModal(false);
+  const processMint = async () => {
+    if (!selectedInvoice || !contracts.invoiceNFT || !account) {
+      alert("Please connect wallet first!");
+      return;
+    }
+
+    try {
+      setMintStep(1); // "Creating RWA Token"
+
+      // Prepare data
+      const amount = ethers.parseUnits(selectedInvoice.amount.toString(), 18); // Using 18 decimals like stablecoin
+      const dueDate = Math.floor(new Date(selectedInvoice.dueDate).getTime() / 1000);
+      const interestRate = selectedInvoice.yieldRate * 100; // 5% -> 500
+
+      // Call Contract
+      const tx = await contracts.invoiceNFT.mintInvoice(account, amount, dueDate, interestRate);
+
+      setMintStep(2); // "On-Chain Confirmation"
+      await tx.wait();
+
+      setMintStep(3); // "Complete"
+
+      setTimeout(() => {
+        setShowMintModal(false);
+        setMintStep(0);
+        // Ideally update local invoices state here to reflect "minted" status
+        alert(`Invoice Minted! TX: ${tx.hash}`);
+      }, 2000);
+
+    } catch (error) {
+      console.error("Mint failed:", error);
+      alert("Minting failed! See console.");
       setMintStep(0);
     }
   };
@@ -150,8 +180,8 @@ export function Invoices() {
                   <span className={cn(
                     "px-2 py-0.5 rounded text-xs font-medium",
                     invoice.riskLevel === 'low' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                    invoice.riskLevel === 'medium' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 
-                    'bg-red-500/10 text-red-600 dark:text-red-400'
+                      invoice.riskLevel === 'medium' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                        'bg-red-500/10 text-red-600 dark:text-red-400'
                   )}>
                     {invoice.riskLevel.toUpperCase()}
                   </span>
@@ -174,7 +204,7 @@ export function Invoices() {
 
               <div className="flex gap-2">
                 {invoice.status === 'pending' && (
-                  <button 
+                  <button
                     onClick={() => handleMint(invoice)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all font-medium"
                   >
@@ -239,7 +269,7 @@ export function Invoices() {
                   <div key={index} className={cn(
                     "flex items-center gap-3 p-4 rounded-xl transition-all",
                     index < mintStep ? 'bg-emerald-500/10' :
-                    index === mintStep ? 'bg-blue-500/10' : 'bg-[hsl(var(--muted))]'
+                      index === mintStep ? 'bg-blue-500/10' : 'bg-[hsl(var(--muted))]'
                   )}>
                     {index < mintStep ? (
                       <CheckCircle className="w-5 h-5 text-emerald-500" />
@@ -252,7 +282,7 @@ export function Invoices() {
                       <p className={cn(
                         "font-medium",
                         index < mintStep ? 'text-emerald-600 dark:text-emerald-400' :
-                        index === mintStep ? 'text-blue-600 dark:text-blue-400' : 'text-[hsl(var(--muted-foreground))]'
+                          index === mintStep ? 'text-blue-600 dark:text-blue-400' : 'text-[hsl(var(--muted-foreground))]'
                       )}>{step.title}</p>
                       <p className="text-xs text-[hsl(var(--muted-foreground))]">{step.desc}</p>
                     </div>
@@ -262,7 +292,7 @@ export function Invoices() {
             )}
 
             {/* Action Button */}
-            <button 
+            <button
               onClick={processMint}
               className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all font-medium"
             >
