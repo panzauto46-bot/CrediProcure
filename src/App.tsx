@@ -17,6 +17,9 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [userType, setUserType] = useState<'vendor' | 'investor'>('vendor');
 
+  // HACK: Expose navigation to window for quick access from dashboard
+  (window as any).navigateToPage = setCurrentPage;
+
   const renderPage = () => {
     switch (currentPage) {
       // Vendor Pages

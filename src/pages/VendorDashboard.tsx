@@ -229,17 +229,26 @@ export function VendorDashboard() {
           <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5">
             <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group">
+              <button
+                onClick={() => (window as any).navigateToPage('invoices')}
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group"
+              >
                 <FileText className="w-5 h-5" />
                 <span className="font-medium">Create New Invoice</span>
                 <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all group">
+              <button
+                onClick={() => (window as any).navigateToPage('invoices')}
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all group"
+              >
                 <Coins className="w-5 h-5" />
                 <span className="font-medium">Mint Invoice to RWA</span>
                 <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors group">
+              <button
+                onClick={() => (window as any).navigateToPage('liquidity')}
+                className="w-full flex items-center gap-3 p-4 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors group"
+              >
                 <DollarSign className="w-5 h-5" />
                 <span className="font-medium">Request Liquidity</span>
                 <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
