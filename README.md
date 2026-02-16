@@ -1,37 +1,37 @@
 # CrediProcure 🚀
 
-**Platform Web3 untuk Pembiayaan Invoice B2B Berbasis RWA di Jaringan Creditcoin**
+**Web3 B2B Invoice Financing Platform powered by Real World Assets (RWA) on Creditcoin**
 
 ---
 
-## 📖 Tentang CrediProcure
+## 📖 About CrediProcure
 
-CrediProcure adalah solusi inovatif yang menghubungkan vendor dan investor global melalui mekanisme **Real World Asset (RWA)**. Platform ini memberdayakan bisnis untuk mendapatkan likuiditas instan dari invoice mereka, sembari membuka peluang investasi yang aman dan transparan bagi para investor di ekosistem DeFi.
+**CrediProcure** is a decentralized solution bridging the gap between B2B vendors and global investors through **Real World Asset (RWA)** tokenization. We empower businesses to unlock instant liquidity from their invoices while offering investors secure, transparent, and stable yield opportunities within the DeFi ecosystem.
 
-Dibangun sebagai prototipe modern dengan fokus pada kecepatan, keamanan, dan pengalaman pengguna (UX) yang seamless.
-
----
-
-## ✨ Fitur Utama
-
-### 🏢 Untuk Vendor (Peminjam)
-- **Dashboard Procurement Terintegrasi**: Kelola invoice, ajukan pendanaan, dan pantau status persetujuan secara real-time.
-- **Likuiditas Cepat**: Pencairan dana instan setelah invoice disetujui dan didanai oleh investor.
-- **Transparansi Penuh**: Lacak setiap langkah proses pendanaan di blockchain.
-
-### 💰 Untuk Investor (Pemberi Pinjaman)
-- **Marketplace Terdesentralisasi**: Jelajahi peluang pendanaan invoice yang telah diverifikasi.
-- **Imbal Hasil Kompetitif**: Dapatkan keuntungan dari aset dunia nyata yang stabil.
-- **Keamanan RWA**: Investasi didukung oleh aset riil (invoice) yang tercatat di jaringan Creditcoin.
+Built as a high-performance prototype for the DoraHacks Hackathon, focusing on speed, security, and a seamless user experience.
 
 ---
 
-## 🛠️ Teknologi & Stack
+## ✨ Key Features
 
-Project ini dibangun menggunakan teknologi modern untuk memastikan performa tinggi dan skalabilitas:
+### 🏢 For Vendors (Borrowers)
+- **Integrated Procurement Dashboard**: Manage invoices, request funding, and track approval status in real-time.
+- **Instant Liquidity**: Get paid immediately after invoice approval and funding by decentralized investors.
+- **Transparent Process**: Track every step of the funding lifecycle on-chain.
+
+### 💰 For Investors (Lenders)
+- **Decentralized Marketplace**: Browse verified invoice funding opportunities.
+- **Stable Yields**: Earn competitive returns backed by real-world assets (invoices).
+- **RWA Security**: Investments are secured by actual invoices recorded on the Creditcoin network.
+
+---
+
+## 🛠️ Tech Stack
+
+Built with cutting-edge technology for maximum performance and scalability:
 
 - **Frontend**: [React 19](https://react.dev/)
-- **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
@@ -39,27 +39,27 @@ Project ini dibangun menggunakan teknologi modern untuk memastikan performa ting
 
 ---
 
-## 🗺️ Roadmap Pengembangan
+## 🗺️ Development Roadmap
 
-| Fase | Deskripsi | Status |
+| Phase | Description | Status |
 | :--- | :--- | :--- |
-| **Fase 1** | Konsep & Desain UI/UX (User Flow, Dashboard, Marketplace) | ✅ Selesai |
-| **Fase 2** | Pengembangan Smart Contract (NFT Invoice, Liquidity Pool) | 🚧 Dalam Proses |
-| **Fase 3** | Integrasi Frontend & Web3 (Wallet Connect, Contract Integration) | 📅 Mendatang |
-| **Fase 4** | Finalisasi & Submission (Demo Video, Pitch Deck) | 📅 Mendatang |
+| **Phase 1** | Concept & UI/UX Design (User Flow, Dashboard, Marketplace) | ✅ Completed |
+| **Phase 2** | Smart Contract Development (Invoice NFT, Liquidity Pool) | 🚧 In Progress |
+| **Phase 3** | Frontend & Web3 Integration (Wallet Connect, Contract Integration) | 📅 Upcoming |
+| **Phase 4** | Finalization & Submission (Demo Video, Pitch Deck) | 📅 Upcoming |
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🚀 Getting Started
 
-Ikuti langkah-langkah berikut untuk menjalankan project ini di komputer lokal Anda:
+Follow these steps to run the project locally:
 
-### Prasyarat
-Pastikan Anda telah menginstal **Node.js** (versi terbaru disarankan) dan **npm**.
+### Prerequisites
+Ensure you have **Node.js** (latest version recommended) and **npm** installed.
 
-### Instalasi & Menjalankan
+### Installation
 
-1. **Clone repository ini** (jika belum):
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/panzauto46-bot/CrediProcure.git
    cd CrediProcure
@@ -70,24 +70,24 @@ Pastikan Anda telah menginstal **Node.js** (versi terbaru disarankan) dan **npm*
    npm install
    ```
 
-3. **Jalankan server development**:
+3. **Start development server**:
    ```bash
    npm run dev
    ```
 
-4. **Buka di browser**:
-   Akses `http://localhost:5173` (atau port lain yang ditampilkan di terminal).
+4. **Open in browser**:
+   Visit `http://localhost:5173` (or the port shown in your terminal).
 
-### Build untuk Produksi
+### Build for Production
 
-Untuk membuat build yang siap deploy:
+To create a production-ready build:
 
 ```bash
 npm run build
 ```
 
-Hasil build akan berada di folder `dist`.
+The output will be in the `dist` folder.
 
 ---
 
-© 2024 CrediProcure via Panz Auto. All Rights Reserved.
+© 2024 CrediProcure. Built for the Future of Finance.
