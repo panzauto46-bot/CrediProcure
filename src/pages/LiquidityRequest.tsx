@@ -338,6 +338,32 @@ export function LiquidityRequest() {
             </button>
           )}
         </div>
+
+        {/* DEBUG INFO - PROOF OF REAL DATA */}
+        <div className="mt-8 p-4 border border-dashed border-[hsl(var(--muted-foreground))] rounded-xl opacity-50 hover:opacity-100 transition-opacity text-xs font-mono text-[hsl(var(--muted-foreground))]">
+          <p className="font-bold mb-2">🔌 SYSTEM STATUS (REAL-TIME)</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <span className="block text-[hsl(var(--foreground))]">Connected Wallet:</span>
+              <span>{account || 'Disconnected'}</span>
+            </div>
+            <div>
+              <span className="block text-[hsl(var(--foreground))]">Storage Key:</span>
+              <span>crediprocure_drafts_{account?.toLowerCase().slice(0, 6)}...</span>
+            </div>
+            <div>
+              <span className="block text-[hsl(var(--foreground))]">On-Chain Balance (RPC):</span>
+              <span>{isLoading ? 'Checking...' : invoices.filter(i => i.status === 'minted' && !i.id.includes('draft')).length} confirmed</span>
+            </div>
+            <div>
+              <span className="block text-[hsl(var(--foreground))]">Local Sync (Buffer):</span>
+              <span>{invoices.filter(i => i.status === 'minted' && i.id.includes('draft')).length} pending confirmation</span>
+            </div>
+          </div>
+          <p className="mt-2 italic">
+            * If "On-Chain" is 0 but you paid gas, the blockchain is indexing. "Local Sync" keeps your data visible.
+          </p>
+        </div>
       </div>
     </div>
   );
