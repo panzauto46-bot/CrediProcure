@@ -1,6 +1,32 @@
- # CrediProcure
+# CrediProcure
+
+Platform Web3 untuk pembiayaan invoice B2B yang menghubungkan vendor dan investor melalui mekanisme RWA (Real World Asset) di atas jaringan Creditcoin.
 
 UI/UX prototype untuk platform manajemen kredit dan procurement yang dibangun dengan React, TypeScript, Vite, dan Tailwind CSS.
+
+---
+
+## Ringkasan
+
+CrediProcure membantu bisnis mendapatkan likuiditas dari invoice dan membuka peluang investasi berbasis aset dunia nyata bagi investor. Project ini dikembangkan sebagai prototipe untuk kompetisi/hackathon.
+
+## Fitur Utama
+
+- Dashboard procurement untuk vendor (pengelolaan invoice, pengajuan pendanaan, tracking status).
+- Marketplace investor bergaya DeFi/Web3.
+- Rencana integrasi smart contract Creditcoin dan dompet kripto (seperti MetaMask).
+
+## Daftar Isi
+
+- [Ringkasan](#ringkasan)
+- [Fitur Utama](#fitur-utama)
+- [Roadmap Pengembangan](#roadmap-pengembangan)
+- [Tech Stack](#tech-stack)
+- [Cara Menjalankan Project Secara Lokal](#cara-menjalankan-project-secara-lokal)
+- [Build untuk Production](#build-untuk-production)
+- [Deploy ke Vercel (via GitHub)](#deploy-ke-vercel-via-github)
+
+---
 
 ## Roadmap Pengembangan
 
