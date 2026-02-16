@@ -46,17 +46,21 @@ export function Invoices() {
   const loadData = async () => {
     if (!account) return;
     setIsLoading(true);
-    try {
-      const allInvoices: Invoice[] = [];
 
-      // 1. Load Drafts from LocalStorage (Safe Lowercase)
+    // 1. ALWAYS Load Drafts First
+    const allInvoices: Invoice[] = [];
+    try {
       const safeAccount = account.toLowerCase();
       const draftsKey = `crediprocure_drafts_${safeAccount}`;
       const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
       allInvoices.push(...drafts);
+    } catch (e) {
+      console.error("Draft load error:", e);
+    }
 
-      // 2. Load Minted from Chain
-      if (contracts.invoiceNFT) {
+    // 2. Try Load Blockchain Data (Don't let it block drafts)
+    if (contracts.invoiceNFT) {
+      try {
         const balance = await contracts.invoiceNFT.balanceOf(account);
         const chainInvoices: Invoice[] = [];
         for (let i = 0; i < Number(balance); i++) {
@@ -66,7 +70,7 @@ export function Invoices() {
           chainInvoices.push({
             id: iv.id.toString(),
             invoiceNumber: `INV-${iv.id}`,
-            clientName: "My Company", // Simplified
+            clientName: "My Company",
             amount: Number(ethers.formatUnits(iv.amount, 18)),
             status: iv.isFunded ? 'funded' : 'minted',
             dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
@@ -78,14 +82,14 @@ export function Invoices() {
           });
         }
         allInvoices.push(...chainInvoices.reverse());
+      } catch (chainErr) {
+        console.error("Blockchain fetch failed:", chainErr);
       }
-
-      setInvoices(allInvoices);
-    } catch (err) {
-      console.error("Failed to load invoices:", err);
-    } finally {
-      setIsLoading(false);
     }
+
+    // 3. Set State (Combined)
+    setInvoices(allInvoices);
+    setIsLoading(false);
   };
 
   useEffect(() => {
