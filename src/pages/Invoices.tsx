@@ -166,21 +166,30 @@ export function Invoices() {
       setMintStep(2); // Confirming
       await tx.wait();
 
-      // Fix: Use Safe Account Lowercase for Deletion key
+      // REAL-TIME SYNC: Update status locally to persist data while Blockchain indexes
       const safeAccount = account.toLowerCase();
       const draftsKey = `crediprocure_drafts_${safeAccount}`;
 
       const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-      const updatedDrafts = drafts.filter(i => i.id !== selectedInvoice.id);
+      const updatedDrafts = drafts.map(i => {
+        if (i.id === selectedInvoice.id) {
+          // Mark as minted so it shows up in Liquidity Request safely
+          return { ...i, status: 'minted' as Invoice['status'], tokenId: selectedInvoice.id };
+        }
+        return i;
+      });
       localStorage.setItem(draftsKey, JSON.stringify(updatedDrafts));
 
       setMintStep(3); // Done
 
+      // Update UI instantly
+      setInvoices(updatedDrafts);
+
       setTimeout(() => {
         setShowMintModal(false);
         setMintStep(0);
-        loadData(); // Reload to see new minted status
-      }, 2000); // 2 second delay before reload logic
+        // Do NOT reload immediately to prevent "flicker" of missing chain data
+      }, 2000);
 
     } catch (error) {
       console.error("Mint failed:", error);

@@ -38,6 +38,8 @@ export function LiquidityRequest() {
     try {
       const balance = await contracts.invoiceNFT.balanceOf(account);
       const fetched: Invoice[] = [];
+
+      // 1. Fetch from Blockchain (The ultimate source of truth)
       for (let i = 0; i < Number(balance); i++) {
         const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
         const iv = await contracts.invoiceNFT.invoices(tokenId);
@@ -58,7 +60,22 @@ export function LiquidityRequest() {
           });
         }
       }
-      setInvoices(fetched.reverse());
+
+      // 2. Fetch pending 'minted' from LocalStorage (Handling Blockchain Lag)
+      // This is crucial so user sees their just-minted invoice immediately
+      const safeAccount = account.toLowerCase();
+      const draftsKey = `crediprocure_drafts_${safeAccount}`;
+      const localDrafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+
+      const pendingMinted = localDrafts.filter(d =>
+        d.status === 'minted' &&
+        // Avoid duplicates: check if this ID is already in fetched list
+        !fetched.some(f => f.tokenId === d.tokenId || f.id === d.id)
+      );
+
+      // Combine both sources
+      setInvoices([...pendingMinted, ...fetched].reverse());
+
     } catch (e) {
       console.error(e);
     } finally {
