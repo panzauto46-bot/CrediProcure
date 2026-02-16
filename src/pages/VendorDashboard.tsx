@@ -36,6 +36,7 @@ export function VendorDashboard() {
     const loadData = async () => {
       if (!account || !contracts.invoiceNFT) return;
       try {
+        // 1. Fetch from Blockchain
         const balance = await contracts.invoiceNFT.balanceOf(account);
         const fetched: Invoice[] = [];
         for (let i = 0; i < Number(balance); i++) {
@@ -55,7 +56,18 @@ export function VendorDashboard() {
             createdAt: new Date().toISOString().split('T')[0]
           });
         }
-        setInvoices(fetched.reverse());
+
+        // 2. Fetch Drafts from LocalStorage
+        const safeAccount = account.toLowerCase();
+        const draftsKey = `crediprocure_drafts_${safeAccount}`;
+        const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+
+        // 3. Combine and Sort
+        const combined = [...drafts, ...fetched.reverse()].sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        setInvoices(combined);
       } catch (e) {
         console.error(e);
       } finally {
@@ -70,7 +82,7 @@ export function VendorDashboard() {
     .filter(inv => inv.status === 'funded')
     .reduce((sum, inv) => sum + inv.amount, 0);
   const pendingAmount = invoices
-    .filter(inv => inv.status === 'minted') // Only 'minted' is pending funding
+    .filter(inv => inv.status === 'minted' || inv.status === 'pending') // Include Pending/Drafts
     .reduce((sum, inv) => sum + inv.amount, 0);
 
   const stats = [
@@ -185,10 +197,15 @@ export function VendorDashboard() {
         <div className="lg:col-span-2 bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))]">
           <div className="p-5 border-b border-[hsl(var(--border))] flex items-center justify-between">
             <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Recent Invoices</h3>
-            <button className="text-sm text-emerald-500 hover:text-emerald-600 font-medium">View All</button>
+            <button
+              onClick={() => (window as any).navigateToPage('invoices')}
+              className="text-sm text-emerald-500 hover:text-emerald-600 font-medium"
+            >
+              View All
+            </button>
           </div>
           <div className="p-4 space-y-3">
-            {invoices.slice(0, 4).map((invoice) => (
+            {invoices.length === 0 ? <p className='text-center text-gray-500 p-4'>No recent invoices found.</p> : invoices.slice(0, 4).map((invoice) => (
               <div key={invoice.id} className="flex items-center justify-between p-4 bg-[hsl(var(--muted))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors group cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className={cn(
@@ -265,9 +282,12 @@ export function VendorDashboard() {
               <div>
                 <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-1">Pending Invoices</h4>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  You have 2 invoices ready to be minted as RWA tokens
+                  {invoices.filter(i => i.status === 'minted' || i.status === 'pending').length} invoices in pipeline.
                 </p>
-                <button className="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+                <button
+                  onClick={() => (window as any).navigateToPage('invoices')}
+                  className="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                >
                   Review now <ExternalLink className="w-3 h-3" />
                 </button>
               </div>
