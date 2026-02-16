@@ -68,7 +68,16 @@ export function LiquidityRequest() {
 
   useEffect(() => {
     loadData();
-  }, [account, contracts.invoiceNFT]);
+
+    // Auto-refresh every 5s if empty (likely waiting for mint)
+    const interval = setInterval(() => {
+      if (invoices.length === 0 && account) {
+        loadData();
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [account, contracts.invoiceNFT, invoices.length]); // Added invoices.length to dependencies
 
   const selected = invoices.find(inv => inv.id === selectedInvoiceId);
   const maxLTV = selected ? selected.amount * 0.85 : 0;
