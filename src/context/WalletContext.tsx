@@ -45,22 +45,56 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [chainId, setChainId] = useState<number | null>(null);
 
     const connectWallet = async () => {
-        if (window.ethereum) {
+        if (typeof window.ethereum !== 'undefined') {
             try {
-                const _provider = new ethers.BrowserProvider(window.ethereum);
-                const _signer = await _provider.getSigner(); // Requests connection
-                const _account = await _signer.getAddress();
-                const { chainId } = await _provider.getNetwork();
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
 
-                setProvider(_provider);
-                setSigner(_signer);
-                setAccount(_account);
-                setChainId(Number(chainId));
+                // Auto-switch to Creditcoin Testnet
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x18E8F' }], // 102031 in hex
+                    });
+                } catch (switchError: any) {
+                    // This error code indicates that the chain has not been added to MetaMask.
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [
+                                    {
+                                        chainId: '0x18E8F',
+                                        chainName: 'Creditcoin Testnet',
+                                        nativeCurrency: {
+                                            name: 'CTC',
+                                            symbol: 'CTC',
+                                            decimals: 18,
+                                        },
+                                        rpcUrls: ['https://rpc.cc3-testnet.creditcoin.network'],
+                                        blockExplorerUrls: ['https://creditcoin-testnet.blockscout.com/'],
+                                    },
+                                ],
+                            });
+                        } catch (addError) {
+                            console.error("Failed to add Creditcoin Testnet:", addError);
+                        }
+                    }
+                }
+
+                const signer = await provider.getSigner();
+                setAccount(accounts[0]);
+
+                const { chainId: networkChainId } = await provider.getNetwork();
+
+                setProvider(provider);
+                setSigner(signer);
+                setChainId(Number(networkChainId));
 
                 // Initialize Contracts
-                const _invoiceNFT = new ethers.Contract(CONTRACT_ADDRESSES.InvoiceNFT, InvoiceNFTAbi.abi, _signer);
-                const _lendingPool = new ethers.Contract(CONTRACT_ADDRESSES.LendingPool, LendingPoolAbi.abi, _signer);
-                const _stablecoin = new ethers.Contract(CONTRACT_ADDRESSES.MockStablecoin, MockStablecoinAbi.abi, _signer);
+                const _invoiceNFT = new ethers.Contract(CONTRACT_ADDRESSES.InvoiceNFT, InvoiceNFTAbi.abi, signer);
+                const _lendingPool = new ethers.Contract(CONTRACT_ADDRESSES.LendingPool, LendingPoolAbi.abi, signer);
+                const _stablecoin = new ethers.Contract(CONTRACT_ADDRESSES.MockStablecoin, MockStablecoinAbi.abi, signer);
 
                 setContracts({
                     invoiceNFT: _invoiceNFT,
