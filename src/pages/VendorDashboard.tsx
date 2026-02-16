@@ -34,30 +34,38 @@ export function VendorDashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!account || !contracts.invoiceNFT) return;
+      if (!account) return;
+
       try {
-        // 1. Fetch from Blockchain
-        const balance = await contracts.invoiceNFT.balanceOf(account);
-        const fetched: Invoice[] = [];
-        for (let i = 0; i < Number(balance); i++) {
-          const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
-          const iv = await contracts.invoiceNFT.invoices(tokenId);
-          fetched.push({
-            id: iv.id.toString(),
-            invoiceNumber: `INV-${iv.id}`,
-            clientName: "My Company",
-            amount: Number(ethers.formatUnits(iv.amount, 18)),
-            status: iv.isFunded ? 'funded' : 'minted',
-            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
-            yieldRate: Number(iv.yieldRate) / 100,
-            description: `Invoice #${iv.id}`,
-            tokenId: iv.id.toString(),
-            riskLevel: 'low',
-            createdAt: new Date().toISOString().split('T')[0]
-          });
+        let fetched: Invoice[] = [];
+
+        // 1. Fetch from Blockchain (Only if contract is ready)
+        if (contracts.invoiceNFT) {
+          try {
+            const balance = await contracts.invoiceNFT.balanceOf(account);
+            for (let i = 0; i < Number(balance); i++) {
+              const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
+              const iv = await contracts.invoiceNFT.invoices(tokenId);
+              fetched.push({
+                id: iv.id.toString(),
+                invoiceNumber: `INV-${iv.id}`,
+                clientName: "My Company",
+                amount: Number(ethers.formatUnits(iv.amount, 18)),
+                status: iv.isFunded ? 'funded' : 'minted',
+                dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
+                yieldRate: Number(iv.yieldRate) / 100,
+                description: `Invoice #${iv.id}`,
+                tokenId: iv.id.toString(),
+                riskLevel: 'low',
+                createdAt: new Date().toISOString().split('T')[0]
+              });
+            }
+          } catch (err) {
+            console.error("Chain fetch error:", err);
+          }
         }
 
-        // 2. Fetch Drafts from LocalStorage
+        // 2. Fetch Drafts from LocalStorage (ALWAYS load this)
         const safeAccount = account.toLowerCase();
         const draftsKey = `crediprocure_drafts_${safeAccount}`;
         const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
@@ -70,8 +78,6 @@ export function VendorDashboard() {
         setInvoices(combined);
       } catch (e) {
         console.error(e);
-      } finally {
-        // setIsLoading(false);
       }
     };
     loadData();
