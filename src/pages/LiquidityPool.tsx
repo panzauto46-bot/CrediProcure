@@ -17,6 +17,7 @@ import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 import { useWallet } from '@/context/WalletContext';
 import { DemoFundingCard } from '@/components/DemoFundingCard';
+import { CONTRACT_DEPLOYMENT_BLOCKS } from '@/config/contracts';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -54,7 +55,10 @@ export function LiquidityPool() {
           contracts.lendingPool.totalLiquidity(),
           contracts.lendingPool.lpBalances(account),
           contracts.stablecoin.balanceOf(account),
-          contracts.lendingPool.queryFilter(contracts.lendingPool.filters.InvoiceFunded()),
+          contracts.lendingPool.queryFilter(
+            contracts.lendingPool.filters.InvoiceFunded(),
+            CONTRACT_DEPLOYMENT_BLOCKS.LendingPool
+          ),
         ]);
 
         setPoolData({

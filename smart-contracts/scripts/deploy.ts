@@ -27,7 +27,8 @@ async function main() {
     console.log(`LendingPool deployed to: ${lendingPool.target}`);
 
     // 4. Set LendingPool in InvoiceNFT
-    await invoiceNft.setLendingPool(lendingPool.target);
+    const setPoolTx = await invoiceNft.setLendingPool(lendingPool.target);
+    await setPoolTx.wait();
     console.log("LendingPool address set in InvoiceNFT");
 
     const deployment = {

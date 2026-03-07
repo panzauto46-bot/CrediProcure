@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { CONTRACT_DEPLOYMENT_BLOCKS } from '@/config/contracts';
 
 export interface DirectInvestmentRecord {
   id: string;
@@ -28,7 +29,8 @@ export async function fetchDirectInvestmentsForAccount(
 
   const normalizedAccount = account.toLowerCase();
   const fundedEvents = await lendingPool.queryFilter(
-    lendingPool.filters.InvoiceFunded()
+    lendingPool.filters.InvoiceFunded(),
+    CONTRACT_DEPLOYMENT_BLOCKS.LendingPool
   );
 
   const directInvestments = await Promise.all(
@@ -47,7 +49,8 @@ export async function fetchDirectInvestmentsForAccount(
       ]);
 
       const repaymentEvents = await lendingPool.queryFilter(
-        lendingPool.filters.LoanRepaid(event.args[0])
+        lendingPool.filters.LoanRepaid(event.args[0]),
+        CONTRACT_DEPLOYMENT_BLOCKS.LendingPool
       );
       const earnedYield = repaymentEvents.reduce(
         (sum: number, repaymentEvent: any) =>

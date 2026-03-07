@@ -3,3 +3,9 @@ export const CONTRACT_ADDRESSES = {
   "InvoiceNFT": "0x6ab882c6C0e0c58B0487134b5221525B439C4C03",
   "LendingPool": "0x5fe9567496A8c101c062943ed152c78c3d80370a"
 } as const;
+
+export const CONTRACT_DEPLOYMENT_BLOCKS = {
+  MockStablecoin: 4389137,
+  InvoiceNFT: 4389138,
+  LendingPool: 4389139,
+} as const;

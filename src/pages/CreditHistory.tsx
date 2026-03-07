@@ -13,6 +13,7 @@ import {
 import { useWallet } from '@/context/WalletContext';
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
+import { CONTRACT_DEPLOYMENT_BLOCKS } from '@/config/contracts';
 
 interface HistoryItem {
   id: string;
@@ -47,7 +48,10 @@ export function CreditHistory() {
 
         // 1. Fetch InvoiceFunded events where the connected vendor is the borrower.
         const fundedFilter = contracts.lendingPool.filters.InvoiceFunded(null, account);
-        const fundedEvents = await contracts.lendingPool.queryFilter(fundedFilter);
+        const fundedEvents = await contracts.lendingPool.queryFilter(
+          fundedFilter,
+          CONTRACT_DEPLOYMENT_BLOCKS.LendingPool
+        );
 
         for (const e of fundedEvents) {
           if ('args' in e) {
@@ -65,7 +69,8 @@ export function CreditHistory() {
         }
 
         const repaidEvents = await contracts.lendingPool.queryFilter(
-          contracts.lendingPool.filters.LoanRepaid()
+          contracts.lendingPool.filters.LoanRepaid(),
+          CONTRACT_DEPLOYMENT_BLOCKS.LendingPool
         );
         for (const e of repaidEvents) {
           if (!('args' in e)) continue;
@@ -86,7 +91,10 @@ export function CreditHistory() {
 
         // 2. Fetch InvoiceMinted events for the connected vendor.
         const mintFilter = contracts.invoiceNFT.filters.InvoiceMinted(null, account);
-        const mintEvents = await contracts.invoiceNFT.queryFilter(mintFilter);
+        const mintEvents = await contracts.invoiceNFT.queryFilter(
+          mintFilter,
+          CONTRACT_DEPLOYMENT_BLOCKS.InvoiceNFT
+        );
 
         for (const e of mintEvents) {
           if ('args' in e) {
