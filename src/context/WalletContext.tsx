@@ -99,7 +99,18 @@ function selectProvider(walletType: WalletType): EthereumProvider | null {
   if (providers.length === 0) return null;
 
   if (walletType === 'metamask') {
-    return providers.find((provider) => provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider)) ?? null;
+    const strictMetaMask = providers.find(
+      (provider) => provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider)
+    );
+    if (strictMetaMask) return strictMetaMask;
+
+    const broadMetaMask = providers.find((provider) => provider.isMetaMask && !provider.isPhantom);
+    if (broadMetaMask) return broadMetaMask;
+
+    const nonPhantom = providers.find((provider) => !provider.isPhantom);
+    if (nonPhantom) return nonPhantom;
+
+    return providers[0] ?? null;
   }
 
   if (walletType === 'phantom') {
@@ -181,13 +192,21 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const connectWallet = useCallback(async (walletType: WalletType = 'auto') => {
-    const selectedProvider = selectProvider(walletType);
+    let selectedProvider = selectProvider(walletType);
+
+    // Fallback: if specific wallet detection fails, try whatever provider is injected.
+    if (!selectedProvider && walletType !== 'auto') {
+      selectedProvider = selectProvider('auto');
+    }
 
     if (!selectedProvider) {
       if (walletType === 'auto') {
         alert('No EVM wallet detected. Please install MetaMask, Phantom, or Bitget Wallet.');
       } else {
-        alert(`${getWalletLabel(walletType)} is not detected in your browser.`);
+        alert(
+          `${getWalletLabel(walletType)} is not detected.\n\n` +
+            'If the extension is installed, enable site access for this domain and refresh the page.'
+        );
       }
       return false;
     }
