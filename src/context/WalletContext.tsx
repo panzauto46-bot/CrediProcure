@@ -4,11 +4,10 @@ import InvoiceNFTAbi from '../abis/InvoiceNFT.json';
 import LendingPoolAbi from '../abis/LendingPool.json';
 import MockStablecoinAbi from '../abis/MockStablecoin.json';
 
-// REPLACE THESE WITH YOUR DEPLOYED CONTRACT ADDRESSES
 const CONTRACT_ADDRESSES = {
-  InvoiceNFT: '0x1234567890123456789012345678901234567890',
-  LendingPool: '0x0987654321098765432109876543210987654321',
-  MockStablecoin: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+  InvoiceNFT: '0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912',
+  LendingPool: '0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2',
+  MockStablecoin: '0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0',
 };
 
 const CREDITCOIN_CHAIN_HEX = '0x18E8F';
@@ -187,8 +186,8 @@ async function ensureCreditcoinNetwork(provider: EthereumProvider): Promise<bool
               chainId: CREDITCOIN_CHAIN_HEX,
               chainName: 'Creditcoin Testnet',
               nativeCurrency: {
-                name: 'CTC',
-                symbol: 'CTC',
+                name: 'Test Creditcoin',
+                symbol: 'tCTC',
                 decimals: 18,
               },
               rpcUrls: ['https://rpc.cc3-testnet.creditcoin.network'],

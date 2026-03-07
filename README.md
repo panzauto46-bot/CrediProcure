@@ -73,7 +73,7 @@ CrediProcure is a **fully decentralized, end-to-end invoice financing platform**
 ### 🔗 Blockchain & Web3
 | Feature | Description |
 |:---|:---|
-| **🦊 MetaMask Integration** | One-click wallet connection with automatic Creditcoin Testnet detection. |
+| **🦊 Multi-Wallet Integration** | Connect with MetaMask, Phantom (EVM mode), or Bitget Wallet with automatic Creditcoin Testnet switching. |
 | **⛓️ Live On-Chain Data** | All dashboard stats, invoices, and history are fetched directly from deployed smart contracts. |
 | **🌙 Dark/Light Mode** | Premium glassmorphism UI with full theme support. |
 | **📱 Responsive Design** | Fully responsive across desktop, tablet, and mobile devices. |
@@ -138,7 +138,7 @@ Our protocol consists of **3 core smart contracts** deployed on the **Creditcoin
 | **Charts & Data Viz** | Recharts | 3.7 |
 | **Icons** | Lucide React | 0.564 |
 | **Web3 Library** | Ethers.js | 6.16 |
-| **Wallet** | MetaMask | Latest |
+| **Wallet** | MetaMask / Phantom (EVM) / Bitget | Latest |
 | **Blockchain** | Creditcoin Testnet | — |
 | **Smart Contracts** | Solidity + Hardhat | 0.8.20 |
 | **Contract Standards** | OpenZeppelin | 5.x |
@@ -177,7 +177,7 @@ CrediProcure/
 │   │   └── 📄 Layout.tsx                  # App shell: sidebar, header, navigation
 │   │
 │   ├── 📁 context/                        # React Context Providers
-│   │   ├── 📄 WalletContext.tsx           # MetaMask + contract instances
+│   │   ├── 📄 WalletContext.tsx           # Wallet connection + contract instances
 │   │   └── 📄 ThemeContext.tsx            # Dark/light mode toggle
 │   │
 │   ├── 📁 abis/                           # Contract ABI Files
@@ -203,8 +203,11 @@ CrediProcure/
 │   ├── 📁 scripts/                        # Deployment Scripts
 │   │   └── 📄 deploy.ts                   # Automated deployment script
 │   │
+│   ├── 📁 deployments/                    # Deployed address records
+│   │   └── 📄 creditcoin-testnet.json     # Creditcoin testnet contracts
+│   │
 │   ├── 📁 test/                           # Unit Tests
-│   │   └── 📄 InvoiceNFT.test.ts          # Contract test suite
+│   │   └── 📄 CrediProcure.test.ts        # Contract test suite
 │   │
 │   └── 📁 artifacts/                      # Compiled contract artifacts
 │       └── ...
@@ -230,7 +233,7 @@ We don't make users wait for block confirmations to see progress.
 - **Background Synchronization**: The app polls the blockchain in the background to confirm stability without freezing the interface.
 
 ### 3. 🛡️ Real-Time System Diagnostics
-Transparencry is key. We included a **Live Debug Panel** in the `Liquidity Request` page that shows:
+Transparency is key. We included a **Live Debug Panel** in the `Liquidity Request` page that shows:
 - **Wallet Connection Strength**
 - **On-Chain vs. Local Data Sync Status**
 - **Real-Time RPC Fetching Indicators**
@@ -247,7 +250,7 @@ Transparencry is key. We included a **Live Debug Panel** in the `Liquidity Reque
 | **2** | ⛓️ Smart Contract Development | InvoiceNFT (ERC-721), LendingPool, MockStablecoin, unit tests | ✅ Done |
 | **3** | 🔗 Web3 Integration | MetaMask wallet connect, contract integration, live data fetching | ✅ Done |
 | **4** | 🚀 Live Feature Activation | Replace all mock data with blockchain reads/writes, LocalStorage persistence | ✅ Done |
-| **5** | 🌐 Deployment & Submission | Creditcoin Testnet deployment, Vercel hosting, demo video, pitch deck | ✅ Done |
+| **5** | 🌐 Deployment & Submission | Creditcoin Testnet deployment, Vercel hosting, submission package | ✅ Done |
 | **6** | 📈 Future: Mainnet & DAO | Governance token, on-chain credit scoring, multi-chain support | 🔮 Planned |
 
 ---
@@ -307,8 +310,34 @@ src/context/WalletContext.tsx → CONTRACT_ADDRESSES
 | **Network Name** | Creditcoin Testnet |
 | **RPC URL** | `https://rpc.cc3-testnet.creditcoin.network` |
 | **Chain ID** | `102031` |
-| **Currency Symbol** | `CTC` |
+| **Currency Symbol** | `tCTC` |
 | **Block Explorer** | `https://creditcoin-testnet.blockscout.com/` |
+
+---
+
+## 🔗 Live Deployment References
+
+### Frontend
+- **App URL**: `https://credi-procure.vercel.app`
+- **Repository**: `https://github.com/panzauto46-bot/CrediProcure`
+
+### Smart Contracts (Creditcoin Testnet)
+- **InvoiceNFT**: `0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912`
+- **LendingPool**: `0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2`
+- **MockStablecoin**: `0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0`
+
+### Block Explorer Links
+- **InvoiceNFT**: `https://creditcoin-testnet.blockscout.com/address/0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912`
+- **LendingPool**: `https://creditcoin-testnet.blockscout.com/address/0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2`
+- **MockStablecoin**: `https://creditcoin-testnet.blockscout.com/address/0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0`
+
+---
+
+## 🧾 Submission Artifacts (DoraHacks)
+
+- **Project Sector**: DeFi + RWA
+- **Project Deck / Whitepaper (PDF URL)**: `TODO_ADD_LINK`
+- **Prototype Demo Video URL**: `TODO_ADD_LINK`
 
 ---
 
