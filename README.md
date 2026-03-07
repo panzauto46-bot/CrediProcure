@@ -241,12 +241,13 @@ The live Creditcoin testnet deployment is designed to be easy for judges to test
 
 | Phase | Milestone | Deliverables | Status |
 |:---:|:---|:---|:---:|
-| **1** | 🎨 UI/UX Design & Prototyping | Wireframes, user flows, component library, responsive layout | ✅ Done |
-| **2** | ⛓️ Smart Contract Development | InvoiceNFT (ERC-721), LendingPool, MockStablecoin, unit tests | ✅ Done |
-| **3** | 🔗 Web3 Integration | MetaMask wallet connect, contract integration, live data fetching | ✅ Done |
-| **4** | 🚀 Live Feature Activation | Replace core marketplace, LP, and credit history flows with blockchain reads/writes while keeping local-first draft workflows | ✅ Done |
-| **5** | 🌐 Deployment & Submission | Creditcoin Testnet deployment, Vercel hosting, submission package | ✅ Done |
-| **6** | 📈 Future: Mainnet & DAO | Governance token, on-chain credit scoring, multi-chain support | 🔮 Planned |
+| **1** | 🎨 Product Design & UX | Landing page, vendor portal, investor portal, dashboard layouts, responsive UI system | ✅ Completed |
+| **2** | ⛓️ Smart Contract Development | `InvoiceNFT.sol`, `LendingPool.sol`, `MockStablecoin.sol`, Hardhat tests, Creditcoin testnet deployment | ✅ Completed |
+| **3** | 🔗 Web3 Integration | Wallet connection, contract reads/writes, invoice minting, funding, repayment, and demo token flow | ✅ Completed |
+| **4** | ✅ Live Testnet Validation | End-to-end validation of invoice creation, RWA minting, investor funding, vendor repayment, credit history, and investor portfolio | ✅ Completed |
+| **5** | 🌐 Submission & Demo Delivery | GitHub repository, Vercel deployment, DoraHacks submission, demo video, and polished documentation | ✅ Completed |
+| **6** | 📈 Next Protocol Expansion | Multi-investor syndication, stronger risk scoring, indexer support, enhanced pool accounting, richer analytics | 🔄 Next |
+| **7** | 🚀 Mainnet Readiness | Production stablecoin integration, off-chain invoice verification, compliance layer, DAO/governance, mainnet launch | 🔮 Planned |
 
 ---
 
@@ -332,7 +333,7 @@ src/context/WalletContext.tsx → CONTRACT_ADDRESSES
 
 - **Project Sector**: DeFi + RWA
 - **Project Deck / Whitepaper (PDF URL)**: `TODO_ADD_LINK`
-- **Prototype Demo Video URL**: `TODO_ADD_LINK`
+- **Prototype Demo Video URL**: `https://youtu.be/c_65KWII4Kk`
 
 ---
 
