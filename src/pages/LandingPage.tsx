@@ -9,11 +9,13 @@ import {
   TrendingUp,
   Wallet,
   Workflow,
+  X,
   Zap
 } from 'lucide-react';
+import type { WalletType } from '@/context/WalletContext';
 
 interface LandingPageProps {
-  onEnterApp: () => void;
+  onEnterApp: (walletType: WalletType) => Promise<void> | void;
 }
 
 const tickerItems = [
@@ -43,9 +45,18 @@ const flowSteps = [
   },
 ];
 
+const walletOptions: Array<{ id: WalletType; title: string; subtitle: string; badge?: string }> = [
+  { id: 'metamask', title: 'MetaMask', subtitle: 'Most compatible for Creditcoin', badge: 'Recommended' },
+  { id: 'phantom', title: 'Phantom', subtitle: 'Use EVM mode in Phantom' },
+  { id: 'bitget', title: 'Bitget Wallet', subtitle: 'Bitget / BitKeep EVM wallet' },
+];
+
 export function LandingPage({ onEnterApp }: LandingPageProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [pressed, setPressed] = useState(false);
+  const [showWalletPicker, setShowWalletPicker] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingWallet, setConnectingWallet] = useState<WalletType | null>(null);
   const runningTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -58,6 +69,22 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
   };
 
   const resetTilt = () => setTilt({ x: 0, y: 0 });
+
+  const handleOpenWalletPicker = () => {
+    setShowWalletPicker(true);
+  };
+
+  const handleConnectWallet = async (walletType: WalletType) => {
+    if (isConnecting) return;
+    setIsConnecting(true);
+    setConnectingWallet(walletType);
+    try {
+      await onEnterApp(walletType);
+    } finally {
+      setIsConnecting(false);
+      setConnectingWallet(null);
+    }
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#090014] text-white selection:bg-purple-500/30">
@@ -105,7 +132,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
 
             <div className="flex flex-wrap items-center gap-3 animate-fade-in-up" style={{ animationDelay: '220ms' }}>
               <button
-                onClick={onEnterApp}
+                onClick={handleOpenWalletPicker}
                 className="group inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition-colors hover:bg-gray-200"
               >
                 Launch App
@@ -262,7 +289,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               Masuk ke dashboard untuk mulai mint invoice, kelola liquidity, dan monitor credit performance secara real-time.
             </p>
             <button
-              onClick={onEnterApp}
+              onClick={handleOpenWalletPicker}
               className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition-colors hover:bg-gray-200"
             >
               Enter Application
@@ -271,6 +298,54 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
           </div>
         </section>
       </main>
+
+      {showWalletPicker && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-[#120a20] p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">Choose Wallet</h3>
+                <p className="text-sm text-white/65">Pilih wallet yang mau dipakai buat launch app.</p>
+              </div>
+              <button
+                onClick={() => setShowWalletPicker(false)}
+                disabled={isConnecting}
+                className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {walletOptions.map((wallet) => (
+                <button
+                  key={wallet.id}
+                  onClick={() => handleConnectWallet(wallet.id)}
+                  disabled={isConnecting}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{wallet.title}</p>
+                      <p className="text-sm text-white/60">{wallet.subtitle}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {wallet.badge && (
+                        <span className="rounded-full border border-purple-400/40 bg-purple-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-purple-200">
+                          {wallet.badge}
+                        </span>
+                      )}
+                      {isConnecting && connectingWallet === wallet.id && (
+                        <span className="text-xs text-purple-200">Connecting...</span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

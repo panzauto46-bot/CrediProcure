@@ -13,6 +13,8 @@ const CONTRACT_ADDRESSES = {
 
 const CREDITCOIN_CHAIN_HEX = '0x18E8F';
 
+export type WalletType = 'auto' | 'metamask' | 'phantom' | 'bitget';
+
 interface EthereumProvider {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
   on?: (eventName: string, listener: (...args: unknown[]) => void) => void;
@@ -20,6 +22,9 @@ interface EthereumProvider {
   providers?: EthereumProvider[];
   isMetaMask?: boolean;
   isPhantom?: boolean;
+  isBitGetWallet?: boolean;
+  isBitKeep?: boolean;
+  isBitget?: boolean;
 }
 
 type ContractsState = {
@@ -33,7 +38,7 @@ interface WalletContextType {
   provider: ethers.BrowserProvider | null;
   signer: ethers.JsonRpcSigner | null;
   contracts: ContractsState;
-  connectWallet: () => Promise<boolean>;
+  connectWallet: (walletType?: WalletType) => Promise<boolean>;
   disconnectWallet: () => void;
   chainId: number | null;
 }
@@ -49,29 +54,72 @@ const WalletContext = createContext<WalletContextType>({
   provider: null,
   signer: null,
   contracts: EMPTY_CONTRACTS,
-  connectWallet: async () => false,
+  connectWallet: async (_walletType?: WalletType) => false,
   disconnectWallet: () => {},
   chainId: null,
 });
 
 export const useWallet = () => useContext(WalletContext);
 
-function getPreferredProvider(): EthereumProvider | null {
+function getWalletLabel(walletType: WalletType): string {
+  switch (walletType) {
+    case 'metamask':
+      return 'MetaMask';
+    case 'phantom':
+      return 'Phantom';
+    case 'bitget':
+      return 'Bitget Wallet';
+    default:
+      return 'Wallet';
+  }
+}
+
+function getInjectedProviders(): EthereumProvider[] {
   const injected = window.ethereum;
-  if (!injected) return null;
+  if (!injected) return [];
 
-  const availableProviders =
-    Array.isArray(injected.providers) && injected.providers.length > 0
-      ? injected.providers
-      : [injected];
+  return Array.isArray(injected.providers) && injected.providers.length > 0
+    ? injected.providers
+    : [injected];
+}
 
-  const metaMaskProvider = availableProviders.find((provider) => provider.isMetaMask && !provider.isPhantom);
-  if (metaMaskProvider) return metaMaskProvider;
+function isBitgetProvider(provider: EthereumProvider): boolean {
+  return Boolean(provider.isBitGetWallet || provider.isBitKeep || provider.isBitget);
+}
 
-  const nonPhantomProvider = availableProviders.find((provider) => !provider.isPhantom);
-  if (nonPhantomProvider) return nonPhantomProvider;
+function detectWalletType(provider: EthereumProvider): WalletType {
+  if (provider.isPhantom) return 'phantom';
+  if (isBitgetProvider(provider)) return 'bitget';
+  if (provider.isMetaMask) return 'metamask';
+  return 'auto';
+}
 
-  return availableProviders[0] ?? null;
+function selectProvider(walletType: WalletType): EthereumProvider | null {
+  const providers = getInjectedProviders();
+  if (providers.length === 0) return null;
+
+  if (walletType === 'metamask') {
+    return providers.find((provider) => provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider)) ?? null;
+  }
+
+  if (walletType === 'phantom') {
+    return providers.find((provider) => provider.isPhantom) ?? null;
+  }
+
+  if (walletType === 'bitget') {
+    return providers.find((provider) => isBitgetProvider(provider)) ?? null;
+  }
+
+  const metamask = providers.find((provider) => provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider));
+  if (metamask) return metamask;
+
+  const bitget = providers.find((provider) => isBitgetProvider(provider));
+  if (bitget) return bitget;
+
+  const phantom = providers.find((provider) => provider.isPhantom);
+  if (phantom) return phantom;
+
+  return providers[0] ?? null;
 }
 
 async function ensureCreditcoinNetwork(provider: EthereumProvider): Promise<boolean> {
@@ -119,6 +167,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [contracts, setContracts] = useState<ContractsState>(EMPTY_CONTRACTS);
   const [chainId, setChainId] = useState<number | null>(null);
+  const [eventProvider, setEventProvider] = useState<EthereumProvider | null>(null);
+  const [activeWalletType, setActiveWalletType] = useState<WalletType>('auto');
 
   const disconnectWallet = useCallback(() => {
     setAccount(null);
@@ -126,19 +176,19 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSigner(null);
     setContracts(EMPTY_CONTRACTS);
     setChainId(null);
+    setEventProvider(null);
+    setActiveWalletType('auto');
   }, []);
 
-  const connectWallet = useCallback(async () => {
-    const selectedProvider = getPreferredProvider();
+  const connectWallet = useCallback(async (walletType: WalletType = 'auto') => {
+    const selectedProvider = selectProvider(walletType);
 
     if (!selectedProvider) {
-      alert('Please install MetaMask (or another EVM wallet) to continue.');
-      return false;
-    }
-
-    // Phantom set as default provider often fails on Creditcoin custom network.
-    if (selectedProvider.isPhantom && !selectedProvider.isMetaMask) {
-      alert('Phantom EVM is not compatible with Creditcoin Testnet. Please use MetaMask for this dApp.');
+      if (walletType === 'auto') {
+        alert('No EVM wallet detected. Please install MetaMask, Phantom, or Bitget Wallet.');
+      } else {
+        alert(`${getWalletLabel(walletType)} is not detected in your browser.`);
+      }
       return false;
     }
 
@@ -148,7 +198,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       const networkReady = await ensureCreditcoinNetwork(selectedProvider);
       if (!networkReady) {
-        alert('Please switch to Creditcoin Testnet in your wallet, then try Launch App again.');
+        const label = walletType === 'auto' ? getWalletLabel(detectWalletType(selectedProvider)) : getWalletLabel(walletType);
+        alert(`${label} failed to switch to Creditcoin Testnet. Please switch network manually or choose another wallet.`);
         return false;
       }
 
@@ -160,6 +211,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setProvider(browserProvider);
       setSigner(nextSigner);
       setChainId(Number(network.chainId));
+      setEventProvider(selectedProvider);
+      setActiveWalletType(walletType === 'auto' ? detectWalletType(selectedProvider) : walletType);
 
       const nextContracts: ContractsState = {
         invoiceNFT: new ethers.Contract(CONTRACT_ADDRESSES.InvoiceNFT, InvoiceNFTAbi.abi, nextSigner),
@@ -176,30 +229,29 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   useEffect(() => {
-    const selectedProvider = getPreferredProvider();
-    if (!selectedProvider || !selectedProvider.on) return;
+    if (!eventProvider || !eventProvider.on) return;
 
     const handleAccountsChanged = (accountsArg: unknown) => {
       const nextAccounts = Array.isArray(accountsArg) ? (accountsArg as string[]) : [];
       if (nextAccounts.length === 0) {
         disconnectWallet();
       } else {
-        void connectWallet();
+        void connectWallet(activeWalletType);
       }
     };
 
     const handleChainChanged = () => {
-      void connectWallet();
+      void connectWallet(activeWalletType);
     };
 
-    selectedProvider.on('accountsChanged', handleAccountsChanged);
-    selectedProvider.on('chainChanged', handleChainChanged);
+    eventProvider.on('accountsChanged', handleAccountsChanged);
+    eventProvider.on('chainChanged', handleChainChanged);
 
     return () => {
-      selectedProvider.removeListener?.('accountsChanged', handleAccountsChanged);
-      selectedProvider.removeListener?.('chainChanged', handleChainChanged);
+      eventProvider.removeListener?.('accountsChanged', handleAccountsChanged);
+      eventProvider.removeListener?.('chainChanged', handleChainChanged);
     };
-  }, [connectWallet, disconnectWallet]);
+  }, [activeWalletType, connectWallet, disconnectWallet, eventProvider]);
 
   return (
     <WalletContext.Provider value={{ account, provider, signer, contracts, connectWallet, disconnectWallet, chainId }}>

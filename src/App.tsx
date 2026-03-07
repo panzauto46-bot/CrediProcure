@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { WalletProvider, useWallet } from '@/context/WalletContext';
+import { WalletProvider, WalletType, useWallet } from '@/context/WalletContext';
 import { Layout } from '@/components/Layout';
 import { VendorDashboard } from '@/pages/VendorDashboard';
 import { Inventory } from '@/pages/Inventory';
@@ -23,8 +23,8 @@ function AppContent() {
   // HACK: Expose navigation to window for quick access from dashboard
   (window as any).navigateToPage = setCurrentPage;
 
-  const handleEnterApp = async () => {
-    const connected = await connectWallet();
+  const handleEnterApp = async (walletType: WalletType) => {
+    const connected = await connectWallet(walletType);
     if (connected) {
       setShowLanding(false);
     }
