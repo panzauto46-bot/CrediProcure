@@ -10,6 +10,8 @@ import {
   Shield,
   Menu,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
   Wallet,
   ChevronDown,
   LogOut,
@@ -31,6 +33,7 @@ interface LayoutProps {
 
 export function Layout({ children, currentPage, setCurrentPage, userType, setUserType }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { account, connectWallet, disconnectWallet } = useWallet();
@@ -65,8 +68,9 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 z-50 h-full w-72 bg-[hsl(var(--card))] border-r border-[hsl(var(--border))] transform transition-transform duration-300 lg:translate-x-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed top-0 left-0 z-50 h-full w-72 bg-[hsl(var(--card))] border-r border-[hsl(var(--border))] transform transition-transform duration-300",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full",
+        desktopSidebarOpen ? "lg:translate-x-0" : "lg:-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -177,7 +181,10 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
       </aside>
 
       {/* Main Content */}
-      <div className="lg:ml-72">
+      <div className={cn(
+        "transition-[margin] duration-300",
+        desktopSidebarOpen ? "lg:ml-72" : "lg:ml-0"
+      )}>
         {/* Top Header */}
         <header className="sticky top-0 z-30 glass border-b border-[hsl(var(--border))]">
           <div className="flex items-center justify-between px-4 lg:px-8 py-4">
@@ -188,7 +195,18 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
               <Menu className="w-6 h-6 text-[hsl(var(--foreground))]" />
             </button>
 
-            <div className="hidden lg:block">
+            <div className="hidden lg:flex items-center gap-3">
+              <button
+                onClick={() => setDesktopSidebarOpen(prev => !prev)}
+                className="p-2.5 hover:bg-[hsl(var(--accent))] rounded-xl transition-all duration-200"
+                title={desktopSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+              >
+                {desktopSidebarOpen ? (
+                  <PanelLeftClose className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
+                ) : (
+                  <PanelLeftOpen className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
+                )}
+              </button>
               <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">
                 {userType === 'vendor' ? 'Vendor Portal' : 'Investor Portal'}
               </h2>
