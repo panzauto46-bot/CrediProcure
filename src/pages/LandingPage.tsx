@@ -80,7 +80,10 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
 
                             {/* Mockup Buttons */}
                             <div className="flex items-center gap-4 mb-16">
-                                <button className="px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+                                <button
+                                    onClick={onEnterApp}
+                                    className="px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                                >
                                     Get Started <ArrowRight className="w-4 h-4" />
                                 </button>
                                 <button className="px-5 py-2.5 bg-white/5 text-white/80 text-sm font-medium rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
