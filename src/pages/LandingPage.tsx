@@ -30,17 +30,17 @@ const tickerItems = [
 const flowSteps = [
   {
     title: 'Mint Invoice to RWA',
-    description: 'Vendor menerbitkan invoice menjadi token ERC-721 agar bisa dilacak on-chain secara transparan.',
+    description: 'Vendors mint invoices into ERC-721 assets so every funding action stays transparent on-chain.',
     icon: CircuitBoard,
   },
   {
     title: 'Funding Flow Starts',
-    description: 'Investor atau liquidity pool mendanai invoice dengan stablecoin dalam alur terukur dan cepat.',
+    description: 'Investors or liquidity pools fund invoices with stablecoins through a fast, trackable workflow.',
     icon: Coins,
   },
   {
     title: 'Repayment + Yield',
-    description: 'Saat invoice lunas, hasil terdistribusi otomatis dan riwayat kredit vendor ikut terbarui.',
+    description: 'When invoices are repaid, yields are distributed automatically and vendor credit history updates.',
     icon: TrendingUp,
   },
 ];
@@ -120,13 +120,13 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
 
             <div className="space-y-4">
               <h1 className="animate-fade-in-up text-4xl font-bold leading-tight md:text-6xl" style={{ animationDelay: '80ms' }}>
-                Satu Platform untuk
+                One Platform to
                 <span className="animate-gradient-shift block bg-gradient-to-r from-purple-300 via-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">
                   Mint, Fund, and Scale
                 </span>
               </h1>
               <p className="max-w-xl animate-fade-in-up text-base leading-relaxed text-purple-100/70 md:text-lg" style={{ animationDelay: '140ms' }}>
-                CrediProcure mengubah invoice bisnis jadi aset on-chain yang bisa didanai cepat, dipantau real-time, dan menghasilkan yield stabil untuk investor.
+                CrediProcure converts business invoices into on-chain assets that can be funded quickly, monitored in real time, and generate stable yields for investors.
               </p>
             </div>
 
@@ -250,7 +250,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
           <div className="mb-6 text-center">
             <h2 className="text-2xl font-bold md:text-3xl">Funding Flow in Motion</h2>
             <p className="mx-auto mt-2 max-w-2xl text-sm text-white/65 md:text-base">
-              Rangkaian lengkap dari invoice creation sampai repayment dibuat untuk eksekusi cepat, auditable, dan ramah investor.
+              A complete lifecycle from invoice creation to repayment, designed for fast execution, auditability, and investor confidence.
             </p>
           </div>
 
@@ -286,7 +286,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             <CheckCircle2 className="h-8 w-8 text-purple-300" />
             <h3 className="text-2xl font-bold">Ready to Run CrediProcure?</h3>
             <p className="text-sm text-white/70 md:text-base">
-              Masuk ke dashboard untuk mulai mint invoice, kelola liquidity, dan monitor credit performance secara real-time.
+              Enter the dashboard to start minting invoices, managing liquidity, and monitoring credit performance in real time.
             </p>
             <button
               onClick={handleOpenWalletPicker}
@@ -305,7 +305,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold">Choose Wallet</h3>
-                <p className="text-sm text-white/65">Pilih wallet yang mau dipakai buat launch app.</p>
+                <p className="text-sm text-white/65">Pick the wallet you want to use to launch the app.</p>
               </div>
               <button
                 onClick={() => setShowWalletPicker(false)}
