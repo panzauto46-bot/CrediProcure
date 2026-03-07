@@ -116,10 +116,10 @@ export function LiquidityRequest() {
       </div>
 
       {/* Info Banner */}
-      <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-5">
+      <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 rounded-xl p-5">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Info className="w-5 h-5 text-cyan-500" />
+          <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Info className="w-5 h-5 text-indigo-500" />
           </div>
           <div>
             <h4 className="font-semibold text-[hsl(var(--foreground))] mb-1">How Invoice Factoring Works</h4>
@@ -142,13 +142,13 @@ export function LiquidityRequest() {
             <div className="flex items-center gap-2">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
-                step >= s.num ? 'bg-emerald-500 text-white' : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
+                step >= s.num ? 'bg-violet-500 text-white' : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
               )}>
                 {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
               </div>
               <span className={cn(
                 "hidden sm:block text-sm font-medium",
-                step >= s.num ? 'text-emerald-500' : 'text-[hsl(var(--muted-foreground))]'
+                step >= s.num ? 'text-violet-500' : 'text-[hsl(var(--muted-foreground))]'
               )}>
                 {s.label}
               </span>
@@ -176,7 +176,7 @@ export function LiquidityRequest() {
             </div>
 
             {isLoading ? (
-              <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-500" /></div>
+              <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-violet-500" /></div>
             ) : invoices.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 text-[hsl(var(--muted-foreground))] mx-auto mb-3 opacity-50" />
@@ -192,7 +192,7 @@ export function LiquidityRequest() {
                     className={cn(
                       "w-full p-4 rounded-xl border-2 text-left transition-all",
                       selectedInvoiceId === invoice.id
-                        ? 'border-emerald-500 bg-emerald-500/5'
+                        ? 'border-violet-500 bg-violet-500/5'
                         : 'border-[hsl(var(--border))] hover:border-[hsl(var(--muted-foreground))]'
                     )}
                   >
@@ -200,11 +200,11 @@ export function LiquidityRequest() {
                       <div className="flex items-center gap-3">
                         <div className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center",
-                          selectedInvoiceId === invoice.id ? 'bg-emerald-500/10' : 'bg-[hsl(var(--muted))]'
+                          selectedInvoiceId === invoice.id ? 'bg-violet-500/10' : 'bg-[hsl(var(--muted))]'
                         )}>
                           <FileText className={cn(
                             "w-5 h-5",
-                            selectedInvoiceId === invoice.id ? 'text-emerald-500' : 'text-[hsl(var(--muted-foreground))]'
+                            selectedInvoiceId === invoice.id ? 'text-violet-500' : 'text-[hsl(var(--muted-foreground))]'
                           )} />
                         </div>
                         <div>
@@ -242,7 +242,7 @@ export function LiquidityRequest() {
                 value={requestAmount}
                 onChange={(e) => setRequestAmount(e.target.value)}
                 placeholder="0"
-                className="w-full px-4 py-4 text-3xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                className="w-full px-4 py-4 text-3xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
               />
               <div className="flex justify-between mt-2 text-sm">
                 <span className="text-[hsl(var(--muted-foreground))]">Min: {formatCurrency(selected.amount * 0.1)}</span>
@@ -265,7 +265,7 @@ export function LiquidityRequest() {
 
             {/* Summary */}
             {requestAmount && (
-              <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl p-5 border border-emerald-500/20">
+              <div className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 rounded-xl p-5 border border-violet-500/20">
                 <h4 className="font-semibold text-[hsl(var(--foreground))] mb-3">Funding Summary</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -276,9 +276,9 @@ export function LiquidityRequest() {
                     <span className="text-[hsl(var(--muted-foreground))]">Interest Rate ({selected.yieldRate}%)</span>
                     <span className="font-medium text-[hsl(var(--foreground))]">{formatCurrency(Number(requestAmount) * (selected.yieldRate / 100))}</span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-emerald-500/20">
+                  <div className="flex justify-between pt-2 border-t border-violet-500/20">
                     <span className="font-medium text-[hsl(var(--foreground))]">Total Repayment</span>
-                    <span className="font-bold text-emerald-500">{formatCurrency(Number(requestAmount) * (1 + selected.yieldRate / 100))}</span>
+                    <span className="font-bold text-violet-500">{formatCurrency(Number(requestAmount) * (1 + selected.yieldRate / 100))}</span>
                   </div>
                 </div>
               </div>
@@ -288,16 +288,16 @@ export function LiquidityRequest() {
 
         {step === 3 && selected && (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-emerald-500" />
+            <div className="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-violet-500" />
             </div>
             <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-2">Request Submitted!</h3>
             <p className="text-[hsl(var(--muted-foreground))] mb-6">
               Your funding request regarding <strong>{selected.invoiceNumber}</strong> has been broadcast to investors.
             </p>
 
-            <div className="mt-6 p-4 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl border border-emerald-500/20">
-              <div className="flex items-center gap-2 justify-center text-emerald-500">
+            <div className="mt-6 p-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 rounded-xl border border-violet-500/20">
+              <div className="flex items-center gap-2 justify-center text-violet-500">
                 <Zap className="w-4 h-4" />
                 <span className="text-sm font-medium">Your credit score will increase upon repayment</span>
               </div>
@@ -322,7 +322,7 @@ export function LiquidityRequest() {
               className={cn(
                 "flex-1 px-6 py-2.5 rounded-xl font-medium transition-all",
                 (step === 1 ? selectedInvoiceId : requestAmount)
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/25'
+                  ? 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:shadow-lg hover:shadow-violet-500/25'
                   : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
               )}
             >

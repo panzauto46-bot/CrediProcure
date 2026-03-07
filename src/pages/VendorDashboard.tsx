@@ -106,7 +106,7 @@ export function VendorDashboard() {
       change: '+8.2%',
       trend: 'up',
       icon: DollarSign,
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-violet-500 to-fuchsia-600',
     },
     {
       title: 'Pending Funding',
@@ -129,15 +129,15 @@ export function VendorDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-6 lg:p-8">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 p-6 lg:p-8">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-violet-500/20 to-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium border border-emerald-500/30">
+                <span className="px-3 py-1 bg-violet-500/20 text-violet-400 rounded-full text-xs font-medium border border-violet-500/30">
                   Verified Business
                 </span>
               </div>
@@ -153,7 +153,7 @@ export function VendorDashboard() {
               <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl px-5 py-4">
                 <p className="text-xs text-slate-400 mb-1">KYB Status</p>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle className="w-4 h-4 text-violet-400" />
                   <span className="text-white font-medium">Verified</span>
                 </div>
               </div>
@@ -172,7 +172,7 @@ export function VendorDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-[hsl(var(--card))] rounded-2xl p-5 border border-[hsl(var(--border))] hover:border-emerald-500/30 transition-colors group">
+          <div key={index} className="bg-[hsl(var(--card))] rounded-2xl p-5 border border-[hsl(var(--border))] hover:border-violet-500/30 transition-colors group">
             <div className="flex items-start justify-between mb-4">
               <div className={cn("w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg", stat.gradient)}>
                 <stat.icon className="w-5 h-5 text-white" />
@@ -180,7 +180,7 @@ export function VendorDashboard() {
               <div className={cn(
                 "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
                 stat.trend === 'up'
-                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+                  ? 'text-violet-600 dark:text-violet-400 bg-violet-500/10'
                   : 'text-red-600 dark:text-red-400 bg-red-500/10'
               )}>
                 {stat.trend === 'up' ? (
@@ -205,7 +205,7 @@ export function VendorDashboard() {
             <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Recent Invoices</h3>
             <button
               onClick={() => (window as any).navigateToPage('invoices')}
-              className="text-sm text-emerald-500 hover:text-emerald-600 font-medium"
+              className="text-sm text-violet-500 hover:text-violet-600 font-medium"
             >
               View All
             </button>
@@ -216,12 +216,12 @@ export function VendorDashboard() {
                 <div className="flex items-center gap-4">
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center",
-                    invoice.status === 'funded' || invoice.status === 'repaid' ? 'bg-emerald-500/10' :
+                    invoice.status === 'funded' || invoice.status === 'repaid' ? 'bg-violet-500/10' :
                       invoice.status === 'minted' ? 'bg-blue-500/10' : 'bg-amber-500/10'
                   )}>
                     <FileText className={cn(
                       "w-5 h-5",
-                      invoice.status === 'funded' || invoice.status === 'repaid' ? 'text-emerald-500' :
+                      invoice.status === 'funded' || invoice.status === 'repaid' ? 'text-violet-500' :
                         invoice.status === 'minted' ? 'text-blue-500' : 'text-amber-500'
                     )} />
                   </div>
@@ -234,7 +234,7 @@ export function VendorDashboard() {
                   <p className="font-semibold text-[hsl(var(--foreground))]">{formatCurrency(invoice.amount)}</p>
                   <span className={cn(
                     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                    invoice.status === 'funded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                    invoice.status === 'funded' ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400' :
                       invoice.status === 'minted' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
                         invoice.status === 'repaid' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
                           'bg-amber-500/10 text-amber-600 dark:text-amber-400'
@@ -254,7 +254,7 @@ export function VendorDashboard() {
             <div className="space-y-3">
               <button
                 onClick={() => (window as any).navigateToPage('invoices')}
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group"
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all group"
               >
                 <FileText className="w-5 h-5" />
                 <span className="font-medium">Create New Invoice</span>

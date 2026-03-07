@@ -87,8 +87,8 @@ export function LiquidityPool() {
             <div className="bg-white/10 backdrop-blur border border-white/10 rounded-xl p-4">
               <p className="text-xs text-purple-200 mb-1">Current APY</p>
               <div className="flex items-center gap-2">
-                <p className="text-xl font-bold text-emerald-300">{poolData.currentAPY}%</p>
-                <ArrowUpRight className="w-4 h-4 text-emerald-300" />
+                <p className="text-xl font-bold text-violet-300">{poolData.currentAPY}%</p>
+                <ArrowUpRight className="w-4 h-4 text-violet-300" />
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur border border-white/10 rounded-xl p-4">
@@ -119,7 +119,7 @@ export function LiquidityPool() {
                 <span className="text-[hsl(var(--muted-foreground))]">{item.label}</span>
                 <span className={cn(
                   "font-semibold",
-                  item.highlight ? 'text-emerald-500' : 'text-[hsl(var(--foreground))]'
+                  item.highlight ? 'text-violet-500' : 'text-[hsl(var(--foreground))]'
                 )}>{item.value}</span>
               </div>
             ))}
@@ -238,7 +238,7 @@ export function LiquidityPool() {
       {/* Pool Benefits */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {[
-          { icon: TrendingUp, title: 'Stable Yields', desc: 'Earn consistent yields from real business invoice payments', color: 'bg-emerald-500/10 text-emerald-500' },
+          { icon: TrendingUp, title: 'Stable Yields', desc: 'Earn consistent yields from real business invoice payments', color: 'bg-violet-500/10 text-violet-500' },
           { icon: Shield, title: 'Diversified Risk', desc: 'Your deposit is spread across multiple verified invoices', color: 'bg-blue-500/10 text-blue-500' },
           { icon: Zap, title: 'Auto-Compound', desc: 'Yields are automatically reinvested to maximize returns', color: 'bg-purple-500/10 text-purple-500' },
         ].map((item, i) => (
@@ -264,8 +264,8 @@ export function LiquidityPool() {
               </div>
             ) : isComplete ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-emerald-500" />
+                <div className="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-violet-500" />
                 </div>
                 <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-2">
                   {activeTab === 'deposit' ? 'Deposit Successful!' : 'Withdrawal Initiated!'}

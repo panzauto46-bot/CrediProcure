@@ -113,34 +113,34 @@ export function Portfolio() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20"><Loader2 className="w-10 h-10 animate-spin mx-auto text-emerald-500" /></div>
+        <div className="text-center py-20"><Loader2 className="w-10 h-10 animate-spin mx-auto text-violet-500" /></div>
       ) : (
         <>
           {/* Portfolio Summary */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-700 p-6 text-white">
+            <div className="lg:col-span-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 p-6 text-white">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               <div className="relative z-10">
-                <h3 className="text-lg font-semibold mb-6 text-cyan-100">Portfolio Overview</h3>
+                <h3 className="text-lg font-semibold mb-6 text-indigo-100">Portfolio Overview</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <p className="text-cyan-100 text-sm mb-1">Total Invested</p>
+                    <p className="text-indigo-100 text-sm mb-1">Total Invested</p>
                     <p className="text-2xl font-bold">{formatCurrency(totalInvested)}</p>
                   </div>
                   <div>
-                    <p className="text-cyan-100 text-sm mb-1">Total Yield</p>
+                    <p className="text-indigo-100 text-sm mb-1">Total Yield</p>
                     <div className="flex items-center gap-2">
                       <p className="text-2xl font-bold">{formatCurrency(totalYield)}</p>
-                      <ArrowUpRight className="w-5 h-5 text-emerald-300" />
+                      <ArrowUpRight className="w-5 h-5 text-violet-300" />
                     </div>
                   </div>
                   <div>
-                    <p className="text-cyan-100 text-sm mb-1">Portfolio Value</p>
+                    <p className="text-indigo-100 text-sm mb-1">Portfolio Value</p>
                     <p className="text-2xl font-bold">{formatCurrency(totalInvested + totalYield)}</p>
                   </div>
                   <div>
-                    <p className="text-cyan-100 text-sm mb-1">Return Rate</p>
-                    <p className="text-2xl font-bold text-emerald-300">
+                    <p className="text-indigo-100 text-sm mb-1">Return Rate</p>
+                    <p className="text-2xl font-bold text-violet-300">
                       +{totalInvested > 0 ? ((totalYield / totalInvested) * 100).toFixed(2) : '0.00'}%
                     </p>
                   </div>
@@ -194,8 +194,8 @@ export function Portfolio() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { icon: FileText, label: 'Total Investments', value: investments.length, color: 'bg-blue-500/10 text-blue-500' },
-              { icon: Clock, label: 'Active', value: activeInvestments.length, color: 'bg-cyan-500/10 text-cyan-500' },
-              { icon: CheckCircle, label: 'Repaid', value: repaidInvestments.length, color: 'bg-emerald-500/10 text-emerald-500' },
+              { icon: Clock, label: 'Active', value: activeInvestments.length, color: 'bg-indigo-500/10 text-indigo-500' },
+              { icon: CheckCircle, label: 'Repaid', value: repaidInvestments.length, color: 'bg-violet-500/10 text-violet-500' },
               { icon: TrendingUp, label: 'Avg. Yield', value: `${investments.length > 0 ? (investments.reduce((sum, inv) => sum + inv.yieldRate, 0) / investments.length).toFixed(1) : '0.0'}%`, color: 'bg-purple-500/10 text-purple-500' },
             ].map((stat, i) => (
               <div key={i} className="bg-[hsl(var(--card))] rounded-xl p-5 border border-[hsl(var(--border))]">
@@ -240,11 +240,11 @@ export function Portfolio() {
                           <div className="flex items-center gap-3">
                             <div className={cn(
                               "w-9 h-9 rounded-lg flex items-center justify-center",
-                              investment.status === 'active' ? 'bg-blue-500/10' : 'bg-emerald-500/10'
+                              investment.status === 'active' ? 'bg-blue-500/10' : 'bg-violet-500/10'
                             )}>
                               <FileText className={cn(
                                 "w-4 h-4",
-                                investment.status === 'active' ? 'text-blue-500' : 'text-emerald-500'
+                                investment.status === 'active' ? 'text-blue-500' : 'text-violet-500'
                               )} />
                             </div>
                             <span className="font-medium text-[hsl(var(--foreground))]">{investment.invoiceNumber}</span>
@@ -254,10 +254,10 @@ export function Portfolio() {
                         <td className="px-6 py-4 text-right font-semibold text-[hsl(var(--foreground))]">
                           {formatCurrency(investment.amount)}
                         </td>
-                        <td className="px-6 py-4 text-right font-medium text-cyan-500">
+                        <td className="px-6 py-4 text-right font-medium text-indigo-500">
                           {investment.yieldRate}%
                         </td>
-                        <td className="px-6 py-4 text-right font-semibold text-emerald-500">
+                        <td className="px-6 py-4 text-right font-semibold text-violet-500">
                           +{formatCurrency(investment.earnedYield)}
                         </td>
                         <td className="px-6 py-4 text-sm text-[hsl(var(--muted-foreground))]">{investment.maturityDate}</td>
@@ -265,7 +265,7 @@ export function Portfolio() {
                           <span className={cn(
                             "px-3 py-1 rounded-lg text-xs font-medium",
                             investment.status === 'active' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                              investment.status === 'repaid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                              investment.status === 'repaid' ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400' :
                                 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                           )}>
                             {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}

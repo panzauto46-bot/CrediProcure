@@ -211,7 +211,7 @@ export function Invoices() {
     switch (status) {
       case 'pending': return { color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400', icon: Clock, label: 'Pending' };
       case 'minted': return { color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400', icon: Coins, label: 'Minted' };
-      case 'funded': return { color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', icon: DollarSign, label: 'Funded' };
+      case 'funded': return { color: 'bg-violet-500/10 text-violet-600 dark:text-violet-400', icon: DollarSign, label: 'Funded' };
       case 'repaid': return { color: 'bg-purple-500/10 text-purple-600 dark:text-purple-400', icon: CheckCircle, label: 'Repaid' };
     }
   };
@@ -240,7 +240,7 @@ export function Invoices() {
         </div>
         <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
           <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Funded</p>
-          <p className="text-2xl font-bold text-emerald-500">
+          <p className="text-2xl font-bold text-violet-500">
             {invoices.filter(i => i.status === 'funded').length}
           </p>
         </div>
@@ -261,7 +261,7 @@ export function Invoices() {
             placeholder="Search invoices..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
           />
         </div>
 
@@ -277,7 +277,7 @@ export function Invoices() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all font-medium"
           >
             <Plus className="w-5 h-5" />
             <span>Create Invoice</span>
@@ -366,7 +366,7 @@ export function Invoices() {
                 <label className="block text-sm font-medium mb-1.5">Client Name</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
                   placeholder="e.g. Acme Corp"
                   value={newInvoice.clientName}
                   onChange={e => setNewInvoice({ ...newInvoice, clientName: e.target.value })}
@@ -380,7 +380,7 @@ export function Invoices() {
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                       type="number"
-                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
                       placeholder="0.00"
                       value={newInvoice.amount}
                       onChange={e => setNewInvoice({ ...newInvoice, amount: e.target.value })}
@@ -391,7 +391,7 @@ export function Invoices() {
                   <label className="block text-sm font-medium mb-1.5">Due Date</label>
                   <input
                     type="date"
-                    className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                    className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
                     value={newInvoice.dueDate}
                     onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
                   />
@@ -401,7 +401,7 @@ export function Invoices() {
               <div>
                 <label className="block text-sm font-medium mb-1.5">Description (Optional)</label>
                 <textarea
-                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none min-h-[100px]"
+                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none min-h-[100px]"
                   placeholder="Details about services provided..."
                   value={newInvoice.description}
                   onChange={e => setNewInvoice({ ...newInvoice, description: e.target.value })}
@@ -418,7 +418,7 @@ export function Invoices() {
               </button>
               <button
                 onClick={handleCreateInvoice}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors font-bold shadow-lg shadow-emerald-500/20"
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition-colors font-bold shadow-lg shadow-violet-500/20"
               >
                 Create Draft
               </button>
@@ -449,7 +449,7 @@ export function Invoices() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-[hsl(var(--muted-foreground))]">Platform Fee</span>
-                      <span className="font-medium text-emerald-500">Free</span>
+                      <span className="font-medium text-violet-500">Free</span>
                     </div>
                   </div>
 
@@ -488,10 +488,10 @@ export function Invoices() {
 
               {mintStep === 3 && (
                 <>
-                  <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  <div className="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-violet-500" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-emerald-500">Success! Invoice Minted on Chain.</h3>
+                  <h3 className="text-xl font-bold mb-2 text-violet-500">Success! Invoice Minted on Chain.</h3>
                   <p className="text-[hsl(var(--muted-foreground))]">Redirecting...</p>
                 </>
               )}

@@ -152,7 +152,7 @@ export function Marketplace() {
     switch (risk) {
       case 'low':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-medium">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-lg text-xs font-medium">
             <Shield className="w-3.5 h-3.5" />
             Low Risk
           </span>
@@ -182,7 +182,7 @@ export function Marketplace() {
           <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Invoice Marketplace</h1>
           <p className="text-[hsl(var(--muted-foreground))]">Browse and fund real business invoices for yield</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-500/20">
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-xl border border-violet-500/20">
           <TrendingUp className="w-5 h-5" />
           <span className="font-semibold">Avg. Yield: 9.8%</span>
         </div>
@@ -193,7 +193,7 @@ export function Marketplace() {
         {[
           { label: 'Available Invoices', value: invoices.filter(i => i.status !== 'funded').length, color: 'text-[hsl(var(--foreground))]' },
           { label: 'Total Value', value: formatCurrency(invoices.reduce((sum, inv) => sum + inv.amount, 0)), color: 'text-blue-500' },
-          { label: 'Low Risk', value: invoices.filter(i => i.riskLevel === 'low').length, color: 'text-emerald-500' },
+          { label: 'Low Risk', value: invoices.filter(i => i.riskLevel === 'low').length, color: 'text-violet-500' },
           { label: 'High Yield (12%+)', value: invoices.filter(i => i.yieldRate >= 12).length, color: 'text-purple-500' },
         ].map((stat, i) => (
           <div key={i} className="bg-[hsl(var(--card))] rounded-xl p-4 border border-[hsl(var(--border))]">
@@ -212,7 +212,7 @@ export function Marketplace() {
             placeholder="Search invoices..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
+            className="w-full pl-12 pr-4 py-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
         <div className="flex gap-2">
@@ -223,7 +223,7 @@ export function Marketplace() {
               className={cn(
                 "px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
                 riskFilter === risk
-                  ? 'bg-cyan-500 text-white'
+                  ? 'bg-indigo-500 text-white'
                   : 'bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]'
               )}
             >
@@ -236,11 +236,11 @@ export function Marketplace() {
       {/* Invoice Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {filteredInvoices.map((invoice) => (
-          <div key={invoice.id} className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5 hover:border-cyan-500/30 transition-all group">
+          <div key={invoice.id} className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5 hover:border-indigo-500/30 transition-all group">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-xl flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-[hsl(var(--foreground))]">{invoice.invoiceNumber}</h3>
@@ -257,9 +257,9 @@ export function Marketplace() {
                 <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Amount</p>
                 <p className="font-bold text-[hsl(var(--foreground))]">{formatCurrency(invoice.amount)}</p>
               </div>
-              <div className="bg-emerald-500/10 rounded-lg p-3">
+              <div className="bg-violet-500/10 rounded-lg p-3">
                 <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Yield</p>
-                <p className="font-bold text-emerald-500">{invoice.yieldRate}%</p>
+                <p className="font-bold text-violet-500">{invoice.yieldRate}%</p>
               </div>
               <div className="bg-blue-500/10 rounded-lg p-3">
                 <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Due Date</p>
@@ -274,7 +274,7 @@ export function Marketplace() {
               </div>
               <button
                 onClick={() => handleFund(invoice)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all font-medium"
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all font-medium"
               >
                 <DollarSign className="w-4 h-4" />
                 Fund Invoice
@@ -317,7 +317,7 @@ export function Marketplace() {
                     value={fundAmount}
                     onChange={(e) => setFundAmount(e.target.value)}
                     placeholder="0"
-                    className="w-full px-4 py-4 text-2xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-[hsl(var(--foreground))]"
+                    className="w-full px-4 py-4 text-2xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-[hsl(var(--foreground))]"
                   />
                   <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">Max: {formatCurrency(selectedInvoice.amount)}</p>
                 </div>
@@ -335,7 +335,7 @@ export function Marketplace() {
                 </div>
 
                 {fundAmount && (
-                  <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl p-5 mb-6 border border-cyan-500/20">
+                  <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl p-5 mb-6 border border-indigo-500/20">
                     <h4 className="font-semibold text-[hsl(var(--foreground))] mb-3">Expected Returns</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
@@ -344,11 +344,11 @@ export function Marketplace() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-[hsl(var(--muted-foreground))]">Expected Yield ({selectedInvoice.yieldRate}%)</span>
-                        <span className="font-medium text-emerald-500">+{formatCurrency(Number(fundAmount) * (selectedInvoice.yieldRate / 100))}</span>
+                        <span className="font-medium text-violet-500">+{formatCurrency(Number(fundAmount) * (selectedInvoice.yieldRate / 100))}</span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-cyan-500/20">
+                      <div className="flex justify-between pt-2 border-t border-indigo-500/20">
                         <span className="font-medium text-[hsl(var(--foreground))]">Total Return</span>
-                        <span className="font-bold text-cyan-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
+                        <span className="font-bold text-indigo-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
                       </div>
                     </div>
                   </div>
@@ -358,7 +358,7 @@ export function Marketplace() {
 
             {fundStep === 2 && (
               <div className="text-center py-12">
-                <Loader2 className="w-16 h-16 text-cyan-500 animate-spin mx-auto mb-4" />
+                <Loader2 className="w-16 h-16 text-indigo-500 animate-spin mx-auto mb-4" />
                 <h4 className="font-semibold text-[hsl(var(--foreground))] mb-2">Processing Transaction</h4>
                 <p className="text-sm text-[hsl(var(--muted-foreground))]">Please confirm the transaction in your wallet...</p>
               </div>
@@ -366,8 +366,8 @@ export function Marketplace() {
 
             {fundStep === 3 && (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-emerald-500" />
+                <div className="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-violet-500" />
                 </div>
                 <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-2">Funding Successful!</h3>
                 <p className="text-[hsl(var(--muted-foreground))] mb-6">
@@ -380,7 +380,7 @@ export function Marketplace() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Expected Return</span>
-                    <span className="font-medium text-emerald-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
+                    <span className="font-medium text-violet-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Maturity</span>
@@ -397,7 +397,7 @@ export function Marketplace() {
                 "w-full mt-4 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-medium transition-all",
                 fundStep === 1 && !fundAmount
                   ? 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
-                  : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg hover:shadow-cyan-500/25'
+                  : 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white hover:shadow-lg hover:shadow-indigo-500/25'
               )}
             >
               {fundStep === 1 ? 'Confirm Funding' : fundStep === 2 ? 'Processing...' : 'Done'}

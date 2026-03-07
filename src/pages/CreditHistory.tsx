@@ -118,13 +118,13 @@ export function CreditHistory() {
       {/* Credit Score Card */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
               <p className="text-slate-400 mb-1">Creditcoin Credit Score</p>
               <h2 className="text-5xl font-bold text-white mb-2">785</h2>
-              <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full w-fit">
+              <div className="flex items-center gap-2 text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full w-fit">
                 <ArrowUpRight className="w-4 h-4" />
                 <span className="text-sm font-medium">+92 pts</span>
                 <span className="text-xs text-slate-400 ml-1">Last 30 days</span>
@@ -141,7 +141,7 @@ export function CreditHistory() {
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Total Repaid</p>
               </div>
               <div>
-                <p className="text-3xl font-bold mb-1 text-emerald-400">88%</p>
+                <p className="text-3xl font-bold mb-1 text-violet-400">88%</p>
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Success Rate</p>
               </div>
             </div>
@@ -151,9 +151,9 @@ export function CreditHistory() {
             <div>
               <p className="text-xs text-slate-400 mb-1">Repayment History</p>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 w-[85%]" />
+                <div className="h-full bg-violet-500 w-[85%]" />
               </div>
-              <p className="text-right text-xs mt-1 text-emerald-400">250/300</p>
+              <p className="text-right text-xs mt-1 text-violet-400">250/300</p>
             </div>
             <div>
               <p className="text-xs text-slate-400 mb-1">Invoice Volume</p>
@@ -180,8 +180,8 @@ export function CreditHistory() {
         </div>
 
         <div className="bg-[hsl(var(--card))] rounded-2xl p-6 border border-[hsl(var(--border))]">
-          <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
-            <CheckCircle className="w-6 h-6 text-emerald-500" />
+          <div className="w-12 h-12 bg-violet-500/10 rounded-xl flex items-center justify-center mb-4">
+            <CheckCircle className="w-6 h-6 text-violet-500" />
           </div>
           <h3 className="text-lg font-bold text-[hsl(var(--foreground))] mb-2">High Score = Lower Interest</h3>
           <p className="text-[hsl(var(--muted-foreground))] mb-4 text-sm">
@@ -205,7 +205,7 @@ export function CreditHistory() {
                 placeholder="Search tx hash..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none w-full sm:w-64"
+                className="pl-9 pr-4 py-2 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg text-sm focus:ring-2 focus:ring-violet-500 outline-none w-full sm:w-64"
               />
             </div>
             <button className="p-2 border border-[hsl(var(--border))] rounded-lg hover:bg-[hsl(var(--accent))]">
@@ -241,10 +241,10 @@ export function CreditHistory() {
                         <div className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center",
                           item.action === 'Loan Repaid' ? 'bg-purple-500/10' :
-                            item.action === 'Invoice Funded' ? 'bg-emerald-500/10' : 'bg-blue-500/10'
+                            item.action === 'Invoice Funded' ? 'bg-violet-500/10' : 'bg-blue-500/10'
                         )}>
                           {item.action === 'Loan Repaid' ? <CheckCircle className="w-4 h-4 text-purple-500" /> :
-                            item.action === 'Invoice Funded' ? <ArrowDownRight className="w-4 h-4 text-emerald-500" /> :
+                            item.action === 'Invoice Funded' ? <ArrowDownRight className="w-4 h-4 text-violet-500" /> :
                               <FileText className="w-4 h-4 text-blue-500" />}
                         </div>
                         <span className="font-medium text-[hsl(var(--foreground))]">{item.action}</span>
@@ -261,7 +261,7 @@ export function CreditHistory() {
                       <ExternalLink className="w-3 h-3 inline ml-1 opacity-50 hover:opacity-100 cursor-pointer" />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded text-xs font-medium">
                         +{item.creditImpact}
                       </span>
                     </td>

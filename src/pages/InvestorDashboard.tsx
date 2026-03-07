@@ -165,7 +165,7 @@ export function InvestorDashboard() {
       change: '+24.5%', // Mock trend
       trend: 'up',
       icon: TrendingUp,
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-violet-500 to-fuchsia-600',
     },
     {
       title: 'Active Investments',
@@ -190,7 +190,7 @@ export function InvestorDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 p-6 lg:p-8 animate-fade-in">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 p-6 lg:p-8 animate-fade-in">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
@@ -199,23 +199,23 @@ export function InvestorDashboard() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-5 h-5 text-yellow-300" />
-                <span className="text-cyan-100 text-sm font-medium">DeFi Investor Portal</span>
+                <span className="text-indigo-100 text-sm font-medium">DeFi Investor Portal</span>
               </div>
               <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
                 Investor Dashboard 💰
               </h1>
-              <p className="text-cyan-100">
+              <p className="text-indigo-100">
                 Earn yield by funding real business invoices on Creditcoin
               </p>
             </div>
             <div className="flex gap-3">
               <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-5 py-4">
-                <p className="text-xs text-cyan-100 mb-1">Portfolio Value</p>
+                <p className="text-xs text-indigo-100 mb-1">Portfolio Value</p>
                 <p className="text-xl font-bold text-white">{formatCurrency(totalInvested + earnedYield)}</p>
               </div>
               <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-5 py-4">
-                <p className="text-xs text-cyan-100 mb-1">APY</p>
-                <p className="text-xl font-bold text-emerald-300">~{avgYield.toFixed(1)}%</p>
+                <p className="text-xs text-indigo-100 mb-1">APY</p>
+                <p className="text-xl font-bold text-violet-300">~{avgYield.toFixed(1)}%</p>
               </div>
             </div>
           </div>
@@ -223,13 +223,13 @@ export function InvestorDashboard() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20"><Loader2 className="w-10 h-10 animate-spin mx-auto text-emerald-500" /></div>
+        <div className="text-center py-20"><Loader2 className="w-10 h-10 animate-spin mx-auto text-violet-500" /></div>
       ) : (
         <>
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-[hsl(var(--card))] rounded-2xl p-5 border border-[hsl(var(--border))] hover:border-cyan-500/30 transition-colors animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
+              <div key={index} className="bg-[hsl(var(--card))] rounded-2xl p-5 border border-[hsl(var(--border))] hover:border-indigo-500/30 transition-colors animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="flex items-start justify-between mb-4">
                   <div className={cn("w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg", stat.gradient)}>
                     <stat.icon className="w-5 h-5 text-white" />
@@ -237,7 +237,7 @@ export function InvestorDashboard() {
                   <div className={cn(
                     "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
                     stat.trend === 'up'
-                      ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+                      ? 'text-violet-600 dark:text-violet-400 bg-violet-500/10'
                       : 'text-red-600 dark:text-red-400 bg-red-500/10'
                   )}>
                     {stat.trend === 'up' ? (
@@ -291,12 +291,12 @@ export function InvestorDashboard() {
               <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5">
                 <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all group">
+                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all group">
                     <Coins className="w-5 h-5" />
                     <span className="font-medium">Fund Invoice</span>
                     <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
-                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all group">
+                  <button className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all group">
                     <DollarSign className="w-5 h-5" />
                     <span className="font-medium">Add to Pool</span>
                     <ArrowUpRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -323,7 +323,7 @@ export function InvestorDashboard() {
           <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))]">
             <div className="p-5 border-b border-[hsl(var(--border))] flex items-center justify-between">
               <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Recent Investments</h3>
-              <button className="text-sm text-cyan-500 hover:text-cyan-600 font-medium">View All</button>
+              <button className="text-sm text-indigo-500 hover:text-indigo-600 font-medium">View All</button>
             </div>
             <div className="p-4 space-y-3">
               {recentInvestments.length === 0 ? (
@@ -335,12 +335,12 @@ export function InvestorDashboard() {
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center",
                         investment.status === 'active' ? 'bg-blue-500/10' :
-                          investment.status === 'repaid' ? 'bg-emerald-500/10' : 'bg-amber-500/10'
+                          investment.status === 'repaid' ? 'bg-violet-500/10' : 'bg-amber-500/10'
                       )}>
                         <FileText className={cn(
                           "w-5 h-5",
                           investment.status === 'active' ? 'text-blue-500' :
-                            investment.status === 'repaid' ? 'text-emerald-500' : 'text-amber-500'
+                            investment.status === 'repaid' ? 'text-violet-500' : 'text-amber-500'
                         )} />
                       </div>
                       <div>
@@ -351,11 +351,11 @@ export function InvestorDashboard() {
                     <div className="text-right">
                       <p className="font-semibold text-[hsl(var(--foreground))]">{formatCurrency(investment.amount)}</p>
                       <div className="flex items-center gap-2 justify-end">
-                        <span className="text-sm text-emerald-500 font-medium">+{formatCurrency(investment.earnedYield)}</span>
+                        <span className="text-sm text-violet-500 font-medium">+{formatCurrency(investment.earnedYield)}</span>
                         <span className={cn(
                           "px-2 py-0.5 rounded-full text-xs font-medium",
                           investment.status === 'active' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                            investment.status === 'repaid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                            investment.status === 'repaid' ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400' :
                               'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                         )}>
                           {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}

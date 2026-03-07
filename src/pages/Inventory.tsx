@@ -94,7 +94,7 @@ export function Inventory() {
   const getStatusIcon = (status: InventoryItem['status']) => {
     switch (status) {
       case 'in_stock':
-        return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+        return <CheckCircle className="w-4 h-4 text-violet-500" />;
       case 'low_stock':
         return <AlertTriangle className="w-4 h-4 text-amber-500" />;
       case 'out_of_stock':
@@ -123,7 +123,7 @@ export function Inventory() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all font-medium"
         >
           <Plus className="w-5 h-5" />
           Add Item
@@ -134,8 +134,8 @@ export function Inventory() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[hsl(var(--card))] rounded-xl p-5 border border-[hsl(var(--border))]">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-              <Package className="w-5 h-5 text-emerald-500" />
+            <div className="w-11 h-11 bg-violet-500/10 rounded-xl flex items-center justify-center">
+              <Package className="w-5 h-5 text-violet-500" />
             </div>
             <div>
               <p className="text-sm text-[hsl(var(--muted-foreground))]">Total Inventory Value</p>
@@ -176,7 +176,7 @@ export function Inventory() {
             placeholder="Search items or SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
+            className="w-full pl-12 pr-4 py-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
         <button className="flex items-center gap-2 px-5 py-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl hover:bg-[hsl(var(--accent))] transition-colors">
@@ -229,7 +229,7 @@ export function Inventory() {
                         {getStatusIcon(item.status)}
                         <span className={cn(
                           "text-sm font-medium",
-                          item.status === 'in_stock' ? 'text-emerald-600 dark:text-emerald-400' :
+                          item.status === 'in_stock' ? 'text-violet-600 dark:text-violet-400' :
                             item.status === 'low_stock' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
                         )}>
                           {getStatusLabel(item.status)}
@@ -271,7 +271,7 @@ export function Inventory() {
                   type="text"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                  className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -281,7 +281,7 @@ export function Inventory() {
                     type="text"
                     value={newItem.sku}
                     onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
-                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
                   />
                 </div>
                 <div>
@@ -289,7 +289,7 @@ export function Inventory() {
                   <select
                     value={newItem.category}
                     onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
                   >
                     <option>Networking</option>
                     <option>Industrial</option>
@@ -307,7 +307,7 @@ export function Inventory() {
                     type="number"
                     value={newItem.quantity}
                     onChange={(e) => setNewItem({ ...newItem, quantity: Number(e.target.value) })}
-                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
                   />
                 </div>
                 <div>
@@ -316,7 +316,7 @@ export function Inventory() {
                     type="number"
                     value={newItem.price}
                     onChange={(e) => setNewItem({ ...newItem, price: Number(e.target.value) })}
-                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-[hsl(var(--foreground))]"
+                    className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
                   />
                 </div>
               </div>
@@ -330,7 +330,7 @@ export function Inventory() {
               </button>
               <button
                 onClick={handleAddItem}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all font-medium"
               >
                 Save Item
               </button>

@@ -73,7 +73,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
           <div className="p-6 border-b border-[hsl(var(--border))]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -101,7 +101,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                 className={cn(
                   "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200",
                   userType === 'vendor'
-                    ? "bg-[hsl(var(--card))] text-emerald-500 shadow-sm"
+                    ? "bg-[hsl(var(--card))] text-violet-500 shadow-sm"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 )}
               >
@@ -115,7 +115,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                 className={cn(
                   "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200",
                   userType === 'investor'
-                    ? "bg-[hsl(var(--card))] text-cyan-500 shadow-sm"
+                    ? "bg-[hsl(var(--card))] text-indigo-500 shadow-sm"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 )}
               >
@@ -136,13 +136,13 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                   currentPage === item.id
-                    ? "bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 text-emerald-500 dark:text-emerald-400"
+                    ? "bg-gradient-to-r from-violet-500/10 to-indigo-500/10 text-violet-500 dark:text-violet-400"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]"
                 )}
               >
                 <item.icon className={cn(
                   "w-5 h-5",
-                  currentPage === item.id && "text-emerald-500"
+                  currentPage === item.id && "text-violet-500"
                 )} />
                 {item.label}
               </button>
@@ -151,13 +151,13 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
 
           <div className="p-4 border-t border-[hsl(var(--border))]">
             {account ? (
-              <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl p-4 border border-emerald-500/20">
+              <div className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 rounded-xl p-4 border border-violet-500/20">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse-glow" />
+                  <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse-glow" />
                   <span className="text-xs text-[hsl(var(--muted-foreground))]">Creditcoin Testnet</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-emerald-500" />
+                  <Wallet className="w-4 h-4 text-violet-500" />
                   <span className="text-sm font-mono text-[hsl(var(--foreground))]">
                     {account.slice(0, 6)}...{account.slice(-4)}
                   </span>
@@ -166,7 +166,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
             ) : (
               <button
                 onClick={connectWallet}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium shadow-lg shadow-emerald-500/20"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-violet-500 text-white rounded-xl hover:bg-violet-600 transition-colors font-medium shadow-lg shadow-violet-500/20"
               >
                 <Wallet className="w-4 h-4" />
                 Connect Wallet
@@ -208,9 +208,9 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
               </button>
 
               {/* Network Badge */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full" />
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Testnet</span>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-violet-500/10 rounded-xl border border-violet-500/20">
+                <div className="w-2 h-2 bg-violet-400 rounded-full" />
+                <span className="text-sm text-violet-600 dark:text-violet-400 font-medium">Testnet</span>
               </div>
 
               {/* Profile Dropdown */}
@@ -219,7 +219,7 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-3 p-2 hover:bg-[hsl(var(--accent))] rounded-xl transition-colors"
                 >
-                  <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
                     <span className="text-white text-sm font-bold">
                       {userType === 'vendor' ? 'V' : 'I'}
                     </span>
