@@ -24,8 +24,10 @@ function AppContent() {
   (window as any).navigateToPage = setCurrentPage;
 
   const handleEnterApp = async () => {
-    setShowLanding(false);
-    await connectWallet();
+    const connected = await connectWallet();
+    if (connected) {
+      setShowLanding(false);
+    }
   };
 
   const handleExitToLanding = () => {
