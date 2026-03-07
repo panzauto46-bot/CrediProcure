@@ -28,6 +28,18 @@ interface EthereumProvider {
   _metamask?: unknown;
 }
 
+interface EIP6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns: string;
+}
+
+interface EIP6963ProviderDetail {
+  info: EIP6963ProviderInfo;
+  provider: EthereumProvider;
+}
+
 type ContractsState = {
   invoiceNFT: ethers.Contract | null;
   lendingPool: ethers.Contract | null;
@@ -99,7 +111,32 @@ function detectWalletType(provider: EthereumProvider): WalletType {
   return 'auto';
 }
 
-function selectProvider(walletType: WalletType): EthereumProvider | null {
+function detectWalletTypeFromInfo(info: EIP6963ProviderInfo, provider: EthereumProvider): WalletType {
+  const rdns = (info.rdns || '').toLowerCase();
+  const name = (info.name || '').toLowerCase();
+
+  if (rdns.includes('metamask') || name.includes('metamask')) return 'metamask';
+  if (rdns.includes('phantom') || name.includes('phantom')) return 'phantom';
+  if (rdns.includes('bitget') || rdns.includes('bitkeep') || name.includes('bitget') || name.includes('bitkeep')) return 'bitget';
+
+  return detectWalletType(provider);
+}
+
+function selectProvider(
+  walletType: WalletType,
+  discoveredProviders: Array<{ type: WalletType; provider: EthereumProvider }>
+): EthereumProvider | null {
+  const discoveredByType = (type: WalletType) =>
+    discoveredProviders.find((item) => item.type === type)?.provider ?? null;
+
+  if (walletType === 'auto') {
+    const discoveredAuto = discoveredByType('metamask') ?? discoveredByType('bitget') ?? discoveredByType('phantom');
+    if (discoveredAuto) return discoveredAuto;
+  } else {
+    const discoveredSpecific = discoveredByType(walletType);
+    if (discoveredSpecific) return discoveredSpecific;
+  }
+
   const providers = getInjectedProviders();
   if (providers.length === 0) return null;
 
@@ -179,6 +216,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [chainId, setChainId] = useState<number | null>(null);
   const [eventProvider, setEventProvider] = useState<EthereumProvider | null>(null);
   const [activeWalletType, setActiveWalletType] = useState<WalletType>('auto');
+  const [discoveredProviders, setDiscoveredProviders] = useState<Array<{ type: WalletType; provider: EthereumProvider }>>([]);
 
   const disconnectWallet = useCallback(() => {
     setAccount(null);
@@ -191,7 +229,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const connectWallet = useCallback(async (walletType: WalletType = 'auto') => {
-    const selectedProvider = selectProvider(walletType);
+    const selectedProvider = selectProvider(walletType, discoveredProviders);
 
     if (!selectedProvider) {
       if (walletType === 'auto') {
@@ -248,6 +286,30 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.error('Failed to connect wallet:', error);
       return false;
     }
+  }, [discoveredProviders]);
+
+  useEffect(() => {
+    const onAnnounceProvider = (event: Event) => {
+      const customEvent = event as CustomEvent<EIP6963ProviderDetail>;
+      const detail = customEvent.detail;
+      if (!detail?.provider || !detail?.info) return;
+
+      const walletType = detectWalletTypeFromInfo(detail.info, detail.provider);
+      if (walletType === 'auto') return;
+
+      setDiscoveredProviders((prev) => {
+        const exists = prev.some((item) => item.provider === detail.provider);
+        if (exists) return prev;
+        return [...prev, { type: walletType, provider: detail.provider }];
+      });
+    };
+
+    window.addEventListener('eip6963:announceProvider', onAnnounceProvider as EventListener);
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+
+    return () => {
+      window.removeEventListener('eip6963:announceProvider', onAnnounceProvider as EventListener);
+    };
   }, []);
 
   useEffect(() => {
