@@ -25,6 +25,7 @@ interface EthereumProvider {
   isBitGetWallet?: boolean;
   isBitKeep?: boolean;
   isBitget?: boolean;
+  _metamask?: unknown;
 }
 
 type ContractsState = {
@@ -87,6 +88,10 @@ function isBitgetProvider(provider: EthereumProvider): boolean {
   return Boolean(provider.isBitGetWallet || provider.isBitKeep || provider.isBitget);
 }
 
+function isLikelyMetaMaskProvider(provider: EthereumProvider): boolean {
+  return Boolean(provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider));
+}
+
 function detectWalletType(provider: EthereumProvider): WalletType {
   if (provider.isPhantom) return 'phantom';
   if (isBitgetProvider(provider)) return 'bitget';
@@ -99,18 +104,12 @@ function selectProvider(walletType: WalletType): EthereumProvider | null {
   if (providers.length === 0) return null;
 
   if (walletType === 'metamask') {
-    const strictMetaMask = providers.find(
-      (provider) => provider.isMetaMask && !provider.isPhantom && !isBitgetProvider(provider)
+    const metamaskWithInternalApi = providers.find(
+      (provider) => isLikelyMetaMaskProvider(provider) && provider._metamask
     );
-    if (strictMetaMask) return strictMetaMask;
+    if (metamaskWithInternalApi) return metamaskWithInternalApi;
 
-    const broadMetaMask = providers.find((provider) => provider.isMetaMask && !provider.isPhantom);
-    if (broadMetaMask) return broadMetaMask;
-
-    const nonPhantom = providers.find((provider) => !provider.isPhantom);
-    if (nonPhantom) return nonPhantom;
-
-    return providers[0] ?? null;
+    return providers.find((provider) => isLikelyMetaMaskProvider(provider)) ?? null;
   }
 
   if (walletType === 'phantom') {
@@ -192,16 +191,20 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const connectWallet = useCallback(async (walletType: WalletType = 'auto') => {
-    let selectedProvider = selectProvider(walletType);
-
-    // Fallback: if specific wallet detection fails, try whatever provider is injected.
-    if (!selectedProvider && walletType !== 'auto') {
-      selectedProvider = selectProvider('auto');
-    }
+    const selectedProvider = selectProvider(walletType);
 
     if (!selectedProvider) {
       if (walletType === 'auto') {
         alert('No EVM wallet detected. Please install MetaMask, Phantom, or Bitget Wallet.');
+      } else if (walletType === 'metamask') {
+        alert(
+          'MetaMask is not detected.\n\n' +
+            'Tips:\n' +
+            '1) Unlock MetaMask extension.\n' +
+            '2) Make sure this site is allowed in MetaMask.\n' +
+            '3) In Phantom settings, disable "Default App Wallet" for EVM if active.\n' +
+            '4) Refresh page and try again.'
+        );
       } else {
         alert(
           `${getWalletLabel(walletType)} is not detected.\n\n` +
