@@ -23,36 +23,42 @@ export async function fetchDirectInvestmentsForAccount(
   account: string
 ): Promise<DirectInvestmentRecord[]> {
   if (!contracts.invoiceNFT || !contracts.lendingPool) return [];
+  const invoiceNFT = contracts.invoiceNFT;
+  const lendingPool = contracts.lendingPool;
 
   const normalizedAccount = account.toLowerCase();
-  const fundedEvents = await contracts.lendingPool.queryFilter(
-    contracts.lendingPool.filters.InvoiceFunded()
+  const fundedEvents = await lendingPool.queryFilter(
+    lendingPool.filters.InvoiceFunded()
   );
 
   const directInvestments = await Promise.all(
     fundedEvents.map(async (event: any) => {
-      const tx = await event.getTransaction();
-      if (!tx?.from || tx.from.toLowerCase() !== normalizedAccount) {
+      const funder = (event.args?.[3] ?? '').toString().toLowerCase();
+      const viaPool = Boolean(event.args?.[4]);
+
+      if (viaPool || funder !== normalizedAccount) {
         return null;
       }
 
       const tokenId = event.args[0].toString();
-      const invoiceData = await contracts.invoiceNFT?.invoices(tokenId);
-      if (!invoiceData) return null;
+      const [invoiceData, fundingRecord] = await Promise.all([
+        invoiceNFT.invoices(tokenId),
+        lendingPool.getFundingRecord(tokenId),
+      ]);
 
-      const repaymentEvents = (await contracts.lendingPool?.queryFilter(
-        contracts.lendingPool.filters.LoanRepaid(event.args[0])
-      )) ?? [];
-      const totalRepaid = repaymentEvents.reduce(
+      const repaymentEvents = await lendingPool.queryFilter(
+        lendingPool.filters.LoanRepaid(event.args[0])
+      );
+      const earnedYield = repaymentEvents.reduce(
         (sum: number, repaymentEvent: any) =>
-          sum + Number(ethers.formatUnits(repaymentEvent.args[1], 18)),
+          sum + Number(ethers.formatUnits(repaymentEvent.args[2], 18)),
         0
       );
 
-      const amount = Number(ethers.formatUnits(invoiceData.amount, 18));
+      const amount = Number(ethers.formatUnits(fundingRecord.principal || invoiceData.amount, 18));
       const yieldRate = Number(invoiceData.yieldRate) / 100;
       const fundedBlock = await event.getBlock();
-      const status = repaymentEvents.length > 0 ? 'repaid' : 'active';
+      const status = fundingRecord.settled ? 'repaid' : 'active';
 
       return {
         id: `${event.transactionHash}_${tokenId}`,
@@ -60,7 +66,7 @@ export async function fetchDirectInvestmentsForAccount(
         vendorName: `Vendor ${invoiceData.vendor.toString().slice(0, 6)}...`,
         amount,
         yieldRate,
-        earnedYield: Math.max(totalRepaid - amount, 0),
+        earnedYield,
         maturityDate: new Date(Number(invoiceData.dueDate) * 1000).toISOString().split('T')[0],
         status,
         fundedAt: new Date(fundedBlock.timestamp * 1000).toISOString(),

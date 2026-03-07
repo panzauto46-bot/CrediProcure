@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { Invoice } from '@/types';
-import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
+import { mapChainInvoiceToInvoice, mapInvoiceStatus } from '@/utils/invoices';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -41,20 +41,13 @@ export function LiquidityRequest() {
         const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
         const iv = await contracts.invoiceNFT.invoices(tokenId);
 
-        if (!iv.isFunded) { // Only show MINTED (not funded) invoices
-          fetched.push({
-            id: iv.id.toString(),
-            invoiceNumber: `INV-${iv.id}`,
-            clientName: "My Company",
-            amount: Number(ethers.formatUnits(iv.amount, 18)),
-            status: 'minted',
-            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
-            yieldRate: Number(iv.yieldRate) / 100,
-            description: `Invoice #${iv.id}`,
-            tokenId: iv.id.toString(),
-            riskLevel: 'low',
-            createdAt: new Date().toISOString().split('T')[0]
-          });
+        if (mapInvoiceStatus(iv.status) === 'minted') {
+          fetched.push(
+            mapChainInvoiceToInvoice(iv, {
+              clientName: 'My Company',
+              description: `Invoice #${iv.id}`,
+            })
+          );
         }
       }
 

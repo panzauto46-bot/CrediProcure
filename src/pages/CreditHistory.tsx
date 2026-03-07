@@ -45,8 +45,7 @@ export function CreditHistory() {
       try {
         const events: HistoryItem[] = [];
 
-        // 1. Fetch InvoiceFunded events (Vendor receives funds)
-        // event InvoiceFunded(uint256 indexed tokenId, address indexed borrower, uint256 amount);
+        // 1. Fetch InvoiceFunded events where the connected vendor is the borrower.
         const fundedFilter = contracts.lendingPool.filters.InvoiceFunded(null, account);
         const fundedEvents = await contracts.lendingPool.queryFilter(fundedFilter);
 
@@ -70,9 +69,7 @@ export function CreditHistory() {
         );
         for (const e of repaidEvents) {
           if (!('args' in e)) continue;
-
-          const invoice = await contracts.invoiceNFT.invoices(e.args[0]);
-          if (invoice.vendor.toLowerCase() !== account.toLowerCase()) continue;
+          if (e.args[3]?.toLowerCase() !== account.toLowerCase()) continue;
 
           const block = await e.getBlock();
           const repaidAmount = Number(ethers.formatUnits(e.args[1], 18));
@@ -87,19 +84,17 @@ export function CreditHistory() {
           });
         }
 
-        // 2. Fetch Minted Events (Transfer from 0x0 to Vendor)
-        // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-        const mintFilter = contracts.invoiceNFT.filters.Transfer(ethers.ZeroAddress, account);
+        // 2. Fetch InvoiceMinted events for the connected vendor.
+        const mintFilter = contracts.invoiceNFT.filters.InvoiceMinted(null, account);
         const mintEvents = await contracts.invoiceNFT.queryFilter(mintFilter);
 
         for (const e of mintEvents) {
           if ('args' in e) {
             const block = await e.getBlock();
-            const invoice = await contracts.invoiceNFT.invoices(e.args[2]);
             events.push({
               id: e.transactionHash + '_mint',
               action: 'Invoice Minted',
-              amount: Number(ethers.formatUnits(invoice.amount, 18)),
+              amount: Number(ethers.formatUnits(e.args[2], 18)),
               timestamp: new Date(block.timestamp * 1000).toLocaleString(),
               timestampValue: block.timestamp * 1000,
               txHash: e.transactionHash,

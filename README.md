@@ -55,11 +55,11 @@ CrediProcure is a **fully decentralized, end-to-end invoice financing platform**
 | Feature | Description |
 |:---|:---|
 | **📊 Real-Time Dashboard** | Combines on-chain invoice reads with local draft management so vendors can track minted and funded invoices in one place. |
-| **📄 Invoice Creation & Minting** | Create invoice drafts locally, then mint them as ERC-721 RWA tokens on Creditcoin from the deployed owner wallet. |
+| **📄 Invoice Creation & Minting** | Create invoice drafts locally, set due date + yield, then self-mint them as ERC-721 RWA tokens on Creditcoin from the connected vendor wallet. |
 | **💧 Liquidity Request** | Prepare invoice funding terms and review maximum LTV before sharing the request with investors. |
 | **📦 Inventory Management** | Track procurement stock with persistent add, edit, and delete functionality. |
 | **🛡️ KYB Verification** | Interactive Know-Your-Business verification flow with persistent status. |
-| **📈 On-Chain Credit History** | Transaction history fetched from `Transfer`, `InvoiceFunded`, and `LoanRepaid` blockchain events. |
+| **📈 On-Chain Credit History** | Transaction history fetched from `InvoiceMinted`, `InvoiceFunded`, and `LoanRepaid` blockchain events. |
 
 ### 💰 Investor Portal (Lenders)
 | Feature | Description |
@@ -92,35 +92,36 @@ Our protocol consists of **3 core smart contracts** deployed on the **Creditcoin
 │   (ERC-721)         │  (Core Engine)   │  (ERC-20 Test Token)  │
 ├─────────────────────┼──────────────────┼────────────────────────┤
 │ • mintInvoice()     │ • deposit()      │ • mint()              │
-│ • getInvoice()      │ • withdraw()     │ • transfer()          │
-│ • setFunded()       │ • fundInvoice()  │ • approve()           │
-│ • invoices mapping  │ • fundDirect()   │                       │
-│ • ERC721Enumerable  │ • repay()        │                       │
-│ • totalSupply()     │ • lpBalances     │                       │
-│ • tokenByIndex()    │ • totalLiquidity │                       │
+│ • adminMintInvoice()│ • withdraw()     │ • transfer()          │
+│ • getInvoice()      │ • fundInvoice()  │ • approve()           │
+│ • markFunded()      │ • fundInvoiceDirect()                     │
+│ • markRepaid()      │ • repay()        │                       │
+│ • ERC721Enumerable  │ • lpBalances     │                       │
+│ • totalSupply()     │ • remainingDue() │                       │
 └─────────────────────┴──────────────────┴────────────────────────┘
 ```
 
 ### `InvoiceNFT.sol` — Real World Asset Token (ERC-721 + Enumerable)
 - **Purpose**: Represents a real-world invoice as an on-chain NFT.
-- **Data Stored On-Chain**: `id`, `vendor`, `amount`, `dueDate`, `yieldRate`, `isFunded`.
+- **Data Stored On-Chain**: `id`, `vendor`, `amount`, `dueDate`, `yieldRate`, `status`.
 - **Key Functions**:
-  - `mintInvoice(to, amount, dueDate, yieldRate)` → Mints a new invoice RWA token.
+  - `mintInvoice(amount, dueDate, yieldRate)` → Vendor self-mints a new invoice RWA token.
+  - `adminMintInvoice(to, amount, dueDate, yieldRate)` → Optional owner-assisted mint path.
   - `getInvoice(tokenId)` → Returns full invoice data struct.
-  - `setFunded(tokenId, status)` → Called by LendingPool to mark as funded.
+  - `markFunded(tokenId)` / `markRepaid(tokenId)` → Called by LendingPool to move invoice lifecycle forward.
   - `tokenByIndex(i)` / `totalSupply()` → Enumerable support for marketplace indexing.
 
 ### `LendingPool.sol` — Liquidity Engine
 - **Purpose**: Manages the flow of capital between investors and vendors.
 - **Dual Funding Model**:
-  - **Pool Model**: Investors deposit stablecoins → Pool funds invoices automatically.
+  - **Pool Model**: Investors deposit stablecoins → Pool owner can fund invoices from shared reserves.
   - **P2P Model**: Investors fund specific invoices directly via `fundInvoiceDirect()`.
 - **Key Functions**:
   - `deposit(amount)` → Investor deposits stablecoins into the pool.
   - `withdraw(amount)` → Investor withdraws from the pool.
   - `fundInvoice(tokenId)` → Admin/DAO funds an invoice from pool reserves.
   - `fundInvoiceDirect(tokenId)` → P2P: Investor funds a specific invoice directly.
-  - `repay(tokenId, amount)` → Vendor repays loan, interest distributed to LPs.
+  - `repay(tokenId, amount)` → Vendor repays loan, forwarding direct-lender funds or returning value to the pool.
 
 ### `MockStablecoin.sol` — Test ERC-20 Token
 - **Purpose**: Simulates USDC/USDT for testnet operations.
@@ -164,7 +165,7 @@ CrediProcure/
 │   ├── 📁 pages/                          # Application Pages (10 pages)
 │   │   ├── 📄 VendorDashboard.tsx         # Vendor analytics with on-chain invoice reads
 │   │   ├── 📄 InvestorDashboard.tsx       # Investor analytics with LP + direct funding views
-│   │   ├── 📄 Invoices.tsx                # Invoice drafts + owner-assisted RWA minting
+│   │   ├── 📄 Invoices.tsx                # Invoice drafts + self-minting + repayment flow
 │   │   ├── 📄 Marketplace.tsx             # Browse & fund invoices on-chain
 │   │   ├── 📄 LiquidityPool.tsx           # LP deposit/withdraw against the live pool contract
 │   │   ├── 📄 LiquidityRequest.tsx        # Funding-request preparation flow
@@ -219,11 +220,12 @@ CrediProcure/
 
 ## ⚡ Current Deployment Notes
 
-The current Creditcoin testnet deployment is optimized for a hackathon demo and uses a few explicit constraints:
+The live Creditcoin testnet deployment is designed to be easy for judges to test end-to-end:
 
-### 1. Owner-Assisted Minting
-- Invoice drafts can be created from any connected wallet.
-- The deployed `InvoiceNFT` contract currently allows on-chain minting from the deployed owner wallet (`0xFEE547941c3E3d3D66dC2e47ee9c16879E870F9b`).
+### 1. Self-Serve Demo Flow
+- Any connected vendor wallet can create a draft and self-mint an invoice on-chain.
+- Any connected investor wallet can mint free demo `mUSD` from `MockStablecoin.mint()` and fund an invoice without real capital.
+- Vendors can repay funded invoices from the `Invoices` page after minting demo `mUSD`.
 
 ### 2. Real Contract Reads Where It Matters
 - Marketplace inventory, LP balances, total pool liquidity, credit history, and direct funding positions are loaded from live smart contract reads or contract events.
@@ -315,14 +317,14 @@ src/context/WalletContext.tsx → CONTRACT_ADDRESSES
 - **Repository**: `https://github.com/panzauto46-bot/CrediProcure`
 
 ### Smart Contracts (Creditcoin Testnet)
-- **InvoiceNFT**: `0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912`
-- **LendingPool**: `0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2`
-- **MockStablecoin**: `0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0`
+- **InvoiceNFT**: `0x6ab882c6C0e0c58B0487134b5221525B439C4C03`
+- **LendingPool**: `0x5fe9567496A8c101c062943ed152c78c3d80370a`
+- **MockStablecoin**: `0x7a3817f06d99db5969110765660d05Aa4646285F`
 
 ### Block Explorer Links
-- **InvoiceNFT**: `https://creditcoin-testnet.blockscout.com/address/0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912`
-- **LendingPool**: `https://creditcoin-testnet.blockscout.com/address/0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2`
-- **MockStablecoin**: `https://creditcoin-testnet.blockscout.com/address/0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0`
+- **InvoiceNFT**: `https://creditcoin-testnet.blockscout.com/address/0x6ab882c6C0e0c58B0487134b5221525B439C4C03`
+- **LendingPool**: `https://creditcoin-testnet.blockscout.com/address/0x5fe9567496A8c101c062943ed152c78c3d80370a`
+- **MockStablecoin**: `https://creditcoin-testnet.blockscout.com/address/0x7a3817f06d99db5969110765660d05Aa4646285F`
 
 ---
 

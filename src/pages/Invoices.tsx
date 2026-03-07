@@ -14,6 +14,8 @@ import { Invoice } from '@/types';
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 import { useWallet } from '@/context/WalletContext';
+import { DemoFundingCard } from '@/components/DemoFundingCard';
+import { mapChainInvoiceToInvoice, mapInvoiceRisk } from '@/utils/invoices';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -32,14 +34,19 @@ export function Invoices() {
   const [mintStep, setMintStep] = useState(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [contractOwner, setContractOwner] = useState<string | null>(null);
+  const [showRepayModal, setShowRepayModal] = useState(false);
+  const [repayAmount, setRepayAmount] = useState('');
+  const [repayStep, setRepayStep] = useState(0);
+  const [repayDue, setRepayDue] = useState(0);
+  const [repayWalletBalance, setRepayWalletBalance] = useState(0);
 
   // New Invoice Form State
   const [newInvoice, setNewInvoice] = useState({
     clientName: '',
     amount: '',
     dueDate: '',
-    description: ''
+    description: '',
+    yieldRate: '10',
   });
 
   const loadData = async () => {
@@ -60,9 +67,6 @@ export function Invoices() {
     // 2. Try Load Blockchain Data (Don't let it block drafts)
     if (contracts.invoiceNFT) {
       try {
-        const owner = await contracts.invoiceNFT.owner();
-        setContractOwner(owner);
-
         const balance = await contracts.invoiceNFT.balanceOf(account);
         console.log(`Fetching ${balance} invoices from chain...`);
 
@@ -71,28 +75,21 @@ export function Invoices() {
           const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
           const iv = await contracts.invoiceNFT.invoices(tokenId);
 
-          chainInvoices.push({
-            id: iv.id.toString(),
-            invoiceNumber: `INV-${iv.id}`,
-            clientName: "My Company",
-            amount: Number(ethers.formatUnits(iv.amount, 18)),
-            status: iv.isFunded ? 'funded' : 'minted',
-            dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
-            yieldRate: Number(iv.yieldRate) / 100,
-            description: `RWA Invoice #${iv.id}`,
-            tokenId: iv.id.toString(),
-            riskLevel: Number(iv.yieldRate) >= 1000 ? 'high' : Number(iv.yieldRate) >= 500 ? 'medium' : 'low',
-            createdAt: new Date().toISOString().split('T')[0]
-          });
+          chainInvoices.push(
+            mapChainInvoiceToInvoice(iv, {
+              clientName: 'My Company',
+              description: `RWA Invoice #${iv.id}`,
+            })
+          );
         }
         allInvoices.push(...chainInvoices.reverse());
       } catch (chainErr) {
         console.error("Blockchain fetch failed:", chainErr);
-        setContractOwner(null);
       }
     }
 
     // 3. Set State (Combined)
+    allInvoices.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     setInvoices(allInvoices);
     setIsLoading(false);
   };
@@ -101,18 +98,18 @@ export function Invoices() {
     void loadData();
   }, [account, contracts.invoiceNFT]);
 
-  const canMintOnChain =
-    Boolean(account) &&
-    Boolean(contractOwner) &&
-    contractOwner?.toLowerCase() === account?.toLowerCase();
-
-
   const handleCreateInvoice = () => {
     if (!account) return alert('Connect wallet');
 
     // Validation
-    if (!newInvoice.clientName || !newInvoice.amount) {
-      alert('Please fill in Client Name and Amount');
+    if (!newInvoice.clientName || !newInvoice.amount || !newInvoice.dueDate) {
+      alert('Please fill in client name, amount, and due date');
+      return;
+    }
+
+    const dueDateTimestamp = new Date(newInvoice.dueDate).getTime();
+    if (Number.isNaN(dueDateTimestamp) || dueDateTimestamp <= Date.now()) {
+      alert('Due date must be in the future.');
       return;
     }
 
@@ -122,12 +119,12 @@ export function Invoices() {
       invoiceNumber: `DRAFT-${Math.floor(Math.random() * 10000)}`,
       clientName: newInvoice.clientName,
       amount: Number(newInvoice.amount),
-      dueDate: newInvoice.dueDate || new Date().toISOString().split('T')[0],
+      dueDate: newInvoice.dueDate,
       description: newInvoice.description || 'No description',
       status: 'pending',
-      riskLevel: 'low',
+      riskLevel: mapInvoiceRisk(Math.round(Number(newInvoice.yieldRate || '10') * 100)),
       createdAt: new Date().toISOString().split('T')[0],
-      yieldRate: 10
+      yieldRate: Number(newInvoice.yieldRate || '10')
     };
 
     // Save to LocalStorage (Case Insensitive Key)
@@ -143,7 +140,7 @@ export function Invoices() {
       setInvoices(prev => [invoice, ...prev]); // Add to top of list
 
       setShowCreateModal(false);
-      setNewInvoice({ clientName: '', amount: '', dueDate: '', description: '' });
+      setNewInvoice({ clientName: '', amount: '', dueDate: '', description: '', yieldRate: '10' });
 
       // Optional: Show success feedback?
       // alert('Draft Created!'); 
@@ -161,20 +158,20 @@ export function Invoices() {
 
   const processMint = async () => {
     if (!selectedInvoice || !contracts.invoiceNFT || !account) return;
-    if (!canMintOnChain) {
-      alert('The current testnet deployment only allows the deployed platform owner to mint on-chain. Connect with the deployed admin wallet or keep this invoice as a draft.');
-      setShowMintModal(false);
-      return;
-    }
 
     try {
       setMintStep(1); // Creating
 
       const amount = ethers.parseUnits(selectedInvoice.amount.toString(), 18);
       const dueDate = Math.floor(new Date(selectedInvoice.dueDate).getTime() / 1000);
-      const interestRate = 1000; // Fixed 10% for demo (1000 basis points)
+      if (dueDate <= Math.floor(Date.now() / 1000)) {
+        alert('The invoice due date must be in the future before minting.');
+        setMintStep(0);
+        return;
+      }
+      const interestRate = Math.round(selectedInvoice.yieldRate * 100);
 
-      const tx = await contracts.invoiceNFT.mintInvoice(account, amount, dueDate, interestRate);
+      const tx = await contracts.invoiceNFT.mintInvoice(amount, dueDate, interestRate);
 
       setMintStep(2); // Confirming
       await tx.wait();
@@ -198,6 +195,66 @@ export function Invoices() {
       console.error("Mint failed:", error);
       alert("Minting failed! See console.");
       setMintStep(0);
+    }
+  };
+
+  const handleOpenRepay = async (invoice: Invoice) => {
+    if (!invoice.tokenId || !contracts.lendingPool || !contracts.stablecoin || !account) {
+      alert('Connect wallet first.');
+      return;
+    }
+
+    setSelectedInvoice(invoice);
+    setShowRepayModal(true);
+    setRepayStep(0);
+
+    try {
+      const [remainingDueRaw, walletStableRaw] = await Promise.all([
+        contracts.lendingPool.remainingDue(invoice.tokenId),
+        contracts.stablecoin.balanceOf(account),
+      ]);
+
+      const remainingDue = Number(ethers.formatUnits(remainingDueRaw, 18));
+      setRepayDue(remainingDue);
+      setRepayWalletBalance(Number(ethers.formatUnits(walletStableRaw, 18)));
+      setRepayAmount(remainingDue > 0 ? remainingDue.toString() : '');
+    } catch (error) {
+      console.error('Failed to prepare repayment:', error);
+      alert('Failed to load repayment details.');
+      setShowRepayModal(false);
+    }
+  };
+
+  const processRepay = async () => {
+    if (!selectedInvoice?.tokenId || !contracts.lendingPool || !contracts.stablecoin) return;
+    if (!repayAmount || Number(repayAmount) <= 0) {
+      alert('Enter a valid repayment amount.');
+      return;
+    }
+
+    try {
+      setRepayStep(1);
+      const parsedAmount = ethers.parseUnits(repayAmount, 18);
+
+      const approvalTx = await contracts.stablecoin.approve(contracts.lendingPool.target, parsedAmount);
+      await approvalTx.wait();
+
+      setRepayStep(2);
+      const repayTx = await contracts.lendingPool.repay(selectedInvoice.tokenId, parsedAmount);
+      await repayTx.wait();
+
+      setRepayStep(3);
+      setTimeout(() => {
+        setShowRepayModal(false);
+        setRepayStep(0);
+        setRepayAmount('');
+        setRepayDue(0);
+        void loadData();
+      }, 2000);
+    } catch (error) {
+      console.error('Repayment failed:', error);
+      alert('Repayment failed. Check your demo stablecoin balance and wallet confirmation.');
+      setRepayStep(0);
     }
   };
 
@@ -230,11 +287,17 @@ export function Invoices() {
       </div>
 
       {/* Stats */}
-      {!canMintOnChain && account && contracts.invoiceNFT && (
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-          The current Creditcoin testnet deployment uses an admin-assisted minting model. You can create invoice drafts with your own wallet, but on-chain minting only works from the deployed owner wallet.
-        </div>
-      )}
+      <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
+        Draft invoices stay local until you mint them. Minted invoices are stored on Creditcoin testnet, and funded invoices can be repaid directly from this page.
+      </div>
+
+      <DemoFundingCard
+        onMinted={async () => {
+          if (showRepayModal && selectedInvoice) {
+            await handleOpenRepay(selectedInvoice);
+          }
+        }}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
@@ -244,7 +307,7 @@ export function Invoices() {
         <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
           <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Minted to RWA</p>
           <p className="text-2xl font-bold text-blue-500">
-            {invoices.filter(i => i.status === 'minted' || i.status === 'funded').length}
+            {invoices.filter(i => i.status !== 'pending').length}
           </p>
         </div>
         <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
@@ -342,15 +405,20 @@ export function Invoices() {
                       {invoice.status === 'pending' && (
                         <button
                           onClick={() => handleMint(invoice)}
-                          disabled={!canMintOnChain}
-                          className={cn(
-                            "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                            canMintOnChain
-                              ? "bg-blue-600 hover:bg-blue-700 text-white"
-                              : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed"
-                          )}
+                          className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          {canMintOnChain ? 'Mint to RWA' : 'Admin Mint Only'}
+                          Mint to RWA
+                        </button>
+                      )}
+
+                      {invoice.status === 'funded' && (
+                        <button
+                          onClick={() => {
+                            void handleOpenRepay(invoice);
+                          }}
+                          className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-violet-600 hover:bg-violet-700 text-white"
+                        >
+                          Repay Invoice
                         </button>
                       )}
                     </div>
@@ -409,8 +477,23 @@ export function Invoices() {
                     className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
                     value={newInvoice.dueDate}
                     onChange={e => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+                    min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Yield Rate (%)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  step="0.1"
+                  className="w-full px-4 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
+                  placeholder="10"
+                  value={newInvoice.yieldRate}
+                  onChange={e => setNewInvoice({ ...newInvoice, yieldRate: e.target.value })}
+                />
               </div>
 
               <div>
@@ -454,13 +537,17 @@ export function Invoices() {
                   </div>
                   <h3 className="text-2xl font-bold mb-2">Mint Invoice to RWA</h3>
                   <p className="text-[hsl(var(--muted-foreground))] mb-8">
-                    This will tokenize invoice <span className="font-mono text-[hsl(var(--foreground))]">{selectedInvoice.invoiceNumber}</span> on the Creditcoin blockchain correctly.
+                    This will tokenize invoice <span className="font-mono text-[hsl(var(--foreground))]">{selectedInvoice.invoiceNumber}</span> on Creditcoin testnet using your connected vendor wallet.
                   </p>
 
                   <div className="bg-[hsl(var(--muted))] p-4 rounded-xl mb-8 text-left">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm text-[hsl(var(--muted-foreground))]">Gas Fee (Est.)</span>
                       <span className="font-medium">~0.002 CTC</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-[hsl(var(--muted-foreground))]">Yield Rate</span>
+                      <span className="font-medium text-violet-500">{selectedInvoice.yieldRate}%</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-[hsl(var(--muted-foreground))]">Platform Fee</span>
@@ -509,6 +596,119 @@ export function Invoices() {
                   <h3 className="text-xl font-bold mb-2 text-violet-500">Success! Invoice Minted on Chain.</h3>
                   <p className="text-[hsl(var(--muted-foreground))]">Redirecting...</p>
                 </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRepayModal && selectedInvoice && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-[hsl(var(--border))] flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold">Repay Funded Invoice</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">{selectedInvoice.invoiceNumber}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowRepayModal(false);
+                  setRepayStep(0);
+                }}
+                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {repayStep === 0 && (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl bg-[hsl(var(--muted))] p-4">
+                      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Outstanding Due</p>
+                      <p className="text-xl font-bold text-[hsl(var(--foreground))]">{formatCurrency(repayDue)}</p>
+                    </div>
+                    <div className="rounded-xl bg-[hsl(var(--muted))] p-4">
+                      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Wallet Stablecoin</p>
+                      <p className="text-xl font-bold text-[hsl(var(--foreground))]">{formatCurrency(repayWalletBalance)}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Repayment Amount (mUSD)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={repayAmount}
+                      onChange={(e) => setRepayAmount(e.target.value)}
+                      className="w-full px-4 py-4 text-2xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-[hsl(var(--foreground))]"
+                    />
+                    <div className="mt-3 flex gap-2">
+                      {[0.25, 0.5, 1].map((portion) => (
+                        <button
+                          key={portion}
+                          onClick={() => setRepayAmount((repayDue * portion).toFixed(2))}
+                          className="flex-1 py-2.5 px-3 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--accent))] rounded-lg text-sm font-medium text-[hsl(var(--foreground))] transition-colors"
+                        >
+                          {portion === 1 ? 'Full Due' : `${portion * 100}%`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-4 text-sm text-[hsl(var(--muted-foreground))]">
+                    Repayment requires a mock stablecoin approval first. Use the free demo funding card above if this wallet needs more mUSD.
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowRepayModal(false)}
+                      className="flex-1 py-3 rounded-xl border border-[hsl(var(--border))] font-medium hover:bg-[hsl(var(--muted))]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={processRepay}
+                      disabled={!repayAmount || Number(repayAmount) <= 0 || Number(repayAmount) > repayDue}
+                      className={cn(
+                        'flex-1 py-3 rounded-xl font-bold transition-colors',
+                        !repayAmount || Number(repayAmount) <= 0 || Number(repayAmount) > repayDue
+                          ? 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
+                          : 'bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25'
+                      )}
+                    >
+                      Approve & Repay
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {repayStep === 1 && (
+                <div className="py-10 text-center">
+                  <Loader2 className="w-12 h-12 text-violet-500 animate-spin mx-auto mb-4" />
+                  <h4 className="text-xl font-bold mb-2">Approving Stablecoin</h4>
+                  <p className="text-[hsl(var(--muted-foreground))]">Confirm the approval in your wallet.</p>
+                </div>
+              )}
+
+              {repayStep === 2 && (
+                <div className="py-10 text-center">
+                  <Loader2 className="w-12 h-12 text-violet-500 animate-spin mx-auto mb-4" />
+                  <h4 className="text-xl font-bold mb-2">Submitting Repayment</h4>
+                  <p className="text-[hsl(var(--muted-foreground))]">Waiting for Creditcoin confirmation.</p>
+                </div>
+              )}
+
+              {repayStep === 3 && (
+                <div className="py-8 text-center">
+                  <div className="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-violet-500" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-2 text-violet-500">Repayment Recorded</h4>
+                  <p className="text-[hsl(var(--muted-foreground))]">The lending pool state and invoice status are being refreshed.</p>
+                </div>
               )}
             </div>
           </div>

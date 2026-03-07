@@ -15,8 +15,8 @@ import {
 import { Invoice } from '@/types';
 import { useWallet } from '@/context/WalletContext';
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
+import { mapChainInvoiceToInvoice } from '@/utils/invoices';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -46,19 +46,12 @@ export function VendorDashboard() {
             for (let i = 0; i < Number(balance); i++) {
               const tokenId = await contracts.invoiceNFT.tokenOfOwnerByIndex(account, i);
               const iv = await contracts.invoiceNFT.invoices(tokenId);
-              fetched.push({
-                id: iv.id.toString(),
-                invoiceNumber: `INV-${iv.id}`,
-                clientName: "My Company",
-                amount: Number(ethers.formatUnits(iv.amount, 18)),
-                status: iv.isFunded ? 'funded' : 'minted',
-                dueDate: new Date(Number(iv.dueDate) * 1000).toISOString().split('T')[0],
-                yieldRate: Number(iv.yieldRate) / 100,
-                description: `Invoice #${iv.id}`,
-                tokenId: iv.id.toString(),
-                riskLevel: 'low',
-                createdAt: new Date().toISOString().split('T')[0]
-              });
+              fetched.push(
+                mapChainInvoiceToInvoice(iv, {
+                  clientName: 'My Company',
+                  description: `Invoice #${iv.id}`,
+                })
+              );
             }
           } catch (err) {
             console.error("Chain fetch error:", err);

@@ -3,8 +3,8 @@
   "chainId": 102031,
   "deployer": "0xFEE547941c3E3d3D66dC2e47ee9c16879E870F9b",
   "contracts": {
-    "MockStablecoin": "0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0",
-    "InvoiceNFT": "0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912",
-    "LendingPool": "0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2"
+    "MockStablecoin": "0x7a3817f06d99db5969110765660d05Aa4646285F",
+    "InvoiceNFT": "0x6ab882c6C0e0c58B0487134b5221525B439C4C03",
+    "LendingPool": "0x5fe9567496A8c101c062943ed152c78c3d80370a"
   }
 }

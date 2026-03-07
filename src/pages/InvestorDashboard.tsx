@@ -16,6 +16,7 @@ import { useWallet } from '@/context/WalletContext';
 import { ethers } from 'ethers';
 import { Invoice } from '@/types';
 import { fetchDirectInvestmentsForAccount } from '@/utils/investments';
+import { mapChainInvoiceToInvoice, mapInvoiceStatus } from '@/utils/invoices';
 import {
   XAxis,
   YAxis,
@@ -108,19 +109,13 @@ export function InvestorDashboard() {
         for (let i = count - 1; i >= 0 && fetchedCount < 3; i--) {
           const tokenId = await contracts.invoiceNFT.tokenByIndex(i);
           const data = await contracts.invoiceNFT.invoices(tokenId);
-          if (!data.isFunded) {
-            ops.push({
-              id: data.id.toString(),
-              invoiceNumber: `INV-${data.id}`,
-              clientName: `Vendor ${data.vendor.toString().slice(0, 4)}`,
-              amount: Number(ethers.formatUnits(data.amount, 18)),
-              yieldRate: Number(data.yieldRate) / 100,
-              dueDate: new Date(Number(data.dueDate) * 1000).toISOString().split('T')[0],
-              status: 'minted',
-              riskLevel: 'low', // default
-              description: 'New Invoice',
-              tokenId: data.id.toString()
-            } as Invoice);
+          if (mapInvoiceStatus(data.status) === 'minted') {
+            ops.push(
+              mapChainInvoiceToInvoice(data, {
+                clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
+                description: 'New invoice funding opportunity',
+              }) as Invoice
+            );
             fetchedCount++;
           }
         }

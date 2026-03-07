@@ -1,0 +1,5 @@
+export const CONTRACT_ADDRESSES = {
+  "MockStablecoin": "0x7a3817f06d99db5969110765660d05Aa4646285F",
+  "InvoiceNFT": "0x6ab882c6C0e0c58B0487134b5221525B439C4C03",
+  "LendingPool": "0x5fe9567496A8c101c062943ed152c78c3d80370a"
+} as const;

@@ -16,6 +16,7 @@ import {
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 import { useWallet } from '@/context/WalletContext';
+import { DemoFundingCard } from '@/components/DemoFundingCard';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -143,6 +144,12 @@ export function LiquidityPool() {
           Deposit mock stablecoins into the live pool contract or withdraw available liquidity.
         </p>
       </div>
+
+      <DemoFundingCard
+        onMinted={async () => {
+          setRefreshKey((current) => current + 1);
+        }}
+      />
 
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6 lg:p-8">
         <div className="absolute top-0 right-0 h-96 w-96 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 blur-3xl" />

@@ -3,12 +3,7 @@ import { ethers } from 'ethers';
 import InvoiceNFTAbi from '../abis/InvoiceNFT.json';
 import LendingPoolAbi from '../abis/LendingPool.json';
 import MockStablecoinAbi from '../abis/MockStablecoin.json';
-
-const CONTRACT_ADDRESSES = {
-  InvoiceNFT: '0x39eDc878beEe808B5Ba6e2Cf4AC13c4d6F60f912',
-  LendingPool: '0x7918Ce640b5B57eE964c2062Fe346F2a8324e0c2',
-  MockStablecoin: '0xc30D717e367aC4E9524ae7eF90EC5B4e3e10FaD0',
-};
+import { CONTRACT_ADDRESSES } from '@/config/contracts';
 
 const CREDITCOIN_CHAIN_HEX = '0x18E8F';
 

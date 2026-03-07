@@ -16,6 +16,8 @@ import { Invoice } from '@/types';
 import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 import { useWallet } from '@/context/WalletContext';
+import { DemoFundingCard } from '@/components/DemoFundingCard';
+import { mapChainInvoiceToInvoice } from '@/utils/invoices';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -35,11 +37,20 @@ export function Marketplace() {
   const { contracts, account } = useWallet();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
+  const [canFundFromPool, setCanFundFromPool] = useState(false);
+  const [poolFundingTokenId, setPoolFundingTokenId] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
     if (!contracts.invoiceNFT) return;
     setLoading(true);
     try {
+      if (contracts.lendingPool && account) {
+        const owner = await contracts.lendingPool.owner();
+        setCanFundFromPool(owner.toLowerCase() === account.toLowerCase());
+      } else {
+        setCanFundFromPool(false);
+      }
+
       const total = await contracts.invoiceNFT.totalSupply();
       const count = Number(total);
       const loaded = [];
@@ -48,18 +59,13 @@ export function Marketplace() {
         const tokenId = await contracts.invoiceNFT.tokenByIndex(i);
         const data = await contracts.invoiceNFT.invoices(tokenId);
 
-        loaded.push({
-          id: data.id.toString(),
-          invoiceNumber: `INV-#${data.id}`,
-          clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
-          amount: Number(ethers.formatUnits(data.amount, 18)),
-          yieldRate: Number(data.yieldRate) / 100,
-          dueDate: new Date(Number(data.dueDate) * 1000).toISOString().split('T')[0],
-          riskLevel: Number(data.yieldRate) >= 1000 ? 'high' : Number(data.yieldRate) >= 500 ? 'medium' : 'low',
-          description: 'RWA Invoice Financing',
-          status: data.isFunded ? 'funded' : 'minted',
-          tokenId: data.id.toString()
-        } as Invoice);
+        loaded.push(
+          mapChainInvoiceToInvoice(data, {
+            invoiceNumber: `INV-${data.id}`,
+            clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
+            description: 'RWA invoice financing',
+          }) as Invoice
+        );
       }
       setInvoices(loaded);
     } catch (e) {
@@ -77,7 +83,7 @@ export function Marketplace() {
     const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.clientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRisk = riskFilter === 'all' || inv.riskLevel === riskFilter;
-    return matchSearch && matchRisk && inv.status !== 'funded';
+    return matchSearch && matchRisk && inv.status === 'minted';
   });
 
   const handleFund = (invoice: Invoice) => {
@@ -122,6 +128,26 @@ export function Marketplace() {
     }
   };
 
+  const processPoolFund = async (invoice: Invoice) => {
+    if (!invoice.tokenId || !contracts.lendingPool) {
+      alert('Pool contract is not ready.');
+      return;
+    }
+
+    try {
+      setPoolFundingTokenId(invoice.tokenId);
+      const tx = await contracts.lendingPool.fundInvoice(invoice.tokenId);
+      await tx.wait();
+      await fetchInvoices();
+      alert(`Invoice ${invoice.invoiceNumber} funded from the shared liquidity pool.`);
+    } catch (error) {
+      console.error('Pool funding failed:', error);
+      alert('Pool funding failed. Check pool liquidity and owner wallet permissions.');
+    } finally {
+      setPoolFundingTokenId(null);
+    }
+  };
+
   const getRiskBadge = (risk: Invoice['riskLevel']) => {
     switch (risk) {
       case 'low':
@@ -162,11 +188,23 @@ export function Marketplace() {
         </div>
       </div>
 
+      <DemoFundingCard
+        onMinted={async () => {
+          await fetchInvoices();
+        }}
+      />
+
+      {canFundFromPool ? (
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4 text-sm text-violet-100">
+          Pool operator mode active. This wallet can fund minted invoices directly from pooled liquidity as well as through direct investor funding.
+        </div>
+      ) : null}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Available Invoices', value: invoices.filter(i => i.status !== 'funded').length, color: 'text-[hsl(var(--foreground))]' },
-          { label: 'Total Value', value: formatCurrency(invoices.reduce((sum, inv) => sum + inv.amount, 0)), color: 'text-blue-500' },
+          { label: 'Available Invoices', value: invoices.filter(i => i.status === 'minted').length, color: 'text-[hsl(var(--foreground))]' },
+          { label: 'Total Value', value: formatCurrency(invoices.filter(i => i.status === 'minted').reduce((sum, inv) => sum + inv.amount, 0)), color: 'text-blue-500' },
           { label: 'Low Risk', value: invoices.filter(i => i.riskLevel === 'low').length, color: 'text-violet-500' },
           { label: 'High Yield (12%+)', value: invoices.filter(i => i.yieldRate >= 12).length, color: 'text-purple-500' },
         ].map((stat, i) => (
@@ -251,13 +289,27 @@ export function Marketplace() {
                 <span className="font-mono text-xs">{invoice.tokenId}</span>
                 <ExternalLink className="w-3.5 h-3.5 cursor-pointer hover:text-[hsl(var(--foreground))]" />
               </div>
-              <button
-                onClick={() => handleFund(invoice)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all font-medium"
-              >
-                <DollarSign className="w-4 h-4" />
-                Fund Full Invoice
-              </button>
+              <div className="flex gap-2">
+                {canFundFromPool ? (
+                  <button
+                    onClick={() => {
+                      void processPoolFund(invoice);
+                    }}
+                    disabled={poolFundingTokenId === invoice.tokenId}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-xl hover:bg-[hsl(var(--accent))] transition-all font-medium disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {poolFundingTokenId === invoice.tokenId ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
+                    Fund via Pool
+                  </button>
+                ) : null}
+                <button
+                  onClick={() => handleFund(invoice)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all font-medium"
+                >
+                  <DollarSign className="w-4 h-4" />
+                  Fund Full Invoice
+                </button>
+              </div>
             </div>
           </div>
         ))}
