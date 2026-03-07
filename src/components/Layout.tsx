@@ -15,6 +15,7 @@ import {
   Wallet,
   ChevronDown,
   LogOut,
+  House,
   Sun,
   Moon,
   Zap
@@ -29,14 +30,15 @@ interface LayoutProps {
   setCurrentPage: (page: string) => void;
   userType: 'vendor' | 'investor';
   setUserType: (type: 'vendor' | 'investor') => void;
+  onExitToLanding: () => void;
 }
 
-export function Layout({ children, currentPage, setCurrentPage, userType, setUserType }: LayoutProps) {
+export function Layout({ children, currentPage, setCurrentPage, userType, setUserType, onExitToLanding }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { account, connectWallet, disconnectWallet } = useWallet();
+  const { account, connectWallet } = useWallet();
 
   const vendorMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -258,11 +260,24 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
                     <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
                     <div className="absolute right-0 mt-2 w-48 bg-[hsl(var(--card))] rounded-xl shadow-xl border border-[hsl(var(--border))] py-2 z-50 animate-slide-in">
                       <button
-                        onClick={disconnectWallet}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          onExitToLanding();
+                        }}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        Disconnect Wallet
+                        Disconnect & Exit
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          onExitToLanding();
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors"
+                      >
+                        <House className="w-4 h-4" />
+                        Back to Landing
                       </button>
                     </div>
                   </>

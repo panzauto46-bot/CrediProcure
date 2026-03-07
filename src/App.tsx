@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { WalletProvider } from '@/context/WalletContext';
+import { WalletProvider, useWallet } from '@/context/WalletContext';
 import { Layout } from '@/components/Layout';
 import { VendorDashboard } from '@/pages/VendorDashboard';
 import { Inventory } from '@/pages/Inventory';
@@ -18,12 +18,25 @@ function AppContent() {
   const [showLanding, setShowLanding] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [userType, setUserType] = useState<'vendor' | 'investor'>('vendor');
+  const { connectWallet, disconnectWallet } = useWallet();
 
   // HACK: Expose navigation to window for quick access from dashboard
   (window as any).navigateToPage = setCurrentPage;
 
+  const handleEnterApp = async () => {
+    setShowLanding(false);
+    await connectWallet();
+  };
+
+  const handleExitToLanding = () => {
+    disconnectWallet();
+    setCurrentPage('dashboard');
+    setUserType('vendor');
+    setShowLanding(true);
+  };
+
   if (showLanding) {
-    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+    return <LandingPage onEnterApp={handleEnterApp} />;
   }
 
   const renderPage = () => {
@@ -63,6 +76,7 @@ function AppContent() {
       setCurrentPage={setCurrentPage}
       userType={userType}
       setUserType={setUserType}
+      onExitToLanding={handleExitToLanding}
     >
       {renderPage()}
     </Layout>
