@@ -12,13 +12,19 @@ import { InvestorDashboard } from '@/pages/InvestorDashboard';
 import { Marketplace } from '@/pages/Marketplace';
 import { Portfolio } from '@/pages/Portfolio';
 import { LiquidityPool } from '@/pages/LiquidityPool';
+import { LandingPage } from '@/pages/LandingPage';
 
 function AppContent() {
+  const [showLanding, setShowLanding] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [userType, setUserType] = useState<'vendor' | 'investor'>('vendor');
 
   // HACK: Expose navigation to window for quick access from dashboard
   (window as any).navigateToPage = setCurrentPage;
+
+  if (showLanding) {
+    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+  }
 
   const renderPage = () => {
     switch (currentPage) {
