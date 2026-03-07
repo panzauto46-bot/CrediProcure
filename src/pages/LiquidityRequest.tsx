@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
-  Coins,
   FileText,
   ArrowRight,
   CheckCircle,
   Info,
-  Wallet,
-  Clock,
   Zap,
   Loader2
 } from 'lucide-react';
@@ -61,20 +58,7 @@ export function LiquidityRequest() {
         }
       }
 
-      // 2. Fetch pending 'minted' from LocalStorage (Handling Blockchain Lag)
-      // This is crucial so user sees their just-minted invoice immediately
-      const safeAccount = account.toLowerCase();
-      const draftsKey = `crediprocure_drafts_${safeAccount}`;
-      const localDrafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-
-      const pendingMinted = localDrafts.filter(d =>
-        d.status === 'minted' &&
-        // Avoid duplicates: check if this ID is already in fetched list
-        !fetched.some(f => f.tokenId === d.tokenId || f.id === d.id)
-      );
-
-      // Combine both sources
-      setInvoices([...pendingMinted, ...fetched].reverse());
+      setInvoices(fetched.reverse());
 
     } catch (e) {
       console.error(e);
@@ -84,17 +68,8 @@ export function LiquidityRequest() {
   };
 
   useEffect(() => {
-    loadData();
-
-    // Auto-refresh every 5s if empty (likely waiting for mint)
-    const interval = setInterval(() => {
-      if (invoices.length === 0 && account) {
-        loadData();
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [account, contracts.invoiceNFT, invoices.length]); // Added invoices.length to dependencies
+    void loadData();
+  }, [account, contracts.invoiceNFT]);
 
   const selected = invoices.find(inv => inv.id === selectedInvoiceId);
   const maxLTV = selected ? selected.amount * 0.85 : 0;
@@ -124,8 +99,8 @@ export function LiquidityRequest() {
           <div>
             <h4 className="font-semibold text-[hsl(var(--foreground))] mb-1">How Invoice Factoring Works</h4>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              After your invoice is minted as an RWA token, investors can fund up to 85% of its value.
-              When your client pays, the smart contract automatically repays investors with interest.
+              Use this page to prepare a funding request for an invoice that has already been minted on-chain.
+              Actual funding happens through the invoice marketplace or the liquidity pool.
             </p>
           </div>
         </div>
@@ -293,7 +268,7 @@ export function LiquidityRequest() {
             </div>
             <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-2">Request Submitted!</h3>
             <p className="text-[hsl(var(--muted-foreground))] mb-6">
-              Your funding request regarding <strong>{selected.invoiceNumber}</strong> has been broadcast to investors.
+              Your request summary for <strong>{selected.invoiceNumber}</strong> is ready. Share these terms with investors before moving to the marketplace funding flow.
             </p>
 
             <div className="mt-6 p-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 rounded-xl border border-violet-500/20">
@@ -339,30 +314,26 @@ export function LiquidityRequest() {
           )}
         </div>
 
-        {/* DEBUG INFO - PROOF OF REAL DATA */}
-        <div className="mt-8 p-4 border border-dashed border-[hsl(var(--muted-foreground))] rounded-xl opacity-50 hover:opacity-100 transition-opacity text-xs font-mono text-[hsl(var(--muted-foreground))]">
-          <p className="font-bold mb-2">🔌 SYSTEM STATUS (REAL-TIME)</p>
+        <div className="mt-8 p-4 border border-dashed border-[hsl(var(--muted-foreground))] rounded-xl text-xs font-mono text-[hsl(var(--muted-foreground))]">
+          <p className="font-bold mb-2">SYSTEM STATUS</p>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <span className="block text-[hsl(var(--foreground))]">Connected Wallet:</span>
               <span>{account || 'Disconnected'}</span>
             </div>
             <div>
-              <span className="block text-[hsl(var(--foreground))]">Storage Key:</span>
-              <span>crediprocure_drafts_{account?.toLowerCase().slice(0, 6)}...</span>
+              <span className="block text-[hsl(var(--foreground))]">Funding Step:</span>
+              <span>{step}/3</span>
             </div>
             <div>
               <span className="block text-[hsl(var(--foreground))]">On-Chain Balance (RPC):</span>
-              <span>{isLoading ? 'Checking...' : invoices.filter(i => i.status === 'minted' && !i.id.includes('draft')).length} confirmed</span>
+              <span>{isLoading ? 'Checking...' : invoices.length} minted invoices</span>
             </div>
             <div>
-              <span className="block text-[hsl(var(--foreground))]">Local Sync (Buffer):</span>
-              <span>{invoices.filter(i => i.status === 'minted' && i.id.includes('draft')).length} pending confirmation</span>
+              <span className="block text-[hsl(var(--foreground))]">Selected Token:</span>
+              <span>{selected?.tokenId || 'None'}</span>
             </div>
           </div>
-          <p className="mt-2 italic">
-            * If "On-Chain" is 0 but you paid gas, the blockchain is indexing. "Local Sync" keeps your data visible.
-          </p>
         </div>
       </div>
     </div>

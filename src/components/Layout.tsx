@@ -171,7 +171,9 @@ export function Layout({ children, currentPage, setCurrentPage, userType, setUse
               </div>
             ) : (
               <button
-                onClick={connectWallet}
+                onClick={() => {
+                  void connectWallet('auto');
+                }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-violet-500 text-white rounded-xl hover:bg-violet-600 transition-colors font-medium shadow-lg shadow-violet-500/20"
               >
                 <Wallet className="w-4 h-4" />

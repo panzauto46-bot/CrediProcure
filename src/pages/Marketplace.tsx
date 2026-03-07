@@ -36,61 +36,55 @@ export function Marketplace() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      if (!contracts.invoiceNFT) return;
-      setLoading(true);
-      try {
-        const total = await contracts.invoiceNFT.totalSupply();
-        const count = Number(total);
-        const loaded = [];
-        // Show latest 20
-        const start = Math.max(0, count - 20);
-        for (let i = count - 1; i >= start; i--) {
-          const tokenId = await contracts.invoiceNFT.tokenByIndex(i);
-          const data = await contracts.invoiceNFT.invoices(tokenId);
+  const fetchInvoices = async () => {
+    if (!contracts.invoiceNFT) return;
+    setLoading(true);
+    try {
+      const total = await contracts.invoiceNFT.totalSupply();
+      const count = Number(total);
+      const loaded = [];
+      const start = Math.max(0, count - 20);
+      for (let i = count - 1; i >= start; i--) {
+        const tokenId = await contracts.invoiceNFT.tokenByIndex(i);
+        const data = await contracts.invoiceNFT.invoices(tokenId);
 
-          // Only show NOT funded invoices in list (or filter in UI)
-          // Showing all helps debug. Filter below or use filteredInvoices.
-
-          loaded.push({
-            id: data.id.toString(),
-            invoiceNumber: `INV-#${data.id}`,
-            clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
-            amount: Number(ethers.formatUnits(data.amount, 18)),
-            yieldRate: Number(data.yieldRate) / 100,
-            dueDate: new Date(Number(data.dueDate) * 1000).toISOString().split('T')[0],
-            riskLevel: Number(data.yieldRate) >= 1000 ? 'high' : Number(data.yieldRate) >= 500 ? 'medium' : 'low',
-            description: 'RWA Invoice Financing',
-            status: data.isFunded ? 'funded' : 'minted',
-            tokenId: data.id.toString()
-          } as Invoice);
-        }
-        setInvoices(loaded);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+        loaded.push({
+          id: data.id.toString(),
+          invoiceNumber: `INV-#${data.id}`,
+          clientName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
+          amount: Number(ethers.formatUnits(data.amount, 18)),
+          yieldRate: Number(data.yieldRate) / 100,
+          dueDate: new Date(Number(data.dueDate) * 1000).toISOString().split('T')[0],
+          riskLevel: Number(data.yieldRate) >= 1000 ? 'high' : Number(data.yieldRate) >= 500 ? 'medium' : 'low',
+          description: 'RWA Invoice Financing',
+          status: data.isFunded ? 'funded' : 'minted',
+          tokenId: data.id.toString()
+        } as Invoice);
       }
-    };
-    fetchInvoices();
+      setInvoices(loaded);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchInvoices();
   }, [contracts.invoiceNFT]);
 
   const filteredInvoices = invoices.filter(inv => {
-    // Only show available (not funded) by default? Or show all with status badge.
-    // Let's filter by search/risk as before.
     const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.clientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRisk = riskFilter === 'all' || inv.riskLevel === riskFilter;
-    // Optional: Hide funded if needed. Current UI shows status badge.
-    return matchSearch && matchRisk;
+    return matchSearch && matchRisk && inv.status !== 'funded';
   });
 
   const handleFund = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
     setShowFundModal(true);
     setFundStep(1);
-    setFundAmount('');
+    setFundAmount(invoice.amount.toString());
   };
 
   const processFund = async () => {
@@ -102,35 +96,15 @@ export function Marketplace() {
     try {
       setFundStep(2); // "Processing..."
 
-      const amountToFund = ethers.parseUnits(fundAmount, 18);
+      const amountToFund = ethers.parseUnits(selectedInvoice.amount.toString(), 18);
 
       // 1. Approve stablecoin transfer
       const approvalTx = await contracts.stablecoin.approve(contracts.lendingPool.target, amountToFund);
       await approvalTx.wait();
 
-      // 2. Fund Invoice (P2P or Pool)
-      // Note: This requires the contract to have 'fundInvoiceDirect' or similar, 
-      // or if using Pool model, just 'deposit'
-      // For this demo, we assume we call fundInvoiceDirect if added, or deposit.
-
-      // Try fundInvoiceDirect if exists in ABI, else deposit
-      let tx;
-      if (contracts.lendingPool.fundInvoiceDirect) {
-        tx = await contracts.lendingPool.fundInvoiceDirect(selectedInvoice.tokenId || 0); // Need real tokenId
-      } else {
-        // Fallback to deposit for demo
-        tx = await contracts.lendingPool.deposit(amountToFund);
-      }
+      const tx = await contracts.lendingPool.fundInvoiceDirect(selectedInvoice.tokenId || 0);
 
       await tx.wait();
-
-      // Save to local portfolio
-      const portfolioKey = `crediprocure_portfolio_${account}`;
-      const existing = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
-      if (!existing.includes(selectedInvoice.id)) {
-        existing.push(selectedInvoice.id);
-        localStorage.setItem(portfolioKey, JSON.stringify(existing));
-      }
 
       setFundStep(3); // "Done"
 
@@ -138,7 +112,7 @@ export function Marketplace() {
         setShowFundModal(false);
         setFundStep(1);
         setFundAmount('');
-        // alert(`Funding Successful! TX: ${tx.hash}`); // Removed alert for cleaner UX
+        void fetchInvoices();
       }, 2000);
 
     } catch (error) {
@@ -235,6 +209,11 @@ export function Marketplace() {
 
       {/* Invoice Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {loading && filteredInvoices.length === 0 ? (
+          <div className="col-span-full rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center text-[hsl(var(--muted-foreground))]">
+            Loading invoices...
+          </div>
+        ) : null}
         {filteredInvoices.map((invoice) => (
           <div key={invoice.id} className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5 hover:border-indigo-500/30 transition-all group">
             <div className="flex items-start justify-between mb-4">
@@ -277,7 +256,7 @@ export function Marketplace() {
                 className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all font-medium"
               >
                 <DollarSign className="w-4 h-4" />
-                Fund Invoice
+                Fund Full Invoice
               </button>
             </div>
           </div>
@@ -310,28 +289,17 @@ export function Marketplace() {
 
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-                    Amount to Fund (USD)
+                    Funding Amount (Full Invoice Only)
                   </label>
                   <input
                     type="number"
                     value={fundAmount}
-                    onChange={(e) => setFundAmount(e.target.value)}
-                    placeholder="0"
-                    className="w-full px-4 py-4 text-2xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-[hsl(var(--foreground))]"
+                    readOnly
+                    className="w-full px-4 py-4 text-2xl font-bold bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-xl text-[hsl(var(--foreground))]"
                   />
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">Max: {formatCurrency(selectedInvoice.amount)}</p>
-                </div>
-
-                <div className="flex gap-2 mb-6">
-                  {[0.25, 0.5, 0.75, 1].map((pct) => (
-                    <button
-                      key={pct}
-                      onClick={() => setFundAmount(Math.floor(selectedInvoice.amount * pct).toString())}
-                      className="flex-1 py-2.5 px-3 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--accent))] rounded-lg text-sm font-medium text-[hsl(var(--foreground))] transition-colors"
-                    >
-                      {pct * 100}%
-                    </button>
-                  ))}
+                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+                    The current testnet lending contract funds each invoice in a single transaction for the full invoice value.
+                  </p>
                 </div>
 
                 {fundAmount && (
@@ -340,15 +308,15 @@ export function Marketplace() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-[hsl(var(--muted-foreground))]">Principal</span>
-                        <span className="font-medium text-[hsl(var(--foreground))]">{formatCurrency(Number(fundAmount))}</span>
+                        <span className="font-medium text-[hsl(var(--foreground))]">{formatCurrency(selectedInvoice.amount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-[hsl(var(--muted-foreground))]">Expected Yield ({selectedInvoice.yieldRate}%)</span>
-                        <span className="font-medium text-violet-500">+{formatCurrency(Number(fundAmount) * (selectedInvoice.yieldRate / 100))}</span>
+                        <span className="font-medium text-violet-500">+{formatCurrency(selectedInvoice.amount * (selectedInvoice.yieldRate / 100))}</span>
                       </div>
                       <div className="flex justify-between pt-2 border-t border-indigo-500/20">
                         <span className="font-medium text-[hsl(var(--foreground))]">Total Return</span>
-                        <span className="font-bold text-indigo-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
+                        <span className="font-bold text-indigo-500">{formatCurrency(selectedInvoice.amount * (1 + selectedInvoice.yieldRate / 100))}</span>
                       </div>
                     </div>
                   </div>
@@ -376,11 +344,11 @@ export function Marketplace() {
                 <div className="bg-[hsl(var(--muted))] rounded-xl p-4 text-left text-sm space-y-2">
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Amount Funded</span>
-                    <span className="font-medium text-[hsl(var(--foreground))]">{formatCurrency(Number(fundAmount))}</span>
+                    <span className="font-medium text-[hsl(var(--foreground))]">{formatCurrency(selectedInvoice.amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Expected Return</span>
-                    <span className="font-medium text-violet-500">{formatCurrency(Number(fundAmount) * (1 + selectedInvoice.yieldRate / 100))}</span>
+                    <span className="font-medium text-violet-500">{formatCurrency(selectedInvoice.amount * (1 + selectedInvoice.yieldRate / 100))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Maturity</span>
@@ -392,10 +360,10 @@ export function Marketplace() {
 
             <button
               onClick={processFund}
-              disabled={fundStep === 1 && !fundAmount}
+              disabled={fundStep === 1 && !selectedInvoice}
               className={cn(
                 "w-full mt-4 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-medium transition-all",
-                fundStep === 1 && !fundAmount
+                fundStep === 1 && !selectedInvoice
                   ? 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
                   : 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white hover:shadow-lg hover:shadow-indigo-500/25'
               )}

@@ -44,8 +44,8 @@ CrediProcure is a **fully decentralized, end-to-end invoice financing platform**
 
 1. **Vendor** creates an invoice (e.g., $10,000 payment due from a client).
 2. **Invoice is Minted** as an ERC-721 NFT (RWA Token) on Creditcoin, with immutable on-chain data.
-3. **Investors** browse the marketplace and fund the invoice (up to 85% LTV), earning yield.
-4. **Upon repayment**, the smart contract automatically distributes principal + interest to investors.
+3. **Investors** browse the marketplace and fund a full invoice directly or deposit stablecoins into the pool.
+4. **Repayment activity** is recorded on-chain and reflected in the vendor credit history plus investor portfolio views.
 
 ---
 
@@ -54,27 +54,27 @@ CrediProcure is a **fully decentralized, end-to-end invoice financing platform**
 ### 🏢 Vendor Portal (Borrowers)
 | Feature | Description |
 |:---|:---|
-| **📊 Real-Time Dashboard** | Live stats on total invoice value, funded amounts, and pending funding — all from the blockchain. |
-| **📄 Invoice Creation & Minting** | Create invoice drafts, then mint them as ERC-721 RWA tokens on Creditcoin with one click. |
-| **💧 Liquidity Request** | Select a minted invoice and request up to 85% LTV funding from the investor marketplace. |
+| **📊 Real-Time Dashboard** | Combines on-chain invoice reads with local draft management so vendors can track minted and funded invoices in one place. |
+| **📄 Invoice Creation & Minting** | Create invoice drafts locally, then mint them as ERC-721 RWA tokens on Creditcoin from the deployed owner wallet. |
+| **💧 Liquidity Request** | Prepare invoice funding terms and review maximum LTV before sharing the request with investors. |
 | **📦 Inventory Management** | Track procurement stock with persistent add, edit, and delete functionality. |
 | **🛡️ KYB Verification** | Interactive Know-Your-Business verification flow with persistent status. |
-| **📈 On-Chain Credit History** | Full transaction history fetched from real blockchain events (`InvoiceMinted`, `InvoiceFunded`). |
+| **📈 On-Chain Credit History** | Transaction history fetched from `Transfer`, `InvoiceFunded`, and `LoanRepaid` blockchain events. |
 
 ### 💰 Investor Portal (Lenders)
 | Feature | Description |
 |:---|:---|
-| **🏪 Invoice Marketplace** | Browse all available RWA invoices on-chain, filter by risk level, and fund with stablecoins. |
-| **📊 Yield Portfolio** | Track all funded invoices, earned yields, and maturity dates with live pie chart allocation. |
-| **🏦 Liquidity Pool** | Deposit stablecoins into the lending pool to earn passive yields from invoice financing. |
+| **🏪 Invoice Marketplace** | Browse available RWA invoices on-chain, filter by risk level, and fund a full invoice with stablecoins. |
+| **📊 Yield Portfolio** | Track direct funding positions using on-chain funding and repayment events. |
+| **🏦 Liquidity Pool** | Deposit and withdraw stablecoins against the deployed lending pool contract. |
 | **📉 Yield Performance Chart** | Visual chart showing projected and historical yield performance. |
-| **🔗 Direct P2P Funding** | Fund specific invoices directly (peer-to-peer) or via the pooled liquidity model. |
+| **🔗 Direct P2P Funding** | Fund specific invoices directly from the marketplace while the pool remains available for LP-style participation. |
 
 ### 🔗 Blockchain & Web3
 | Feature | Description |
 |:---|:---|
 | **🦊 Multi-Wallet Integration** | Connect with MetaMask, Phantom (EVM mode), or Bitget Wallet with automatic Creditcoin Testnet switching. |
-| **⛓️ Live On-Chain Data** | All dashboard stats, invoices, and history are fetched directly from deployed smart contracts. |
+| **⛓️ Live On-Chain Data** | Marketplace invoices, LP balances, funding history, and credit history are fetched directly from deployed smart contracts. |
 | **🌙 Dark/Light Mode** | Premium glassmorphism UI with full theme support. |
 | **📱 Responsive Design** | Fully responsive across desktop, tablet, and mobile devices. |
 
@@ -143,7 +143,7 @@ Our protocol consists of **3 core smart contracts** deployed on the **Creditcoin
 | **Smart Contracts** | Solidity + Hardhat | 0.8.20 |
 | **Contract Standards** | OpenZeppelin | 5.x |
 | **State Management** | React Context API | — |
-| **Routing** | React Router DOM | 7.x |
+| **Navigation** | Internal state-driven app shell | — |
 
 ---
 
@@ -158,17 +158,17 @@ CrediProcure/
 │
 ├── 📁 src/                                # Frontend Source Code
 │   ├── 📄 main.tsx                        # React entry point
-│   ├── 📄 App.tsx                         # Router & app shell
+│   ├── 📄 App.tsx                         # State-based app shell
 │   ├── 📄 index.css                       # Global styles & design tokens
 │   │
 │   ├── 📁 pages/                          # Application Pages (10 pages)
-│   │   ├── 📄 VendorDashboard.tsx         # Vendor analytics — live blockchain data
-│   │   ├── 📄 InvestorDashboard.tsx       # Investor analytics — live blockchain data
-│   │   ├── 📄 Invoices.tsx                # Invoice CRUD + RWA minting (on-chain)
-│   │   ├── 📄 Marketplace.tsx             # Browse & fund invoices (on-chain)
-│   │   ├── 📄 LiquidityPool.tsx           # LP deposit/withdraw (on-chain)
-│   │   ├── 📄 LiquidityRequest.tsx        # Request funding for minted invoices
-│   │   ├── 📄 Portfolio.tsx               # Yield tracking + pie chart
+│   │   ├── 📄 VendorDashboard.tsx         # Vendor analytics with on-chain invoice reads
+│   │   ├── 📄 InvestorDashboard.tsx       # Investor analytics with LP + direct funding views
+│   │   ├── 📄 Invoices.tsx                # Invoice drafts + owner-assisted RWA minting
+│   │   ├── 📄 Marketplace.tsx             # Browse & fund invoices on-chain
+│   │   ├── 📄 LiquidityPool.tsx           # LP deposit/withdraw against the live pool contract
+│   │   ├── 📄 LiquidityRequest.tsx        # Funding-request preparation flow
+│   │   ├── 📄 Portfolio.tsx               # Direct funding portfolio + allocation chart
 │   │   ├── 📄 Inventory.tsx               # Procurement stock management
 │   │   ├── 📄 KYB.tsx                     # KYB verification flow
 │   │   └── 📄 CreditHistory.tsx           # On-chain credit history via events
@@ -217,28 +217,21 @@ CrediProcure/
 
 ---
 
-## ⚡ Technical Highlights: Handling Real-World Latency
+## ⚡ Current Deployment Notes
 
-Building on a Testnet often involves RPC latency and indexing delays. CrediProcure implements **Advanced UX Patterns** to ensure a seamless experience despite blockchain lag:
+The current Creditcoin testnet deployment is optimized for a hackathon demo and uses a few explicit constraints:
 
-### 1. 🔄 Hybrid Data Fetching Engine
-The application uses a **Dual-Source Truth** system for invoices:
-- **Source A (Blockchain)**: The ultimate source of truth via RPC calls.
-- **Source B (Local Optimistic Storage)**: Immediate capture of "Minted" status locally.
-- **The Engine**: Automatically merges both sources, deduplicates, and presents a unified view. This means **Zero Waiting Time** for users after minting.
+### 1. Owner-Assisted Minting
+- Invoice drafts can be created from any connected wallet.
+- The deployed `InvoiceNFT` contract currently allows on-chain minting from the deployed owner wallet (`0xFEE547941c3E3d3D66dC2e47ee9c16879E870F9b`).
 
-### 2. 🚀 Optimistic UI Updates
-We don't make users wait for block confirmations to see progress.
-- **Instant Feedback**: Creating a draft or minting an invoice updates the UI immediately.
-- **Background Synchronization**: The app polls the blockchain in the background to confirm stability without freezing the interface.
+### 2. Real Contract Reads Where It Matters
+- Marketplace inventory, LP balances, total pool liquidity, credit history, and direct funding positions are loaded from live smart contract reads or contract events.
+- Inventory, KYB state, and invoice drafts remain local-first for faster product iteration during the hackathon.
 
-### 3. 🛡️ Real-Time System Diagnostics
-Transparency is key. We included a **Live Debug Panel** in the `Liquidity Request` page that shows:
-- **Wallet Connection Strength**
-- **On-Chain vs. Local Data Sync Status**
-- **Real-Time RPC Fetching Indicators**
-
-*This architecture ensures CrediProcure is robust enough for real-world usage where network conditions are unpredictable.*
+### 3. Honest Demo Boundaries
+- The `Liquidity Request` page is a preparation flow for funding terms, not an on-chain escrow queue.
+- The yield performance chart is a portfolio visualization, while realized direct-investment yield is driven by on-chain repayment events.
 
 ---
 
@@ -249,7 +242,7 @@ Transparency is key. We included a **Live Debug Panel** in the `Liquidity Reques
 | **1** | 🎨 UI/UX Design & Prototyping | Wireframes, user flows, component library, responsive layout | ✅ Done |
 | **2** | ⛓️ Smart Contract Development | InvoiceNFT (ERC-721), LendingPool, MockStablecoin, unit tests | ✅ Done |
 | **3** | 🔗 Web3 Integration | MetaMask wallet connect, contract integration, live data fetching | ✅ Done |
-| **4** | 🚀 Live Feature Activation | Replace all mock data with blockchain reads/writes, LocalStorage persistence | ✅ Done |
+| **4** | 🚀 Live Feature Activation | Replace core marketplace, LP, and credit history flows with blockchain reads/writes while keeping local-first draft workflows | ✅ Done |
 | **5** | 🌐 Deployment & Submission | Creditcoin Testnet deployment, Vercel hosting, submission package | ✅ Done |
 | **6** | 📈 Future: Mainnet & DAO | Governance token, on-chain credit scoring, multi-chain support | 🔮 Planned |
 

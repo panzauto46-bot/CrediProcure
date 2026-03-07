@@ -1,22 +1,15 @@
 import { useState, useEffect } from 'react';
 import {
   Shield,
-  Upload,
   CheckCircle,
-  Building2,
-  FileText,
   User,
-  ArrowRight,
-  ExternalLink,
   Zap,
   Loader2
 } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
-import { cn } from '@/utils/cn';
 
 export function KYB() {
   const { account } = useWallet();
-  const [activeTab, setActiveTab] = useState<'status' | 'submit'>('status');
   const [kybStatus, setKybStatus] = useState<'none' | 'pending' | 'verified'>('none');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,16 +31,8 @@ export function KYB() {
       setIsSubmitting(false);
       setKybStatus('verified');
       if (account) localStorage.setItem(`kyb_status_${account}`, 'verified');
-      setActiveTab('status');
     }, 2000);
   };
-
-  const steps = [
-    { id: 1, title: 'Business Information', icon: Building2 },
-    { id: 2, title: 'Legal Documents', icon: FileText },
-    { id: 3, title: 'Owner Verification', icon: User },
-    { id: 4, title: 'Final Review', icon: Shield },
-  ];
 
   if (!account) {
     return (

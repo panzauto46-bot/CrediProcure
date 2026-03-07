@@ -8,9 +8,9 @@ import {
   Loader2
 } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
-import { ethers } from 'ethers';
 import { cn } from '@/utils/cn';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { fetchDirectInvestmentsForAccount } from '@/utils/investments';
 
 interface Investment {
   id: string;
@@ -38,58 +38,18 @@ export function Portfolio() {
 
   useEffect(() => {
     const fetchPortfolio = async () => {
-      if (!account || !contracts.invoiceNFT) return;
+      if (!account) return;
       setIsLoading(true);
       try {
-        const portfolioKey = `crediprocure_portfolio_${account}`;
-        const storedIds = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
-
-        const fetched: Investment[] = [];
-
-        for (const id of storedIds) {
-          try {
-            const data = await contracts.invoiceNFT.invoices(id);
-            // Calculate earned yield (simplified: if repaid -> full yield, else 0 or pro-rated)
-            // Contract doesn't store "repaid" status in struct explicitly? 
-            // Ah, my struct has `isFunded`. 
-            // Wait, if it is repaid, does it change?
-            // LendingPool.repay event happens. Contract logic doesn't update `isFunded` to false.
-            // It stays funded.
-            // So how do I know if Repaid?
-            // I need to check `LendingPool` events for `LoanRepaid(tokenId)`.
-            // This is expensive loop.
-            // For Hackathon, I'll assume if "DueDate" passed, it is "Matured/Repaid" or check if I can find `repaid` status.
-            // Actually, I can check if `LendingPool` has received repayment?
-            // Let's just look at due date. If Now > DueDate, count as Repaid/Matured.
-
-            const dueDate = new Date(Number(data.dueDate) * 1000);
-            const isRepaid = new Date() > dueDate; // Simple assumption for demo
-            const amount = Number(ethers.formatUnits(data.amount, 18));
-            const yieldRate = Number(data.yieldRate) / 100;
-
-            fetched.push({
-              id: data.id.toString(),
-              invoiceNumber: `INV-${data.id}`,
-              vendorName: `Vendor ${data.vendor.toString().slice(0, 6)}...`,
-              amount: amount,
-              yieldRate: yieldRate,
-              earnedYield: isRepaid ? amount * (yieldRate / 100) : 0,
-              maturityDate: dueDate.toISOString().split('T')[0],
-              status: isRepaid ? 'repaid' : 'active'
-            });
-          } catch (e) {
-            console.error(`Failed to fetch invoice ${id}`, e);
-          }
-        }
+        const fetched = await fetchDirectInvestmentsForAccount(contracts, account);
         setInvestments(fetched);
-
       } catch (e) {
         console.error(e);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchPortfolio();
+    void fetchPortfolio();
   }, [account, contracts]);
 
   const totalInvested = investments.reduce((sum, inv) => sum + inv.amount, 0);

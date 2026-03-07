@@ -3,9 +3,7 @@ import {
   FileText,
   Plus,
   Search,
-  Upload,
   Coins,
-  ExternalLink,
   CheckCircle,
   Clock,
   DollarSign,
@@ -34,6 +32,7 @@ export function Invoices() {
   const [mintStep, setMintStep] = useState(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [contractOwner, setContractOwner] = useState<string | null>(null);
 
   // New Invoice Form State
   const [newInvoice, setNewInvoice] = useState({
@@ -61,6 +60,9 @@ export function Invoices() {
     // 2. Try Load Blockchain Data (Don't let it block drafts)
     if (contracts.invoiceNFT) {
       try {
+        const owner = await contracts.invoiceNFT.owner();
+        setContractOwner(owner);
+
         const balance = await contracts.invoiceNFT.balanceOf(account);
         console.log(`Fetching ${balance} invoices from chain...`);
 
@@ -86,6 +88,7 @@ export function Invoices() {
         allInvoices.push(...chainInvoices.reverse());
       } catch (chainErr) {
         console.error("Blockchain fetch failed:", chainErr);
+        setContractOwner(null);
       }
     }
 
@@ -95,8 +98,13 @@ export function Invoices() {
   };
 
   useEffect(() => {
-    loadData();
+    void loadData();
   }, [account, contracts.invoiceNFT]);
+
+  const canMintOnChain =
+    Boolean(account) &&
+    Boolean(contractOwner) &&
+    contractOwner?.toLowerCase() === account?.toLowerCase();
 
 
   const handleCreateInvoice = () => {
@@ -153,6 +161,11 @@ export function Invoices() {
 
   const processMint = async () => {
     if (!selectedInvoice || !contracts.invoiceNFT || !account) return;
+    if (!canMintOnChain) {
+      alert('The current testnet deployment only allows the deployed platform owner to mint on-chain. Connect with the deployed admin wallet or keep this invoice as a draft.');
+      setShowMintModal(false);
+      return;
+    }
 
     try {
       setMintStep(1); // Creating
@@ -166,29 +179,19 @@ export function Invoices() {
       setMintStep(2); // Confirming
       await tx.wait();
 
-      // REAL-TIME SYNC: Update status locally to persist data while Blockchain indexes
       const safeAccount = account.toLowerCase();
       const draftsKey = `crediprocure_drafts_${safeAccount}`;
-
       const drafts: Invoice[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-      const updatedDrafts = drafts.map(i => {
-        if (i.id === selectedInvoice.id) {
-          // Mark as minted so it shows up in Liquidity Request safely
-          return { ...i, status: 'minted' as Invoice['status'], tokenId: selectedInvoice.id };
-        }
-        return i;
-      });
+      const updatedDrafts = drafts.filter((draft) => draft.id !== selectedInvoice.id);
       localStorage.setItem(draftsKey, JSON.stringify(updatedDrafts));
 
       setMintStep(3); // Done
 
-      // Update UI instantly
-      setInvoices(updatedDrafts);
-
       setTimeout(() => {
         setShowMintModal(false);
         setMintStep(0);
-        // Do NOT reload immediately to prevent "flicker" of missing chain data
+        setSelectedInvoice(null);
+        void loadData();
       }, 2000);
 
     } catch (error) {
@@ -227,6 +230,12 @@ export function Invoices() {
       </div>
 
       {/* Stats */}
+      {!canMintOnChain && account && contracts.invoiceNFT && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+          The current Creditcoin testnet deployment uses an admin-assisted minting model. You can create invoice drafts with your own wallet, but on-chain minting only works from the deployed owner wallet.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[hsl(var(--card))] p-5 rounded-xl border border-[hsl(var(--border))]">
           <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Total Invoices</p>
@@ -333,9 +342,15 @@ export function Invoices() {
                       {invoice.status === 'pending' && (
                         <button
                           onClick={() => handleMint(invoice)}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                          disabled={!canMintOnChain}
+                          className={cn(
+                            "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                            canMintOnChain
+                              ? "bg-blue-600 hover:bg-blue-700 text-white"
+                              : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed"
+                          )}
                         >
-                          Mint to RWA
+                          {canMintOnChain ? 'Mint to RWA' : 'Admin Mint Only'}
                         </button>
                       )}
                     </div>

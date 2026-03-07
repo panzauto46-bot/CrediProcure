@@ -6,7 +6,6 @@ import {
   Filter,
   Download,
   CheckCircle,
-  Clock,
   Loader2,
   FileText,
   ExternalLink
@@ -20,6 +19,7 @@ interface HistoryItem {
   action: 'Invoice Funded' | 'Loan Repaid' | 'Invoice Minted';
   amount: number;
   timestamp: string;
+  timestampValue: number;
   txHash: string;
   creditImpact: number;
 }
@@ -58,10 +58,33 @@ export function CreditHistory() {
               action: 'Invoice Funded',
               amount: Number(ethers.formatUnits(e.args[2], 18)), // amount
               timestamp: new Date(block.timestamp * 1000).toLocaleString(),
+              timestampValue: block.timestamp * 1000,
               txHash: e.transactionHash,
               creditImpact: +10
             });
           }
+        }
+
+        const repaidEvents = await contracts.lendingPool.queryFilter(
+          contracts.lendingPool.filters.LoanRepaid()
+        );
+        for (const e of repaidEvents) {
+          if (!('args' in e)) continue;
+
+          const invoice = await contracts.invoiceNFT.invoices(e.args[0]);
+          if (invoice.vendor.toLowerCase() !== account.toLowerCase()) continue;
+
+          const block = await e.getBlock();
+          const repaidAmount = Number(ethers.formatUnits(e.args[1], 18));
+          events.push({
+            id: e.transactionHash + '_repay',
+            action: 'Loan Repaid',
+            amount: repaidAmount,
+            timestamp: new Date(block.timestamp * 1000).toLocaleString(),
+            timestampValue: block.timestamp * 1000,
+            txHash: e.transactionHash,
+            creditImpact: +15
+          });
         }
 
         // 2. Fetch Minted Events (Transfer from 0x0 to Vendor)
@@ -72,14 +95,13 @@ export function CreditHistory() {
         for (const e of mintEvents) {
           if ('args' in e) {
             const block = await e.getBlock();
-            // We don't have amount in Transfer event, would need to fetch invoice data.
-            // For speed, we just log the event with 0 or fetch if needed.
-            // Let's just say "Invoice Minted"
+            const invoice = await contracts.invoiceNFT.invoices(e.args[2]);
             events.push({
               id: e.transactionHash + '_mint',
               action: 'Invoice Minted',
-              amount: 0, // Placeholder or fetch
+              amount: Number(ethers.formatUnits(invoice.amount, 18)),
               timestamp: new Date(block.timestamp * 1000).toLocaleString(),
+              timestampValue: block.timestamp * 1000,
               txHash: e.transactionHash,
               creditImpact: +5
             });
@@ -87,7 +109,7 @@ export function CreditHistory() {
         }
 
         // Sort by date desc
-        events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        events.sort((a, b) => b.timestampValue - a.timestampValue);
         setHistory(events);
 
       } catch (e) {

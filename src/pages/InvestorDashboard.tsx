@@ -15,6 +15,7 @@ import { cn } from '@/utils/cn';
 import { useWallet } from '@/context/WalletContext';
 import { ethers } from 'ethers';
 import { Invoice } from '@/types';
+import { fetchDirectInvestmentsForAccount } from '@/utils/investments';
 import {
   XAxis,
   YAxis,
@@ -65,52 +66,38 @@ export function InvestorDashboard() {
         const lpVal = Number(ethers.formatUnits(lpBal, 18)); // Mock stablecoin 18 decimals
         setLpInvested(lpVal);
 
-        // 2. Fetch Direct Investments (from LocalStorage + Contract)
-        const portfolioKey = `crediprocure_portfolio_${account}`;
-        const storedIds = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
-
+        // 2. Fetch direct investments from on-chain funding and repayment events
+        const directInvestments = await fetchDirectInvestmentsForAccount(contracts, account);
         let dInvested = 0;
         let dYield = 0;
         let dActive = 0;
         let totalYieldRate = 0;
         const recent = [];
 
-        for (const id of storedIds) {
-          try {
-            const data = await contracts.invoiceNFT.invoices(id);
-            // Simple assumption: if fetched, it exists
-            const amt = Number(ethers.formatUnits(data.amount, 18));
-            const yRate = Number(data.yieldRate) / 100;
+        for (const investment of directInvestments) {
+          dInvested += investment.amount;
+          dYield += investment.earnedYield;
+          if (investment.status === 'active') {
+            dActive++;
+          }
+          totalYieldRate += investment.yieldRate;
 
-            // Check if repaid (mock logic: check due date)
-            const dueDate = new Date(Number(data.dueDate) * 1000);
-            const isRepaid = new Date() > dueDate;
-
-            dInvested += amt;
-            if (isRepaid) {
-              dYield += amt * (yRate / 100);
-            } else {
-              dActive++;
-            }
-            totalYieldRate += yRate;
-
-            recent.push({
-              id: data.id.toString(),
-              invoiceNumber: `INV-${data.id}`,
-              vendorName: `Vendor ${data.vendor.toString().slice(0, 6)}`,
-              amount: amt,
-              earnedYield: isRepaid ? amt * (yRate / 100) : 0,
-              status: isRepaid ? 'repaid' : 'active',
-              yieldRate: yRate
-            });
-          } catch (e) { console.error(e); }
+          recent.push({
+            id: investment.id,
+            invoiceNumber: investment.invoiceNumber,
+            vendorName: investment.vendorName,
+            amount: investment.amount,
+            earnedYield: investment.earnedYield,
+            status: investment.status,
+            yieldRate: investment.yieldRate
+          });
         }
 
         setDirectInvested(dInvested);
-        setEarnedYield(dYield); // Note: LP yield is not calculated here, overly complex for demo
+        setEarnedYield(dYield);
         setActiveCount(dActive);
-        setAvgYield(storedIds.length > 0 ? totalYieldRate / storedIds.length : 0);
-        setRecentInvestments(recent.reverse().slice(0, 5)); // Latest 5
+        setAvgYield(directInvestments.length > 0 ? totalYieldRate / directInvestments.length : 0);
+        setRecentInvestments(recent.slice(0, 5));
 
         // 3. Fetch Opportunities (Not Funded Invoices)
         // Fetch top 3
