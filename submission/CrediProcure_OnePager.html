@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrediProcure One-Pager</title>
+    <style>
+      :root {
+        --bg: #f7f7fb;
+        --card: #ffffff;
+        --ink: #151522;
+        --muted: #5d6275;
+        --line: #dbdeea;
+        --accent: #5b21b6;
+        --accent-2: #2563eb;
+        --good: #059669;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 18mm;
+        background: var(--card);
+      }
+
+      .hero {
+        padding: 18px 20px;
+        border-radius: 20px;
+        color: #fff;
+        background: linear-gradient(135deg, #0f172a, #4c1d95 55%, #7c3aed);
+      }
+
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.85;
+      }
+
+      h1 {
+        margin: 8px 0 6px;
+        font-size: 34px;
+        line-height: 1.1;
+      }
+
+      .tagline {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px;
+        background: #fff;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+
+      p,
+      li {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        margin: 10px 0 0 18px;
+        padding: 0;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat {
+        border-radius: 14px;
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(91, 33, 182, 0.08));
+        border: 1px solid var(--line);
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 20px;
+        color: var(--ink);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .flow-step {
+        padding: 12px;
+        border-radius: 14px;
+        background: #fafafe;
+        border: 1px solid var(--line);
+      }
+
+      .flow-step span {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .flow-step strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 14px;
+      }
+
+      .subgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .links a {
+        color: var(--accent-2);
+        text-decoration: none;
+        word-break: break-word;
+      }
+
+      .footer {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f6f7fc;
+        border: 1px solid var(--line);
+      }
+
+      .footer strong {
+        color: var(--good);
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .page {
+          margin: 0;
+          width: auto;
+          min-height: auto;
+          padding: 14mm;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="eyebrow">BUIDL CTC 2026 Submission One-Pager</div>
+        <h1>CrediProcure</h1>
+        <p class="tagline">
+          Decentralized B2B invoice financing on Creditcoin testnet, connecting vendors with DeFi investors
+          through on-chain RWA tokenization, funding, repayment, and yield tracking.
+        </p>
+        <div class="meta">
+          <div class="pill">Creditcoin Testnet</div>
+          <div class="pill">DeFi + RWA</div>
+          <div class="pill">Validated on March 8, 2026</div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Problem</h2>
+          <p>
+            SMEs face a global trade finance gap and often wait 30 to 90 days to receive payment. Traditional
+            invoice financing is slow, opaque, and difficult to access, while DeFi investors have limited access
+            to stable real-world-backed yield opportunities.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Solution</h2>
+          <p>
+            CrediProcure turns unpaid B2B invoices into tokenized on-chain assets. Vendors create and mint
+            invoices as RWAs, investors fund them with stablecoins, and repayments plus investor yield are tracked
+            directly on Creditcoin testnet.
+          </p>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top: 16px">
+        <h2>Core Flow</h2>
+        <div class="flow">
+          <div class="flow-step">
+            <span>1. Create</span>
+            <strong>Vendor creates an invoice</strong>
+          </div>
+          <div class="flow-step">
+            <span>2. Mint</span>
+            <strong>Invoice is minted as an RWA NFT</strong>
+          </div>
+          <div class="flow-step">
+            <span>3. Fund</span>
+            <strong>Investor funds the invoice on-chain</strong>
+          </div>
+          <div class="flow-step">
+            <span>4. Repay</span>
+            <strong>Vendor repays principal plus yield</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="subgrid">
+        <div class="card">
+          <h2>Product Modules</h2>
+          <ul>
+            <li>Vendor portal for invoice creation, RWA minting, and repayment</li>
+            <li>Investor marketplace for direct invoice funding</li>
+            <li>Yield portfolio based on live funding and repayment events</li>
+            <li>On-chain credit history for funding and repayment records</li>
+            <li>Liquidity pool flow for testnet stablecoin deposits and withdrawals</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Protocol Architecture</h2>
+          <ul>
+            <li><strong>InvoiceNFT.sol</strong>: ERC-721 invoice tokenization</li>
+            <li><strong>LendingPool.sol</strong>: direct funding, pool liquidity, repayment accounting</li>
+            <li><strong>MockStablecoin.sol</strong>: public testnet demo stablecoin</li>
+            <li><strong>Frontend</strong>: React + TypeScript + Ethers.js + Vite</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="subgrid">
+        <div class="card">
+          <h2>Validation Snapshot</h2>
+          <div class="stats">
+            <div class="stat">
+              <strong>3</strong>
+              <p>Demo invoices completed end-to-end</p>
+            </div>
+            <div class="stat">
+              <strong>$6,100</strong>
+              <p>Total direct funding validated on testnet</p>
+            </div>
+            <div class="stat">
+              <strong>$610</strong>
+              <p>Total investor yield reflected in the portfolio</p>
+            </div>
+            <div class="stat">
+              <strong>100%</strong>
+              <p>Invoice demo lifecycle completed on-chain</p>
+            </div>
+          </div>
+        </div>
+        <div class="card links">
+          <h2>Project Links</h2>
+          <p><strong>Live App</strong><br /><a href="https://credi-procure.vercel.app/">https://credi-procure.vercel.app/</a></p>
+          <p><strong>GitHub</strong><br /><a href="https://github.com/panzauto46-bot/CrediProcure">https://github.com/panzauto46-bot/CrediProcure</a></p>
+          <p><strong>Demo Video</strong><br /><a href="https://youtu.be/c_65KWII4Kk">https://youtu.be/c_65KWII4Kk</a></p>
+        </div>
+      </section>
+
+      <section class="footer">
+        <p>
+          <strong>Current status:</strong> The full demo flow was validated on Creditcoin testnet on
+          <strong>March 8, 2026</strong>, including invoice creation, RWA minting, investor funding, vendor
+          repayment, investor yield tracking, and vendor credit history updates.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
