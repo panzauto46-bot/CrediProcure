@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrediProcure Pitch Deck</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121933;
+        --panel-2: #0f1729;
+        --line: #223055;
+        --ink: #eaf0ff;
+        --muted: #9aa8cf;
+        --accent: #31d2b0;
+        --accent-2: #4a7dff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      .deck {
+        width: 100%;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 44px 52px;
+        border-bottom: 1px solid #111a32;
+        background:
+          radial-gradient(900px 420px at -10% -20%, rgba(74, 125, 255, 0.14), transparent 70%),
+          radial-gradient(900px 420px at 110% 120%, rgba(49, 210, 176, 0.1), transparent 70%),
+          var(--bg);
+        page-break-after: always;
+      }
+
+      .kicker {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 56px;
+        line-height: 1.02;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: 34px;
+        line-height: 1.15;
+      }
+
+      h3 {
+        margin: 0 0 10px;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      p,
+      li {
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+
+      .lead {
+        margin-top: 18px;
+        max-width: 960px;
+        font-size: 24px;
+        color: #d4defa;
+      }
+
+      .accent {
+        color: var(--accent);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, rgba(18, 25, 51, 0.92), rgba(15, 23, 41, 0.94));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+      }
+
+      .metric {
+        font-size: 34px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: var(--panel-2);
+      }
+
+      .step .num {
+        display: inline-block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 18px;
+        color: #ffffff;
+      }
+
+      .shot-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .shot-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      figure {
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #0e152b;
+      }
+
+      figure img {
+        display: block;
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+      }
+
+      figcaption {
+        padding: 10px 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .two-col-text {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 20px;
+      }
+
+      .small {
+        font-size: 15px;
+      }
+
+      .links a {
+        color: #85a8ff;
+        text-decoration: none;
+      }
+
+      .footer {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #8ea1cf;
+      }
+
+      @media print {
+        .slide {
+          min-height: auto;
+          height: 280mm;
+          padding: 16mm;
+          page-break-after: always;
+        }
+
+        figure img {
+          height: 160px;
+        }
+
+        h1 {
+          font-size: 42px;
+        }
+
+        h2 {
+          font-size: 28px;
+        }
+
+        p,
+        li {
+          font-size: 14px;
+        }
+
+        .lead {
+          font-size: 18px;
+        }
+
+        .metric {
+          font-size: 24px;
+        }
+
+        figcaption {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide">
+        <div class="kicker">CrediProcure | Pitch Deck | March 2026</div>
+        <h1>On-chain invoice financing for <span class="accent">SMEs and investors</span>.</h1>
+        <p class="lead">
+          CrediProcure transforms unpaid B2B invoices into tokenized RWAs on Creditcoin,
+          enabling faster vendor liquidity and transparent investor yield.
+        </p>
+
+        <div class="grid-3" style="margin-top: 26px;">
+          <article class="card">
+            <h3>Category</h3>
+            <p>DeFi + RWA on Creditcoin testnet.</p>
+          </article>
+          <article class="card">
+            <h3>Deployment</h3>
+            <p>Live app + deployed smart contracts on testnet.</p>
+          </article>
+          <article class="card">
+            <h3>Core Asset</h3>
+            <p>Invoice NFT (ERC-721) as on-chain real-world asset.</p>
+          </article>
+        </div>
+
+        <p class="footer">Built by Pandu Dargah.</p>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Problem and Opportunity</div>
+        <h2>Trade finance is still slow, opaque, and costly.</h2>
+        <div class="two-col-text" style="margin-top: 18px;">
+          <article class="card">
+            <h3>What is broken</h3>
+            <ul>
+              <li>SMEs wait 30-90 days for invoice settlement.</li>
+              <li>Traditional factoring is paperwork-heavy and intermediary-dependent.</li>
+              <li>Funding terms and repayment visibility are often unclear.</li>
+              <li>DeFi investors lack transparent real-world-backed yield products.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Market context</h3>
+            <div class="grid-2 small">
+              <div class="card">
+                <div class="metric">$3.6T</div>
+                <p>Global trade finance gap.</p>
+              </div>
+              <div class="card">
+                <div class="metric">30-90d</div>
+                <p>Typical invoice delay.</p>
+              </div>
+              <div class="card">
+                <div class="metric">SME</div>
+                <p>Primary borrower segment.</p>
+              </div>
+              <div class="card">
+                <div class="metric">RWA</div>
+                <p>Investor demand for auditable yield.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Solution</div>
+        <h2>Tokenize invoice. Fund on-chain. Repay transparently.</h2>
+        <div class="flow" style="margin-top: 16px;">
+          <article class="step">
+            <span class="num">Step 1</span>
+            <strong>Create</strong>
+            <p>Vendor creates invoice with amount, due date, and yield.</p>
+          </article>
+          <article class="step">
+            <span class="num">Step 2</span>
+            <strong>Mint</strong>
+            <p>Invoice is minted as ERC-721 RWA NFT on Creditcoin.</p>
+          </article>
+          <article class="step">
+            <span class="num">Step 3</span>
+            <strong>Fund</strong>
+            <p>Investor funds directly or via liquidity pool.</p>
+          </article>
+          <article class="step">
+            <span class="num">Step 4</span>
+            <strong>Repay</strong>
+            <p>Repayment updates credit history and portfolio yield.</p>
+          </article>
+        </div>
+
+        <div class="shot-grid-2" style="margin-top: 20px;">
+          <figure>
+            <img src="./screenshots/01-landing-hero.jpeg" alt="Landing hero" />
+            <figcaption>Landing: value proposition and key protocol metrics.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/02-landing-flow.jpeg" alt="Landing flow" />
+            <figcaption>Landing: lifecycle explanation from mint to repay.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Vendor Flow</div>
+        <h2>Vendor journey from invoice setup to repayment tracking.</h2>
+        <div class="shot-grid-4" style="margin-top: 16px;">
+          <figure>
+            <img src="./screenshots/03-vendor-dashboard.jpeg" alt="Vendor dashboard" />
+            <figcaption>Vendor dashboard overview.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/04-vendor-inventory.jpeg" alt="Vendor inventory" />
+            <figcaption>Inventory management for procurement context.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/05-vendor-invoices-rwa.jpeg" alt="Vendor invoices" />
+            <figcaption>Invoice drafting and RWA minting flow.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/06-vendor-request-liquidity.jpeg" alt="Vendor request liquidity" />
+            <figcaption>Liquidity request preparation and terms review.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Compliance and Credit</div>
+        <h2>KYB validation and event-driven credit history.</h2>
+        <div class="shot-grid-2" style="margin-top: 16px;">
+          <figure>
+            <img src="./screenshots/07-vendor-kyb.jpeg" alt="Vendor KYB" />
+            <figcaption>KYB verification module.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/08-vendor-credit-history.jpeg" alt="Vendor credit history" />
+            <figcaption>On-chain credit history from funding and repayment events.</figcaption>
+          </figure>
+        </div>
+
+        <article class="card" style="margin-top: 20px;">
+          <h3>Why this matters</h3>
+          <ul>
+            <li>Improves lender confidence with transparent borrower history.</li>
+            <li>Creates reusable on-chain signals for future risk scoring.</li>
+            <li>Supports compliance-ready progression toward production rollout.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Investor Flow</div>
+        <h2>Investor experience across discovery, allocation, and yield tracking.</h2>
+        <div class="shot-grid-4" style="margin-top: 16px;">
+          <figure>
+            <img src="./screenshots/09-investor-dashboard.jpeg" alt="Investor dashboard" />
+            <figcaption>Investor dashboard with performance summary.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/10-investor-marketplace.jpeg" alt="Investor marketplace" />
+            <figcaption>Invoice marketplace for direct funding.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/11-investor-yield-portfolio.jpeg" alt="Investor portfolio" />
+            <figcaption>Yield portfolio and allocation tracking.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/12-investor-liquidity-pool.jpeg" alt="Investor liquidity pool" />
+            <figcaption>Liquidity pool deposits and withdrawals.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Architecture</div>
+        <h2>Three-contract protocol on Creditcoin testnet.</h2>
+        <div class="grid-3" style="margin-top: 16px;">
+          <article class="card">
+            <h3>InvoiceNFT.sol</h3>
+            <p>ERC-721 invoice tokenization with immutable lifecycle state.</p>
+          </article>
+          <article class="card">
+            <h3>LendingPool.sol</h3>
+            <p>Dual funding model: direct invoice funding + pooled liquidity.</p>
+          </article>
+          <article class="card">
+            <h3>MockStablecoin.sol</h3>
+            <p>Test token for deterministic end-to-end demo execution.</p>
+          </article>
+        </div>
+
+        <article class="card" style="margin-top: 18px;">
+          <h3>Current scope</h3>
+          <ul>
+            <li>On-chain data: marketplace, funding events, repayment events, pool balances.</li>
+            <li>Local-first modules: drafts, inventory, and KYB state for fast MVP iteration.</li>
+            <li>Next: stronger risk model, syndication support, and mainnet compliance layer.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="slide">
+        <div class="kicker">Traction and Links</div>
+        <h2>Validated MVP with live infrastructure and submission assets.</h2>
+        <div class="grid-3" style="margin-top: 16px;">
+          <article class="card">
+            <div class="metric">MVP</div>
+            <p>End-to-end testnet flow validated.</p>
+          </article>
+          <article class="card">
+            <div class="metric">12</div>
+            <p>Product screenshots across vendor and investor journeys.</p>
+          </article>
+          <article class="card">
+            <div class="metric">3</div>
+            <p>Core smart contracts deployed on Creditcoin testnet.</p>
+          </article>
+        </div>
+
+        <article class="card links" style="margin-top: 20px;">
+          <h3>Project links</h3>
+          <p><strong>Live App:</strong> <a href="https://credi-procure.vercel.app">https://credi-procure.vercel.app</a></p>
+          <p><strong>GitHub:</strong> <a href="https://github.com/panzauto46-bot/CrediProcure">https://github.com/panzauto46-bot/CrediProcure</a></p>
+          <p><strong>Demo Video:</strong> <a href="https://youtu.be/c_65KWII4Kk">https://youtu.be/c_65KWII4Kk</a></p>
+        </article>
+
+        <p class="footer">Prepared for evaluator and partner review. CrediProcure, March 2026.</p>
+      </section>
+    </main>
+  </body>
+</html>
