@@ -200,16 +200,48 @@
         color: #8ea1cf;
       }
 
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
       @media print {
+        html,
+        body {
+          width: 210mm;
+          height: 297mm;
+          background: #fff;
+        }
+
+        .deck {
+          width: 210mm;
+        }
+
         .slide {
-          min-height: auto;
-          height: 280mm;
-          padding: 16mm;
+          min-height: 297mm;
+          height: 297mm;
+          width: 210mm;
+          margin: 0;
+          padding: 14mm 12mm;
+          border: 0;
           page-break-after: always;
+          break-after: page;
+          overflow: hidden;
+        }
+
+        .slide:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+
+        .card,
+        figure {
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
 
         figure img {
-          height: 160px;
+          height: 120px;
         }
 
         h1 {
