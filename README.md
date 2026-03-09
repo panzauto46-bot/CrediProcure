@@ -362,6 +362,8 @@ After deployment, update contract addresses in `src/context/WalletContext.tsx`.
 - Project Sector: DeFi + RWA
 - Project Deck (HTML): `./submission/CrediProcure_PitchDeck.html`
 - Project Deck (PDF): `./submission/CrediProcure_PitchDeck.pdf`
+- Whitepaper (HTML): `./submission/CrediProcure_Whitepaper.html`
+- Whitepaper (PDF): `./submission/CrediProcure_Whitepaper.pdf`
 - Project One-Pager: `./submission/CrediProcure_OnePager.html`
 - Prototype Demo Video: `https://youtu.be/c_65KWII4Kk`
 

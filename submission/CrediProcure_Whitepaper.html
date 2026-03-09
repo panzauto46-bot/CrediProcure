@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrediProcure Whitepaper</title>
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --paper: #ffffff;
+        --ink: #0f172a;
+        --muted: #4b5563;
+        --line: #d7ddea;
+        --accent: #1d4ed8;
+        --accent-2: #0f766e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      .doc {
+        width: min(980px, 100% - 32px);
+        margin: 28px auto;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+
+      .cover {
+        padding: 56px 56px 44px;
+        background:
+          radial-gradient(900px 460px at -10% -30%, rgba(29, 78, 216, 0.18), transparent 70%),
+          radial-gradient(900px 460px at 120% 140%, rgba(15, 118, 110, 0.13), transparent 70%),
+          #0b1020;
+        color: #e8efff;
+      }
+
+      .cover .meta {
+        display: inline-block;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .cover h1 {
+        margin: 16px 0 8px;
+        font-size: 48px;
+        line-height: 1.03;
+      }
+
+      .cover h2 {
+        margin: 0;
+        font-size: 23px;
+        line-height: 1.32;
+        color: #c7d7ff;
+        font-weight: 600;
+      }
+
+      .cover p {
+        margin: 18px 0 0;
+        max-width: 760px;
+        color: #bdcaee;
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .cover-links {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .cover-links a {
+        color: #cde0ff;
+        text-decoration: none;
+        font-size: 14px;
+        border-bottom: 1px dotted rgba(205, 224, 255, 0.6);
+      }
+
+      .body {
+        padding: 34px 56px 52px;
+      }
+
+      h2 {
+        margin: 28px 0 10px;
+        font-size: 30px;
+        line-height: 1.15;
+      }
+
+      h3 {
+        margin: 24px 0 8px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      h4 {
+        margin: 16px 0 8px;
+        font-size: 17px;
+        line-height: 1.25;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      ul,
+      ol {
+        margin: 10px 0 0 20px;
+        padding: 0;
+      }
+
+      .divider {
+        height: 1px;
+        border: 0;
+        background: var(--line);
+        margin: 30px 0 22px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        background: #fafcff;
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #f8fbff;
+        padding: 12px;
+      }
+
+      .kpi strong {
+        display: block;
+        font-size: 26px;
+        color: var(--ink);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        text-align: left;
+        padding: 10px;
+        vertical-align: top;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      th {
+        background: #f2f6ff;
+        color: #1f2a44;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: #f9fbff;
+      }
+
+      .step .num {
+        display: inline-block;
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      .step strong {
+        display: block;
+        margin: 6px 0;
+        color: #1e293b;
+        font-size: 15px;
+      }
+
+      figure {
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f4f7ff;
+      }
+
+      figure img {
+        width: 100%;
+        display: block;
+        height: 220px;
+        object-fit: cover;
+      }
+
+      figcaption {
+        padding: 8px 10px;
+        font-size: 12px;
+        color: #5b6680;
+      }
+
+      .shot-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .footer {
+        margin-top: 28px;
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+        color: #667085;
+        font-size: 13px;
+      }
+
+      .small {
+        font-size: 13px;
+      }
+
+      .toc li {
+        margin-bottom: 3px;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 14mm;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        .doc {
+          width: auto;
+          margin: 0;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        .cover {
+          border-radius: 0;
+          min-height: 250mm;
+          page-break-after: always;
+        }
+
+        .body {
+          padding: 0;
+        }
+
+        h2 {
+          page-break-after: avoid;
+        }
+
+        h3,
+        h4,
+        .box,
+        .table-wrap,
+        figure,
+        .kpi-grid,
+        .flow {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .shot-grid-2 {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="doc">
+      <section class="cover">
+        <div class="meta">CrediProcure Whitepaper</div>
+        <h1>CrediProcure</h1>
+        <h2>On-chain B2B Invoice Financing via Real World Asset Tokenization on Creditcoin</h2>
+        <p>
+          CrediProcure is a decentralized finance protocol that converts business invoices into tokenized
+          on-chain assets. The system enables vendors to access faster liquidity while offering investors
+          transparent, event-driven yield exposure backed by real-world payment flows.
+        </p>
+        <p>
+          This document outlines the protocol design, contract architecture, data and lifecycle model,
+          security assumptions, deployment status, and roadmap from testnet MVP to production readiness.
+        </p>
+        <div class="cover-links">
+          <a href="https://credi-procure.vercel.app">Live App</a>
+          <a href="https://github.com/panzauto46-bot/CrediProcure">GitHub Repository</a>
+          <a href="https://youtu.be/c_65KWII4Kk">Demo Video</a>
+        </div>
+      </section>
+
+      <section class="body">
+        <h2>Table of Contents</h2>
+        <ol class="toc">
+          <li>Abstract</li>
+          <li>Introduction and Problem Statement</li>
+          <li>Protocol Overview</li>
+          <li>Architecture and Smart Contracts</li>
+          <li>Data Model and Lifecycle</li>
+          <li>Product Modules and User Flows</li>
+          <li>Security and Risk Considerations</li>
+          <li>Deployment and Validation Status</li>
+          <li>Roadmap and Production Readiness</li>
+          <li>Conclusion</li>
+          <li>Appendix: Network and Contract References</li>
+        </ol>
+
+        <hr class="divider" />
+
+        <h2>1. Abstract</h2>
+        <p>
+          The global trade finance market continues to leave many small and medium enterprises underserved due
+          to delayed settlements, high intermediation costs, and opaque underwriting systems. CrediProcure
+          addresses this by tokenizing invoices as ERC-721 RWAs and enabling funding through direct investor
+          participation and pooled liquidity rails. Repayment events update both investor performance views and
+          vendor credit history records on-chain, providing transparent lifecycle accountability.
+        </p>
+        <p>
+          The current MVP is deployed on Creditcoin testnet with a functional frontend, deployed contracts,
+          and end-to-end validation flow: create invoice, mint RWA, fund, and repay.
+        </p>
+
+        <h2>2. Introduction and Problem Statement</h2>
+        <p>
+          SMEs often face 30 to 90 day payment delays after delivering goods or services. Traditional invoice
+          financing solutions can be difficult to access and frequently depend on opaque credit processes.
+          Simultaneously, DeFi investors seek stable yield instruments with clearer links to real-world cash
+          flows than purely speculative assets.
+        </p>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <strong>$3.6T</strong>
+            <p class="small">Estimated global trade finance gap.</p>
+          </div>
+          <div class="kpi">
+            <strong>30-90d</strong>
+            <p class="small">Typical SME invoice settlement delay.</p>
+          </div>
+          <div class="kpi">
+            <strong>SMEs</strong>
+            <p class="small">Primary borrower segment.</p>
+          </div>
+          <div class="kpi">
+            <strong>RWA</strong>
+            <p class="small">Target investor thesis for transparent yield.</p>
+          </div>
+        </div>
+
+        <h3>Design goals</h3>
+        <ul>
+          <li>Reduce time-to-liquidity for vendors through on-chain invoice funding rails.</li>
+          <li>Provide transparent invoice lifecycle and repayment state to lenders.</li>
+          <li>Support dual capital models: direct funding and pooled liquidity.</li>
+          <li>Create a durable credit data trail for future risk scoring and underwriting.</li>
+        </ul>
+
+        <h2>3. Protocol Overview</h2>
+        <p>
+          CrediProcure bridges vendors and investors through invoice tokenization and smart contract-driven
+          capital movement. Each invoice is represented as an ERC-721 token that carries core business terms,
+          lifecycle status, and lender interaction history.
+        </p>
+
+        <div class="flow">
+          <div class="step">
+            <span class="num">Step 1</span>
+            <strong>Create Invoice</strong>
+            <p>Vendor sets principal, due date, and yield terms.</p>
+          </div>
+          <div class="step">
+            <span class="num">Step 2</span>
+            <strong>Mint as RWA</strong>
+            <p>Invoice is minted as ERC-721 token on Creditcoin.</p>
+          </div>
+          <div class="step">
+            <span class="num">Step 3</span>
+            <strong>Fund</strong>
+            <p>Investor funds invoice directly or through pool capital.</p>
+          </div>
+          <div class="step">
+            <span class="num">Step 4</span>
+            <strong>Repay</strong>
+            <p>Repayment updates credit history and yield accounting.</p>
+          </div>
+        </div>
+
+        <h3>Participant roles</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Primary Actions</th>
+                <th>Primary Incentive</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vendor (Borrower)</td>
+                <td>Create invoice, mint RWA, receive liquidity, repay principal and yield.</td>
+                <td>Faster working capital access and transparent funding path.</td>
+              </tr>
+              <tr>
+                <td>Investor (Lender)</td>
+                <td>Fund invoices directly, or deposit into liquidity pool.</td>
+                <td>Access to auditable RWA-backed yield opportunities.</td>
+              </tr>
+              <tr>
+                <td>Protocol</td>
+                <td>Track state transitions, enforce lifecycle flow, record events.</td>
+                <td>Trust-minimized, transparent settlement logic.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>4. Architecture and Smart Contracts</h2>
+        <p>
+          The protocol consists of three contracts deployed on Creditcoin testnet.
+        </p>
+
+        <h3>4.1 InvoiceNFT.sol</h3>
+        <ul>
+          <li>ERC-721 invoice tokenization layer with enumerable support.</li>
+          <li>Stores invoice terms and lifecycle state for each tokenized invoice.</li>
+          <li>Supports invoice minting and lifecycle updates coordinated by pool logic.</li>
+        </ul>
+
+        <h3>4.2 LendingPool.sol</h3>
+        <ul>
+          <li>Coordinates deposits, withdrawals, funding, and repayment handling.</li>
+          <li>Supports direct invoice funding and pooled liquidity paths.</li>
+          <li>Handles repayment distribution and event emission for analytics.</li>
+        </ul>
+
+        <h3>4.3 MockStablecoin.sol</h3>
+        <ul>
+          <li>Test ERC-20 stablecoin for deterministic testnet demos.</li>
+          <li>Used to simulate funding and repayment flows without real capital exposure.</li>
+        </ul>
+
+        <h3>4.4 Frontend and integration layer</h3>
+        <ul>
+          <li>React + TypeScript + Ethers.js + Vite stack.</li>
+          <li>Wallet integration across MetaMask, Phantom (EVM mode), and Bitget Wallet.</li>
+          <li>Event-driven reads for marketplace, pool balances, and credit history.</li>
+        </ul>
+
+        <h2>5. Data Model and Lifecycle</h2>
+        <h3>5.1 Invoice state model</h3>
+        <p>
+          Each invoice token progresses through a deterministic state sequence. Critical transitions are
+          event-emitting and observable in explorer and frontend analytics.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Description</th>
+                <th>Transition Trigger</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Created</td>
+                <td>Invoice terms prepared by vendor before minting.</td>
+                <td>Vendor creates draft.</td>
+              </tr>
+              <tr>
+                <td>Minted</td>
+                <td>Invoice exists as ERC-721 RWA on-chain.</td>
+                <td>`mintInvoice` call succeeds.</td>
+              </tr>
+              <tr>
+                <td>Funded</td>
+                <td>Capital allocated by investor or pool.</td>
+                <td>`fundInvoice` or `fundInvoiceDirect`.</td>
+              </tr>
+              <tr>
+                <td>Repaid</td>
+                <td>Principal and yield returned and recorded.</td>
+                <td>`repay` call confirmed.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5.2 Credit and portfolio accounting</h3>
+        <ul>
+          <li>Vendor credit history is computed from funding and repayment event traces.</li>
+          <li>Investor portfolio views aggregate funded positions and realized repayment outcomes.</li>
+          <li>This creates transparent historical records for future risk model upgrades.</li>
+        </ul>
+
+        <h2>6. Product Modules and User Flows</h2>
+
+        <h3>6.1 Landing and lifecycle narrative</h3>
+        <div class="shot-grid-2">
+          <figure>
+            <img src="./screenshots/01-landing-hero.jpeg" alt="Landing hero" />
+            <figcaption>Landing value proposition and high-level protocol context.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/02-landing-flow.jpeg" alt="Landing flow" />
+            <figcaption>Visual explanation of create, mint, fund, and repay lifecycle.</figcaption>
+          </figure>
+        </div>
+
+        <h3>6.2 Vendor experience modules</h3>
+        <div class="shot-grid-2">
+          <figure>
+            <img src="./screenshots/03-vendor-dashboard.jpeg" alt="Vendor dashboard" />
+            <figcaption>Vendor dashboard for invoice and funding status monitoring.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/05-vendor-invoices-rwa.jpeg" alt="Vendor invoices and RWA" />
+            <figcaption>Invoice management and on-chain RWA minting workflow.</figcaption>
+          </figure>
+        </div>
+        <div class="shot-grid-2" style="margin-top:12px;">
+          <figure>
+            <img src="./screenshots/06-vendor-request-liquidity.jpeg" alt="Vendor liquidity request" />
+            <figcaption>Funding request preparation and terms presentation.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/08-vendor-credit-history.jpeg" alt="Vendor credit history" />
+            <figcaption>Event-driven credit history and repayment traceability.</figcaption>
+          </figure>
+        </div>
+
+        <h3>6.3 Investor experience modules</h3>
+        <div class="shot-grid-2">
+          <figure>
+            <img src="./screenshots/10-investor-marketplace.jpeg" alt="Investor marketplace" />
+            <figcaption>Marketplace for direct invoice funding opportunities.</figcaption>
+          </figure>
+          <figure>
+            <img src="./screenshots/11-investor-yield-portfolio.jpeg" alt="Investor portfolio" />
+            <figcaption>Yield portfolio and repayment-linked tracking dashboard.</figcaption>
+          </figure>
+        </div>
+
+        <h2>7. Security and Risk Considerations</h2>
+        <h3>7.1 Smart contract safeguards</h3>
+        <ul>
+          <li>OpenZeppelin-based primitives for core token and access logic.</li>
+          <li>Reentrancy controls for financial movement functions.</li>
+          <li>Access control constraints on sensitive state transitions.</li>
+          <li>Event-rich state updates for lifecycle auditability.</li>
+        </ul>
+
+        <h3>7.2 MVP assumptions and boundaries</h3>
+        <ul>
+          <li>Current deployment is testnet-only and designed for evaluator verification.</li>
+          <li>Some modules remain local-first for speed: draft workflows, inventory, KYB state.</li>
+          <li>Formal audit is required before any production or mainnet rollout.</li>
+        </ul>
+
+        <h3>7.3 Risk framework evolution</h3>
+        <p>
+          Future releases will incorporate stronger underwriting primitives: invoice authenticity checks,
+          repayment behavior scoring, and richer borrower profile signals.
+        </p>
+
+        <h2>8. Deployment and Validation Status</h2>
+        <p>
+          CrediProcure currently operates as an MVP on Creditcoin testnet with deployed contracts and a live
+          frontend. The team validated the full protocol path in demo scenarios.
+        </p>
+
+        <div class="box">
+          <h4>Validation summary</h4>
+          <ul>
+            <li>Invoice creation and on-chain minting validated.</li>
+            <li>Direct and pool-oriented investor funding flows validated.</li>
+            <li>Repayment lifecycle and event-driven updates validated.</li>
+            <li>Credit history and investor portfolio views synchronized with contract events.</li>
+          </ul>
+        </div>
+
+        <h2>9. Roadmap and Production Readiness</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>Focus Area</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Phase 1</td>
+                <td>Product UX and dual-portal foundation</td>
+                <td>Complete</td>
+              </tr>
+              <tr>
+                <td>Phase 2</td>
+                <td>Core contract development and deployment</td>
+                <td>Complete</td>
+              </tr>
+              <tr>
+                <td>Phase 3</td>
+                <td>Wallet integration and event-driven reads</td>
+                <td>Complete</td>
+              </tr>
+              <tr>
+                <td>Phase 4</td>
+                <td>End-to-end testnet lifecycle validation</td>
+                <td>Complete</td>
+              </tr>
+              <tr>
+                <td>Phase 5</td>
+                <td>Submission-grade documentation and deck assets</td>
+                <td>Complete</td>
+              </tr>
+              <tr>
+                <td>Phase 6</td>
+                <td>Risk scoring, syndication, and analytics expansion</td>
+                <td>Next</td>
+              </tr>
+              <tr>
+                <td>Phase 7</td>
+                <td>Mainnet readiness, compliance rails, and governance</td>
+                <td>Planned</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>10. Conclusion</h2>
+        <p>
+          CrediProcure demonstrates a practical and testable RWA financing pattern where invoice-backed
+          capital flows can be managed transparently on-chain. The protocol combines deterministic lifecycle
+          logic, user-facing clarity, and deployable infrastructure suitable for structured evolution toward
+          production-grade credit rails.
+        </p>
+
+        <h2>11. Appendix: Network and Contract References</h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Network Name</td>
+                <td>Creditcoin Testnet</td>
+              </tr>
+              <tr>
+                <td>RPC URL</td>
+                <td><code>https://rpc.cc3-testnet.creditcoin.network</code></td>
+              </tr>
+              <tr>
+                <td>Chain ID</td>
+                <td><code>102031</code></td>
+              </tr>
+              <tr>
+                <td>Currency Symbol</td>
+                <td><code>tCTC</code></td>
+              </tr>
+              <tr>
+                <td>Explorer</td>
+                <td><code>https://creditcoin-testnet.blockscout.com/</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Contract</th>
+                <th>Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>InvoiceNFT</td>
+                <td><code>0x6ab882c6C0e0c58B0487134b5221525B439C4C03</code></td>
+              </tr>
+              <tr>
+                <td>LendingPool</td>
+                <td><code>0x5fe9567496A8c101c062943ed152c78c3d80370a</code></td>
+              </tr>
+              <tr>
+                <td>MockStablecoin</td>
+                <td><code>0x7a3817f06d99db5969110765660d05Aa4646285F</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer">
+          Version 1.0 | Date: March 9, 2026 | Author: Pandu Dargah | Project: CrediProcure
+        </div>
+      </section>
+    </article>
+  </body>
+</html>
